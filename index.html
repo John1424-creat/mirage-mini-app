@@ -1,0 +1,246 @@
+<!doctype html>
+<html lang="ru">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <title>Mirage Mini App Prototype</title>
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <main class="app-shell">
+      <section class="screen active" id="screen-home">
+        <header class="figma-topbar">
+          <button class="back-button" title="Назад">‹</button>
+          <div class="mini-logo">
+            <strong>MIRAGE</strong>
+            <span>bot</span>
+          </div>
+          <button class="dots-button" title="Меню">•••</button>
+        </header>
+
+        <section class="player-row">
+          <div class="player">
+            <div class="player-avatar">F</div>
+            <strong>Friedrich Kapitonovich</strong>
+          </div>
+          <div class="gem-balance">
+            <span id="balance-value">12 500</span>
+            <span class="balance-ruby" aria-hidden="true"></span>
+            <button class="balance-add" type="button" aria-label="Пополнить">+</button>
+          </div>
+        </section>
+
+        <section class="limit-cluster">
+          <span>ЛИНИИ</span>
+          <div>
+            <button id="home-lines-minus">−</button>
+            <strong id="home-lines-value">13</strong>
+            <button id="home-lines-plus">+</button>
+          </div>
+        </section>
+
+        <section class="figma-board" aria-label="Mirage Plinko board">
+          <canvas id="home-plinko-canvas" width="356" height="360"></canvas>
+          <div class="auto-run-counter" id="home-auto-counter">ОСТАЛОСЬ 0</div>
+          <div class="figma-winbar" id="home-winbar">Выигрыш 180 ♦</div>
+        </section>
+
+        <section class="figma-controls">
+          <div class="risk-block">
+            <span class="control-title">УРОВЕНЬ РИСКА</span>
+            <div class="risk-stack" aria-label="Уровень риска">
+              <button class="risk-choice high">Высокий</button>
+              <button class="risk-choice selected">Средний</button>
+              <button class="risk-choice low">Низкий</button>
+            </div>
+          </div>
+          <button class="lamp-play" id="home-play">
+            <img src="./assets/control-lamp-icon.png" alt="" aria-hidden="true">
+            <strong>ИГРАТЬ</strong>
+          </button>
+          <div class="mode-block">
+            <span class="control-title">РЕЖИМ СТАВКИ</span>
+            <button class="mode-choice manual selected" data-home-mode="manual">Ручной</button>
+            <button class="mode-choice auto" data-home-mode="auto">Автоматический</button>
+          </div>
+        </section>
+
+        <section class="auto-scale" id="home-auto-scale" aria-label="Auto balls">
+          <div class="auto-scale-labels">
+            <button type="button" data-auto-balls="10">10</button>
+            <button type="button" data-auto-balls="20">20</button>
+            <button type="button" data-auto-balls="50">50</button>
+            <button type="button" data-auto-balls="100">100</button>
+            <button type="button" data-auto-balls="1000">1000</button>
+          </div>
+          <div class="auto-scale-track">
+            <span class="auto-scale-knob" aria-hidden="true"></span>
+            <input id="home-auto-range" type="range" min="0" max="1000" step="1" value="0" aria-label="Auto balls count" />
+          </div>
+          <output class="auto-scale-value" id="home-auto-value">10 шариков</output>
+        </section>
+
+        <section class="stake-strip">
+          <button class="stake-step" id="home-stake-minus">−</button>
+          <div class="stake-value">
+            <strong><span id="home-runs">1</span> ШАРИК</strong>
+            <span><span id="home-stake">10</span><i class="stake-ruby" aria-hidden="true"></i></span>
+          </div>
+          <button class="stake-step" id="home-stake-plus">+</button>
+          <div class="stake-shortcuts">
+            <button id="home-stake-double">2X</button>
+            <button id="home-stake-max">MAX</button>
+          </div>
+        </section>
+      </section>
+
+      <section class="screen" id="screen-solo">
+        <header class="topbar">
+          <div class="brand-lockup">
+            <p class="eyebrow">SOLO ROOM</p>
+            <h1>Mirage Plinko</h1>
+          </div>
+          <div class="mini-balance"><span id="solo-balance">12 500</span> ✦</div>
+        </header>
+
+        <section class="plinko-stage">
+          <canvas id="plinko-canvas" width="330" height="430"></canvas>
+          <div class="slot-row" id="slot-row"></div>
+        </section>
+
+        <section class="panel controls-panel">
+          <label>
+            Ставка
+            <input id="stake-input" type="number" min="10" max="10000" step="10" value="100" />
+          </label>
+          <div class="risk-tabs" id="risk-tabs">
+            <button class="selected" data-risk="low">Low</button>
+            <button data-risk="medium">Medium</button>
+            <button data-risk="high">High</button>
+          </div>
+          <div class="limit-line" id="limit-line">Лимит режима: 10 000 кристаллов</div>
+          <button class="primary-action" id="play-plinko">Запустить шарик</button>
+          <div class="result-line" id="plinko-result">Выбери ставку и риск.</div>
+        </section>
+      </section>
+
+      <section class="screen" id="screen-pvp">
+        <header class="topbar">
+          <div class="brand-lockup">
+            <p class="eyebrow">PVP ARENA</p>
+            <h1>Гонка шариков</h1>
+          </div>
+          <div class="mini-balance"><span id="pvp-balance">12 500</span> ✦</div>
+        </header>
+
+        <section class="race-stage">
+          <canvas id="race-canvas" width="330" height="380"></canvas>
+          <div class="race-hud">
+            <span id="room-bank">Банк: 0</span>
+            <span id="room-timer">15 сек</span>
+          </div>
+        </section>
+
+        <section class="panel controls-panel">
+          <div class="tier-grid" id="tier-grid">
+            <button class="selected" data-tier="cheap">10 ✦</button>
+            <button data-tier="medium">50 ✦</button>
+            <button data-tier="expensive">250 ✦</button>
+          </div>
+          <div class="ball-counter">
+            <button id="balls-minus">−</button>
+            <strong id="balls-count">10</strong>
+            <button id="balls-plus">+</button>
+          </div>
+          <button class="primary-action" id="start-pvp">Купить шарики и старт</button>
+          <div class="result-line" id="pvp-result">Симуляция комнаты на 2 игроков.</div>
+        </section>
+      </section>
+
+      <section class="screen" id="screen-wallet">
+        <header class="topbar">
+          <div class="brand-lockup">
+            <p class="eyebrow">WALLET</p>
+            <h1>Кошелек</h1>
+          </div>
+          <div class="mini-balance"><span id="wallet-balance">12 500</span> ✦</div>
+        </header>
+
+        <section class="panel wallet-card">
+          <span>TON Connect</span>
+          <strong>UQDx...mirage</strong>
+          <small>Пока тестовый кошелек-заглушка</small>
+        </section>
+
+        <section class="wallet-actions">
+          <button id="buy-usdt">Купить 100 ✦ за 1 USDT</button>
+          <button id="buy-ton">Купить 150 ✦ за 1 TON</button>
+          <button id="withdraw-test">Вывод 500 ✦ −5%</button>
+        </section>
+
+        <section class="panel compact">
+          <div class="section-title">
+            <h2>История</h2>
+            <span>тест</span>
+          </div>
+          <div class="ledger-list" id="wallet-ledger"></div>
+        </section>
+      </section>
+
+      <section class="screen" id="screen-profile">
+        <header class="topbar">
+          <div class="brand-lockup">
+            <p class="eyebrow">PROFILE</p>
+            <h1>Профиль</h1>
+          </div>
+          <div class="avatar">T</div>
+        </header>
+
+        <section class="panel profile-card">
+          <span>Telegram ID</span>
+          <strong>@test_mirage_player</strong>
+          <small>Реферальная доля: 50% от чистого проигрыша</small>
+        </section>
+
+        <section class="panel">
+          <div class="section-title">
+            <h2>Реферальная ссылка</h2>
+            <span>demo</span>
+          </div>
+          <div class="ref-link">t.me/mirage_bot/app?start=ref_1024</div>
+        </section>
+
+        <section class="stats-grid">
+          <div><strong id="stat-games">0</strong><span>игр</span></div>
+          <div><strong id="stat-profit">0</strong><span>net</span></div>
+          <div><strong>3</strong><span>день стрика</span></div>
+        </section>
+      </section>
+    </main>
+
+    <nav class="bottom-nav" aria-label="Навигация">
+      <button class="active" data-tab="home">
+        <span class="nav-icon nav-pyramid" aria-hidden="true"></span>
+        <span>ПИРАМИДА</span>
+      </button>
+      <button data-tab="solo">
+        <span class="nav-icon nav-pirate" aria-hidden="true"></span>
+        <span>ПИРАТ</span>
+      </button>
+      <button data-tab="pvp">
+        <span class="nav-icon nav-karma" aria-hidden="true"></span>
+        <span>КАРМА</span>
+      </button>
+      <button data-tab="wallet">
+        <span class="nav-icon nav-shop" aria-hidden="true"></span>
+        <span>МАГАЗИН</span>
+      </button>
+      <button data-tab="profile">
+        <span class="nav-icon nav-profile" aria-hidden="true"></span>
+        <span>КАБИНЕТ</span>
+      </button>
+    </nav>
+
+    <script src="./app.js"></script>
+  </body>
+</html>
