@@ -2362,6 +2362,205 @@ body[data-active-tab="solo"] .bottom-nav {
   }
 }
 
+@media (max-width: 480px) and (max-height: 780px) {
+  .app-shell {
+    padding-bottom: 86px;
+  }
+
+  .figma-topbar {
+    height: 58px;
+    padding-top: 12px;
+  }
+
+  .player-row {
+    height: 48px;
+    margin-top: -2px;
+  }
+
+  .player-avatar {
+    width: 32px;
+    height: 32px;
+  }
+
+  .player strong {
+    font-size: 14px;
+  }
+
+  .limit-cluster {
+    top: 126px;
+    right: 18px;
+  }
+
+  .figma-board {
+    height: 360px;
+    margin-top: 0;
+  }
+
+  .figma-winbar {
+    top: 310px;
+  }
+
+  .figma-controls {
+    margin-top: 0;
+    transform: translateY(-4px);
+  }
+
+  .risk-stack {
+    height: 92px;
+  }
+
+  .risk-choice,
+  .mode-choice {
+    height: 29px;
+  }
+
+  .lamp-play {
+    width: 94px;
+    height: 94px;
+  }
+
+  .auto-scale.show {
+    height: 42px;
+    margin-top: -2px;
+  }
+
+  .stake-strip {
+    margin-top: 10px;
+  }
+
+  .auto-scale.show + .stake-strip {
+    margin-top: 0;
+  }
+
+  .carpet-topbar {
+    height: 50px;
+    padding-top: 10px;
+  }
+
+  .carpet-player-row {
+    height: 46px;
+    margin-top: -4px;
+  }
+
+  .carpet-stage {
+    height: 326px;
+    margin-top: 0;
+  }
+
+  .carpet-multiplier {
+    top: 30px;
+    font-size: 27px;
+  }
+
+  .carpet-status {
+    top: 62px;
+  }
+
+  .carpet-hero-wrap {
+    left: 24px;
+    top: 198px;
+    width: 98px;
+    height: 147px;
+  }
+
+  .carpet-history {
+    margin: -10px auto 6px;
+  }
+
+  .carpet-controls {
+    height: 132px;
+    grid-template-columns: 132px 94px 132px;
+    gap: 4px;
+  }
+
+  .carpet-action {
+    width: 94px;
+    height: 94px;
+    top: -18px;
+  }
+
+  .carpet-action-icon {
+    width: 29px;
+    height: 29px;
+  }
+
+  .carpet-stake-strip {
+    margin-top: 0;
+  }
+
+  .bottom-nav {
+    bottom: max(6px, env(safe-area-inset-bottom));
+    height: 76px;
+    padding-top: 11px;
+  }
+}
+
+@media (max-width: 480px) and (max-height: 700px) {
+  .figma-topbar {
+    height: 50px;
+    padding-top: 8px;
+  }
+
+  .player-row {
+    height: 44px;
+  }
+
+  .limit-cluster {
+    top: 112px;
+  }
+
+  .figma-board {
+    height: 326px;
+  }
+
+  .figma-winbar {
+    top: 280px;
+  }
+
+  .risk-stack {
+    height: 84px;
+  }
+
+  .risk-choice,
+  .mode-choice {
+    height: 27px;
+  }
+
+  .lamp-play {
+    width: 88px;
+    height: 88px;
+  }
+
+  .carpet-stage {
+    height: 288px;
+  }
+
+  .carpet-hero-wrap {
+    top: 166px;
+    width: 92px;
+    height: 138px;
+  }
+
+  .carpet-history {
+    margin-top: -8px;
+  }
+
+  .carpet-action {
+    width: 88px;
+    height: 88px;
+    top: -14px;
+  }
+
+  .carpet-controls {
+    height: 124px;
+    grid-template-columns: 132px 88px 132px;
+  }
+
+  .stake-strip {
+    margin-top: 6px;
+  }
+}
+
 @media (max-width: 360px) {
   .mode-grid {
     grid-template-columns: 1fr;

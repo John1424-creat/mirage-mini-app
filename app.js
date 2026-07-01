@@ -1627,6 +1627,15 @@ function startPvp() {
   animateRace(chance, bank, payout);
 }
 
+function initTelegramViewport() {
+  const webApp = window.Telegram?.WebApp;
+  if (!webApp) return;
+  document.body.classList.add("is-telegram-webapp");
+  webApp.ready?.();
+  webApp.expand?.();
+  webApp.disableVerticalSwipes?.();
+}
+
 function initEvents() {
   $$("[data-tab]").forEach((button) => {
     button.addEventListener("click", () => switchTab(button.dataset.tab));
@@ -1952,6 +1961,7 @@ function initEvents() {
   });
 }
 
+initTelegramViewport();
 drawPlinko();
 drawRace();
 drawHomeBoard();
