@@ -296,6 +296,13 @@ function renderCarpet() {
     else status.textContent = "ГОТОВ К ПОЛЕТУ";
   }
 
+  const autoCounter = $("#carpet-auto-counter");
+  if (autoCounter) {
+    const showCounter = carpet.autoRunning || carpet.autoRunsRemaining > 0;
+    autoCounter.classList.toggle("show", showCounter);
+    autoCounter.textContent = `ОСТАЛОСЬ ${format(carpet.autoRunsRemaining)} ПОЛЕТОВ`;
+  }
+
   const label = $("#carpet-action-label");
   const payout = $("#carpet-live-payout");
   const button = $("#carpet-action-button");
@@ -1636,6 +1643,15 @@ function initTelegramViewport() {
   webApp.disableVerticalSwipes?.();
 }
 
+function initMobileGestureGuards() {
+  document.addEventListener("dblclick", (event) => {
+    if (event.cancelable) event.preventDefault();
+  }, { passive: false });
+  document.addEventListener("gesturestart", (event) => {
+    if (event.cancelable) event.preventDefault();
+  }, { passive: false });
+}
+
 function initEvents() {
   $$("[data-tab]").forEach((button) => {
     button.addEventListener("click", () => switchTab(button.dataset.tab));
@@ -1962,6 +1978,7 @@ function initEvents() {
 }
 
 initTelegramViewport();
+initMobileGestureGuards();
 drawPlinko();
 drawRace();
 drawHomeBoard();

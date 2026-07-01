@@ -34,11 +34,14 @@ body {
   color: var(--text);
   overflow: hidden;
   overscroll-behavior: none;
+  touch-action: manipulation;
+  -webkit-text-size-adjust: 100%;
 }
 
 button,
 input {
   font: inherit;
+  touch-action: manipulation;
 }
 
 button {
@@ -379,6 +382,13 @@ button {
 .auto-run-counter.show {
   opacity: 1;
   transform: translateY(0) scale(1);
+}
+
+.carpet-run-counter {
+  left: 12px;
+  top: 18px;
+  z-index: 5;
+  min-width: 108px;
 }
 
 @keyframes winbarPulse {
@@ -2392,17 +2402,19 @@ body[data-active-tab="solo"] .bottom-nav {
   }
 
   .figma-board {
-    height: 360px;
+    height: 342px;
     margin-top: 0;
   }
 
   .figma-winbar {
-    top: 310px;
+    top: 272px;
+    height: 31px;
+    width: min(326px, calc(100% - 34px));
   }
 
   .figma-controls {
-    margin-top: 0;
-    transform: translateY(-4px);
+    margin-top: -2px;
+    transform: translateY(-8px);
   }
 
   .risk-stack {
@@ -2420,16 +2432,25 @@ body[data-active-tab="solo"] .bottom-nav {
   }
 
   .auto-scale.show {
-    height: 42px;
-    margin-top: -2px;
+    height: 36px;
+    margin-top: -10px;
+    transform: translateY(0);
+  }
+
+  .auto-scale-labels button {
+    font-size: 10px;
+  }
+
+  .auto-scale-value {
+    top: 27px;
   }
 
   .stake-strip {
-    margin-top: 10px;
+    margin-top: 2px;
   }
 
   .auto-scale.show + .stake-strip {
-    margin-top: 0;
+    margin-top: -4px;
   }
 
   .carpet-topbar {
@@ -2443,7 +2464,7 @@ body[data-active-tab="solo"] .bottom-nav {
   }
 
   .carpet-stage {
-    height: 326px;
+    height: 306px;
     margin-top: 0;
   }
 
@@ -2458,7 +2479,7 @@ body[data-active-tab="solo"] .bottom-nav {
 
   .carpet-hero-wrap {
     left: 24px;
-    top: 198px;
+    top: 178px;
     width: 98px;
     height: 147px;
   }
@@ -2468,9 +2489,10 @@ body[data-active-tab="solo"] .bottom-nav {
   }
 
   .carpet-controls {
-    height: 132px;
+    height: 126px;
     grid-template-columns: 132px 94px 132px;
     gap: 4px;
+    margin-top: -2px;
   }
 
   .carpet-action {
@@ -2485,7 +2507,7 @@ body[data-active-tab="solo"] .bottom-nav {
   }
 
   .carpet-stake-strip {
-    margin-top: 0;
+    margin-top: -8px;
   }
 
   .bottom-nav {
@@ -2510,11 +2532,16 @@ body[data-active-tab="solo"] .bottom-nav {
   }
 
   .figma-board {
-    height: 326px;
+    height: 304px;
   }
 
   .figma-winbar {
-    top: 280px;
+    top: 238px;
+    height: 30px;
+  }
+
+  .figma-controls {
+    transform: translateY(-12px);
   }
 
   .risk-stack {
@@ -2532,11 +2559,11 @@ body[data-active-tab="solo"] .bottom-nav {
   }
 
   .carpet-stage {
-    height: 288px;
+    height: 270px;
   }
 
   .carpet-hero-wrap {
-    top: 166px;
+    top: 148px;
     width: 92px;
     height: 138px;
   }
@@ -2552,12 +2579,22 @@ body[data-active-tab="solo"] .bottom-nav {
   }
 
   .carpet-controls {
-    height: 124px;
+    height: 118px;
     grid-template-columns: 132px 88px 132px;
+    margin-top: -4px;
   }
 
   .stake-strip {
-    margin-top: 6px;
+    margin-top: -2px;
+  }
+
+  .auto-scale.show {
+    height: 34px;
+    margin-top: -14px;
+  }
+
+  .auto-scale.show + .stake-strip {
+    margin-top: -8px;
   }
 }
 
