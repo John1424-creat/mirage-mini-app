@@ -1,4 +1,4 @@
-<!doctype html>
+﻿<!doctype html>
 <html lang="ru">
   <head>
     <meta charset="UTF-8" />
@@ -10,17 +10,15 @@
     <main class="app-shell">
       <section class="screen active" id="screen-home">
         <header class="figma-topbar">
-          <button class="back-button" title="Назад">‹</button>
           <div class="mini-logo">
             <strong>MIRAGE</strong>
             <span>bot</span>
           </div>
-          <button class="dots-button" title="Меню">•••</button>
         </header>
 
         <section class="player-row">
           <div class="player">
-            <div class="player-avatar">F</div>
+            <button class="player-avatar" id="player-profile-link" type="button" aria-label="Открыть кабинет">F</button>
             <strong>Friedrich Kapitonovich</strong>
           </div>
           <div class="gem-balance">
@@ -94,36 +92,85 @@
         </section>
       </section>
 
-      <section class="screen" id="screen-solo">
-        <header class="topbar">
-          <div class="brand-lockup">
-            <p class="eyebrow">SOLO ROOM</p>
-            <h1>Mirage Plinko</h1>
+      <section class="screen carpet-screen" id="screen-solo">
+        <header class="figma-topbar carpet-topbar">
+          <div class="mini-logo">
+            <strong>MIRAGE</strong>
+            <span>bot</span>
           </div>
-          <div class="mini-balance"><span id="solo-balance">12 500</span> ✦</div>
         </header>
 
-        <section class="plinko-stage">
-          <canvas id="plinko-canvas" width="330" height="430"></canvas>
-          <div class="slot-row" id="slot-row"></div>
+        <section class="player-row carpet-player-row">
+          <div class="player">
+            <button class="player-avatar" id="carpet-profile-link" type="button" aria-label="Открыть кабинет">F</button>
+            <strong>Friedrich Kapitonovich</strong>
+          </div>
+          <div class="gem-balance">
+            <span id="carpet-balance">12 500</span>
+            <span class="balance-ruby" aria-hidden="true"></span>
+            <button class="balance-add" type="button" aria-label="Пополнить">+</button>
+          </div>
         </section>
 
-        <section class="panel controls-panel">
-          <label>
-            Ставка
-            <input id="stake-input" type="number" min="10" max="10000" step="10" value="100" />
-          </label>
-          <div class="risk-tabs" id="risk-tabs">
-            <button class="selected" data-risk="low">Low</button>
-            <button data-risk="medium">Medium</button>
-            <button data-risk="high">High</button>
+        <section class="carpet-stage" id="carpet-stage" aria-label="Комната Ковер">
+          <div class="carpet-multiplier" id="carpet-multiplier">1.00</div>
+          <div class="carpet-status" id="carpet-status">ГОТОВ К ПОЛЕТУ</div>
+          <div class="carpet-hero-wrap" id="carpet-hero-wrap" aria-hidden="true">
+            <img class="carpet-hero" src="./assets/carpet-hero-clean.svg" alt="" />
           </div>
-          <div class="limit-line" id="limit-line">Лимит режима: 10 000 кристаллов</div>
-          <button class="primary-action" id="play-plinko">Запустить шарик</button>
-          <div class="result-line" id="plinko-result">Выбери ставку и риск.</div>
+        </section>
+
+        <div class="carpet-history" id="carpet-history"></div>
+
+        <section class="carpet-controls" aria-label="Управление ковром">
+          <div class="mode-block carpet-return-block">
+            <span class="control-title">ВОЗВРАТ СТАВКИ</span>
+            <button class="mode-choice manual selected" data-carpet-mode="manual" type="button">Ручной</button>
+            <button class="mode-choice auto" data-carpet-mode="auto" type="button">Автоматический</button>
+            <div class="carpet-autocash" id="carpet-autocash">
+              <span class="control-title">АВТОВОЗВРАТ</span>
+              <div class="carpet-cashout-strip">
+                <button class="stake-step" id="carpet-cashout-minus" type="button">−</button>
+                <div class="carpet-cashout-value"><span id="carpet-cashout-value">1.20X</span></div>
+                <button class="stake-step" id="carpet-cashout-plus" type="button">+</button>
+              </div>
+            </div>
+          </div>
+          <button class="carpet-action" id="carpet-action-button" type="button" aria-label="Старт или забрать">
+            <span class="carpet-action-face">
+              <img class="carpet-action-icon" src="./assets/control-lamp-icon.png" alt="" aria-hidden="true">
+              <strong id="carpet-action-label">СТАРТ</strong>
+              <small id="carpet-live-payout"></small>
+            </span>
+          </button>
+          <div class="mode-block carpet-bet-block">
+            <span class="control-title">РЕЖИМ СТАВКИ</span>
+            <button class="mode-choice manual selected" data-carpet-bet-mode="manual" type="button">Ручной</button>
+            <button class="mode-choice auto" data-carpet-bet-mode="auto" type="button">Автоматический</button>
+            <div class="carpet-autostarts" id="carpet-autostarts">
+              <span class="control-title">ЗАПУСКИ</span>
+              <div class="carpet-cashout-strip">
+                <button class="stake-step" id="carpet-runs-minus" type="button">−</button>
+                <div class="carpet-cashout-value"><span id="carpet-runs-value">10</span></div>
+                <button class="stake-step" id="carpet-runs-plus" type="button">+</button>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section class="stake-strip carpet-stake-strip">
+          <button class="stake-step" id="carpet-stake-minus">−</button>
+          <div class="stake-value">
+            <strong>1 ПОЛЕТ</strong>
+            <span><span id="carpet-stake">10</span><i class="stake-ruby" aria-hidden="true"></i></span>
+          </div>
+          <button class="stake-step" id="carpet-stake-plus">+</button>
+          <div class="stake-shortcuts">
+            <button id="carpet-stake-double">2X</button>
+            <button id="carpet-stake-max">MAX</button>
+          </div>
         </section>
       </section>
-
       <section class="screen" id="screen-pvp">
         <header class="topbar">
           <div class="brand-lockup">
@@ -225,7 +272,7 @@
       </button>
       <button data-tab="solo">
         <span class="nav-icon nav-pirate" aria-hidden="true"></span>
-        <span>ПИРАТ</span>
+        <span>КОВЁР</span>
       </button>
       <button data-tab="pvp">
         <span class="nav-icon nav-karma" aria-hidden="true"></span>
@@ -244,3 +291,4 @@
     <script src="./app.js"></script>
   </body>
 </html>
+

@@ -1,4 +1,4 @@
-const state = {
+﻿const state = {
   balance: 12500,
   games: 0,
   net: 0,
@@ -10,6 +10,28 @@ const state = {
   homeRuns: 1,
   homeAutoBalls: 10,
   homeMode: "manual",
+  carpet: {
+    status: "READY",
+    mode: "manual",
+    betMode: "manual",
+    autoCashout: 1.2,
+    autoRuns: 10,
+    autoRunsRemaining: 0,
+    autoRunning: false,
+    stake: 10,
+    minStake: 5,
+    maxStake: 10000,
+    stakeStep: 5,
+    multiplier: 1,
+    crashPoint: null,
+    roundStartedAt: null,
+    animationFrameId: null,
+    cashedOutMultiplier: null,
+    pendingCashout: false,
+    payout: 0,
+    protectedRoundsPlayed: 0,
+    history: [],
+  },
   tier: "cheap",
   balls: 10,
   ledger: [
@@ -28,8 +50,24 @@ const HOME_STAKE_MAX = 10000;
 const HOME_AUTO_BALL_MIN = 10;
 const HOME_AUTO_BALL_MAX = 1000;
 const HOME_AUTO_BALL_OPTIONS = [10, 20, 50, 100, 1000];
-const HOME_AUTO_MAX_ACTIVE_BALLS = 6;
+const HOME_AUTO_MAX_ACTIVE_BALLS = 10;
+const HOME_MANUAL_MAX_ACTIVE_BALLS = 12;
 const HOME_AUTO_BALL_DURATION = 2250;
+const HOME_EFFECT_GOOD_MULTIPLIER = 2;
+const HOME_EFFECT_COIN_COUNT = 16;
+const CARPET_RTP = 0.95;
+const CARPET_PROTECTED_ROUNDS = 3;
+const CARPET_MIN_PROTECTED_CRASH = 1.1;
+const CARPET_DOUBLE_TIME_MS = 6000;
+const CARPET_GROWTH_RATE = Math.log(2) / CARPET_DOUBLE_TIME_MS;
+const CARPET_MAX_CRASH_DISPLAY = 100;
+const CARPET_HISTORY_LIMIT = 7;
+const CARPET_AUTO_CASHOUT_MIN = 1.01;
+const CARPET_AUTO_CASHOUT_MAX = 20;
+const CARPET_AUTO_CASHOUT_STEP = 0.05;
+const CARPET_AUTO_RUNS_MIN = 1;
+const CARPET_AUTO_RUNS_MAX = 1000;
+const CARPET_AUTO_RUNS_STEP = 1;
 const multiplierCache = new Map();
 
 function getHomeStakeDecreaseStep(value) {
@@ -135,6 +173,31 @@ function format(value) {
   return Math.round(value).toLocaleString("ru-RU");
 }
 
+function floorMultiplier(value) {
+  return Math.floor(value * 100) / 100;
+}
+
+function formatCarpetMultiplier(value) {
+  return floorMultiplier(value).toFixed(2);
+}
+
+function generateCarpetCrashPoint() {
+  const safeU = Math.max(Math.random(), Number.EPSILON);
+  let crashPoint = CARPET_RTP / safeU;
+  if (state.carpet.protectedRoundsPlayed < CARPET_PROTECTED_ROUNDS) {
+    crashPoint = Math.max(crashPoint, CARPET_MIN_PROTECTED_CRASH);
+  }
+  return crashPoint;
+}
+
+function getCarpetMultiplier(elapsedMs) {
+  return Math.exp(CARPET_GROWTH_RATE * elapsedMs);
+}
+
+function getCarpetProgress(multiplier) {
+  return Math.max(0, Math.min(1, Math.log(Math.max(1, multiplier)) / Math.log(10)));
+}
+
 function addLedger(label, amount) {
   state.ledger.unshift({ label, amount });
   state.ledger = state.ledger.slice(0, 8);
@@ -148,7 +211,7 @@ function setBalance(next) {
 }
 
 function render() {
-  ["balance-value", "solo-balance", "pvp-balance", "wallet-balance"].forEach((id) => {
+  ["balance-value", "solo-balance", "carpet-balance", "pvp-balance", "wallet-balance"].forEach((id) => {
     const el = document.getElementById(id);
     if (el) el.textContent = format(state.balance);
   });
@@ -165,6 +228,7 @@ function render() {
   renderSlots();
   updateLimits();
   renderHomeControls();
+  renderCarpet();
 }
 
 function renderHomeControls() {
@@ -195,6 +259,106 @@ function renderHomeControls() {
   });
 }
 
+function renderCarpet() {
+  const carpet = state.carpet;
+  const stage = $("#carpet-stage");
+  if (!stage) return;
+
+  const displayMultiplier = Math.min(CARPET_MAX_CRASH_DISPLAY, carpet.multiplier);
+  const progress = getCarpetProgress(displayMultiplier);
+  const x = Math.pow(progress, 0.72) * 210;
+  const y = Math.pow(progress, 1.35) * -310;
+  const scale = 1;
+  const rotate = -8 + progress * 12;
+
+  stage.style.setProperty("--carpet-progress", progress.toFixed(4));
+  stage.classList.toggle("ready", carpet.status === "READY");
+  stage.classList.toggle("flying", carpet.status === "FLYING" || carpet.status === "STARTING");
+  stage.classList.toggle("cashed", carpet.status === "CASHED_OUT");
+  stage.classList.toggle("message", ["CASHED_OUT", "CRASHED", "STARTING"].includes(carpet.status));
+  stage.classList.toggle("crashed", carpet.status === "CRASHED");
+
+  const hero = $("#carpet-hero-wrap");
+  if (hero) {
+    hero.style.transform = `translate3d(${x}px, ${y}px, 0) scale(${scale}) rotate(${rotate}deg)`;
+    hero.style.setProperty("--crash-x", `${x}px`);
+    hero.style.setProperty("--crash-y", `${y}px`);
+  }
+
+  const multiplier = $("#carpet-multiplier");
+  if (multiplier) multiplier.textContent = formatCarpetMultiplier(displayMultiplier);
+
+  const status = $("#carpet-status");
+  if (status) {
+    if (carpet.status === "STARTING") status.textContent = "КОВЕР ГОТОВИТСЯ";
+    else if (carpet.status === "CASHED_OUT") status.textContent = `ЗАБРАНО ${format(carpet.payout)} КРИСТАЛЛОВ`;
+    else if (carpet.status === "CRASHED") status.textContent = "БУРЯ НАСТИГЛА КОВЕР";
+    else status.textContent = "ГОТОВ К ПОЛЕТУ";
+  }
+
+  const label = $("#carpet-action-label");
+  const payout = $("#carpet-live-payout");
+  const button = $("#carpet-action-button");
+  if (label) {
+    if (carpet.status === "FLYING" || carpet.status === "STARTING") label.textContent = "ЗАБРАТЬ";
+    else if (carpet.status === "CASHED_OUT") label.textContent = "ЗАБРАНО";
+    else if (carpet.status === "CRASHED") label.textContent = "БУРЯ";
+    else label.textContent = "СТАРТ";
+  }
+  if (payout) {
+    payout.textContent = "";
+  }
+  if (button) {
+    button.classList.toggle("flying", carpet.status === "FLYING" || carpet.status === "STARTING");
+    button.classList.toggle("lost", carpet.status === "CRASHED");
+    button.disabled = false;
+  }
+
+  const stake = $("#carpet-stake");
+  if (stake) {
+    stake.textContent = format(carpet.stake);
+    stake.dataset.digits = String(carpet.stake).length >= 5 ? "long" : String(carpet.stake).length >= 4 ? "medium" : "short";
+  }
+
+  const autoCashout = $("#carpet-autocash");
+  if (autoCashout) autoCashout.classList.toggle("show", carpet.mode === "auto");
+  const autoCashoutValue = $("#carpet-cashout-value");
+  if (autoCashoutValue) autoCashoutValue.textContent = `${carpet.autoCashout.toFixed(2)}X`;
+  $$("[data-carpet-mode]").forEach((modeButton) => {
+    modeButton.classList.toggle("selected", modeButton.dataset.carpetMode === carpet.mode);
+    modeButton.disabled = carpet.status !== "READY";
+  });
+  const autoStarts = $("#carpet-autostarts");
+  if (autoStarts) autoStarts.classList.toggle("show", carpet.betMode === "auto");
+  const runsValue = $("#carpet-runs-value");
+  if (runsValue) runsValue.textContent = format(carpet.autoRuns);
+  $$("[data-carpet-bet-mode]").forEach((modeButton) => {
+    modeButton.classList.toggle("selected", modeButton.dataset.carpetBetMode === carpet.betMode);
+    modeButton.disabled = carpet.status !== "READY";
+  });
+
+  ["carpet-stake-minus", "carpet-stake-plus", "carpet-stake-double", "carpet-stake-max", "carpet-cashout-minus", "carpet-cashout-plus", "carpet-runs-minus", "carpet-runs-plus"].forEach((id) => {
+    const control = document.getElementById(id);
+    if (control) control.disabled = carpet.status !== "READY";
+  });
+
+  const history = $("#carpet-history");
+  if (history) {
+    history.innerHTML = "";
+    const unknown = document.createElement("span");
+    unknown.className = "carpet-chip unknown";
+    unknown.textContent = "?";
+    history.appendChild(unknown);
+
+    carpet.history.slice(0, 5).forEach((round) => {
+      const chip = document.createElement("span");
+      chip.className = `carpet-chip ${round.result}`;
+      chip.textContent = formatCarpetMultiplier(round.multiplier);
+      history.appendChild(chip);
+    });
+  }
+}
+
 function renderDaily() {
   const root = $("#daily-track");
   if (!root) return;
@@ -223,6 +387,7 @@ function renderLedger(selector) {
 
 function renderSlots(hotIndex = -1) {
   const root = $("#slot-row");
+  if (!root) return;
   root.innerHTML = "";
   getMultipliers(12, state.risk).forEach((value, index) => {
     const slot = document.createElement("div");
@@ -233,14 +398,16 @@ function renderSlots(hotIndex = -1) {
 }
 
 function updateLimits() {
-  const limit = riskLimits[state.risk];
-  $("#limit-line").textContent = `Лимит режима: ${format(limit)} кристаллов`;
+  const line = $("#limit-line");
   const stake = $("#stake-input");
+  if (!line || !stake) return;
+  const limit = riskLimits[state.risk];
+  line.textContent = `Лимит режима: ${format(limit)} кристаллов`;
   stake.max = limit;
   if (Number(stake.value) > limit) stake.value = limit;
 }
-
 function switchTab(tab) {
+  document.body.dataset.activeTab = tab;
   $$(".screen").forEach((screen) => screen.classList.remove("active"));
   $(`#screen-${tab}`).classList.add("active");
   $$(".bottom-nav button").forEach((button) => {
@@ -260,7 +427,7 @@ function weightedSlotFromFairWalk(rows = state.homeRows) {
 }
 
 const plinkoCanvas = $("#plinko-canvas");
-const plinkoCtx = plinkoCanvas.getContext("2d");
+const plinkoCtx = plinkoCanvas?.getContext("2d");
 const homeCanvas = $("#home-plinko-canvas");
 const homeCtx = homeCanvas?.getContext("2d");
 const coefficientSlotPath = new Path2D(
@@ -353,6 +520,7 @@ function drawCoefficientSlot(ctx, x, y, width, height, color) {
 }
 
 function drawHomeBall(ctx, ball, trail = []) {
+  const radius = ball.radius || 5;
   ctx.save();
   trail.forEach((point, index) => {
     const age = trail.length - index;
@@ -362,11 +530,11 @@ function drawHomeBall(ctx, ball, trail = []) {
     ctx.fillStyle = `rgba(255, 73, 182, ${alpha})`;
     ctx.shadowColor = "rgba(255, 73, 182, 0.42)";
     ctx.shadowBlur = 12;
-    ctx.arc(point.x, point.y, 7 - age * 0.42, 0, Math.PI * 2);
+    ctx.arc(point.x, point.y, Math.max(1.2, radius - age * 0.38), 0, Math.PI * 2);
     ctx.fill();
   });
 
-  const body = ctx.createRadialGradient(ball.x - 2.5, ball.y - 3, 1, ball.x, ball.y, 8);
+  const body = ctx.createRadialGradient(ball.x - radius * 0.35, ball.y - radius * 0.45, 1, ball.x, ball.y, radius + 1);
   body.addColorStop(0, "#ffd0ee");
   body.addColorStop(0.34, "#ff6ac2");
   body.addColorStop(1, "#c81782");
@@ -374,14 +542,14 @@ function drawHomeBall(ctx, ball, trail = []) {
   ctx.beginPath();
   ctx.fillStyle = body;
   ctx.shadowColor = "rgba(255, 73, 182, 0.9)";
-  ctx.shadowBlur = 18;
-  ctx.arc(ball.x, ball.y, 7, 0, Math.PI * 2);
+  ctx.shadowBlur = 15;
+  ctx.arc(ball.x, ball.y, radius, 0, Math.PI * 2);
   ctx.fill();
 
   ctx.shadowBlur = 0;
   ctx.fillStyle = "rgba(255, 255, 255, 0.58)";
   ctx.beginPath();
-  ctx.arc(ball.x - 2.2, ball.y - 2.6, 1.8, 0, Math.PI * 2);
+  ctx.arc(ball.x - radius * 0.31, ball.y - radius * 0.37, radius * 0.25, 0, Math.PI * 2);
   ctx.fill();
   ctx.restore();
 }
@@ -392,11 +560,21 @@ function getHomeBallPoints(path, slot, canvasWidth) {
   const points = [{ x: canvasWidth / 2, y: 10 }];
   for (let row = 0; row < path.length; row += 1) {
     const y = pegTop + row * pegStep;
-    const x = canvasWidth / 2 + (path[row] - row / 2) * pegGap;
+    const x = canvasWidth / 2 + (path[row] - (row + 1) / 2) * pegGap;
     points.push({ x, y });
   }
   points.push({ x: centerX(slot), y: slotY - 4 });
   return points;
+}
+
+function getHomeTouchedPeg(path, row) {
+  const previousSlot = row > 0 ? path[row - 1] : 0;
+  const currentSlot = path[row];
+  const touchedCol = currentSlot > previousSlot ? currentSlot - 1 : currentSlot;
+  return {
+    row,
+    col: Math.max(0, Math.min(row, touchedCol)),
+  };
 }
 
 function getHomeBallFrame(animation, timestamp) {
@@ -409,6 +587,7 @@ function getHomeBallFrame(animation, timestamp) {
   const ball = {
     x: a.x + (b.x - a.x) * local,
     y: a.y + (b.y - a.y) * local + Math.sin(progress * Math.PI * 10) * 3,
+    radius: 5,
   };
   const activeRow = Math.max(0, Math.min(animation.path.length - 1, index));
   animation.trail.push({ x: ball.x, y: ball.y });
@@ -416,12 +595,136 @@ function getHomeBallFrame(animation, timestamp) {
   return {
     ball,
     trail: animation.trail,
-    activePeg: { row: activeRow, col: animation.path[activeRow] },
+    activePeg: getHomeTouchedPeg(animation.path, activeRow),
     done: progress >= 1,
   };
 }
 
-function drawHomeBoard(ball = null, hotSlot = -1, slotDrop = 0, activePeg = null, ballTrail = []) {
+const homeWinEffects = [];
+let homeEffectsRunning = false;
+
+function createHomeCoinBurst(side, width, height, timestamp) {
+  const originX = side === "left" ? 28 : width - 28;
+  const direction = side === "left" ? 1 : -1;
+  const originY = Math.min(height - 82, Math.max(150, height * 0.56));
+  for (let index = 0; index < HOME_EFFECT_COIN_COUNT; index += 1) {
+    homeWinEffects.push({
+      type: "coin",
+      start: timestamp,
+      duration: 780 + Math.random() * 260,
+      x: originX + (Math.random() - 0.5) * 14,
+      y: originY + (Math.random() - 0.5) * 34,
+      vx: direction * (34 + Math.random() * 58),
+      vy: -66 - Math.random() * 80,
+      gravity: 120 + Math.random() * 60,
+      size: 3.4 + Math.random() * 2.3,
+      spin: (Math.random() - 0.5) * Math.PI * 4,
+      phase: Math.random() * Math.PI * 2,
+    });
+  }
+}
+
+function createHomeSparkBurst(slot, timestamp) {
+  const rect = homeCanvas.getBoundingClientRect();
+  const width = Math.round(rect.width);
+  const { slotY, centerX } = getHomeBoardGeometry(width, state.homeRows);
+  for (let index = 0; index < 10; index += 1) {
+    const angle = -Math.PI / 2 + (Math.random() - 0.5) * Math.PI * 1.15;
+    const distance = 16 + Math.random() * 24;
+    homeWinEffects.push({
+      type: "spark",
+      start: timestamp,
+      duration: 420 + Math.random() * 180,
+      x: centerX(slot),
+      y: slotY + 4,
+      vx: Math.cos(angle) * distance,
+      vy: Math.sin(angle) * distance,
+      gravity: 34,
+      size: 1.6 + Math.random() * 1.4,
+      phase: Math.random() * Math.PI * 2,
+    });
+  }
+}
+
+function requestHomeEffectsFrame() {
+  if (homeEffectsRunning || homeManualRunning || homeAutoRunning || homeWinEffects.length === 0) return;
+  homeEffectsRunning = true;
+  function frame(timestamp) {
+    drawHomeBoard(null, -1, 0, null, [], timestamp);
+    if (homeWinEffects.length > 0 && !homeManualRunning && !homeAutoRunning) {
+      requestAnimationFrame(frame);
+      return;
+    }
+    homeEffectsRunning = false;
+  }
+  requestAnimationFrame(frame);
+}
+
+function triggerHomeWinEffect(slot, multiplier, timestamp = performance.now()) {
+  if (multiplier < HOME_EFFECT_GOOD_MULTIPLIER) return;
+  const rect = homeCanvas.getBoundingClientRect();
+  const width = Math.round(rect.width);
+  const height = Math.round(rect.height);
+  const slotCount = state.homeRows + 1;
+  const edgeWin = slot <= 1 || slot >= slotCount - 2;
+  if (edgeWin) {
+    createHomeCoinBurst("left", width, height, timestamp);
+    createHomeCoinBurst("right", width, height, timestamp);
+  } else {
+    createHomeSparkBurst(slot, timestamp);
+  }
+  requestHomeEffectsFrame();
+}
+
+function drawHomeWinEffects(ctx, timestamp) {
+  if (homeWinEffects.length === 0) return;
+  ctx.save();
+  for (let index = homeWinEffects.length - 1; index >= 0; index -= 1) {
+    const particle = homeWinEffects[index];
+    const progress = Math.min((timestamp - particle.start) / particle.duration, 1);
+    if (progress >= 1) {
+      homeWinEffects.splice(index, 1);
+      continue;
+    }
+    const easeOut = 1 - (1 - progress) * (1 - progress);
+    const x = particle.x + particle.vx * progress + Math.sin(progress * Math.PI * 2 + particle.phase) * 5;
+    const y = particle.y + particle.vy * progress + particle.gravity * progress * progress;
+    const alpha = Math.sin(progress * Math.PI);
+
+    ctx.globalAlpha = alpha;
+    if (particle.type === "coin") {
+      const rotation = particle.phase + particle.spin * easeOut;
+      ctx.save();
+      ctx.translate(x, y);
+      ctx.rotate(rotation);
+      ctx.shadowColor = "rgba(255, 214, 91, 0.72)";
+      ctx.shadowBlur = 8;
+      const coinGradient = ctx.createRadialGradient(-particle.size * 0.35, -particle.size * 0.45, 0.5, 0, 0, particle.size * 1.2);
+      coinGradient.addColorStop(0, "#fff4a8");
+      coinGradient.addColorStop(0.48, "#ffd95c");
+      coinGradient.addColorStop(1, "#b56c20");
+      ctx.fillStyle = coinGradient;
+      ctx.beginPath();
+      ctx.ellipse(0, 0, particle.size * 1.18, particle.size * 0.78, 0, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.shadowBlur = 0;
+      ctx.strokeStyle = "rgba(255, 255, 210, 0.68)";
+      ctx.lineWidth = 0.7;
+      ctx.stroke();
+      ctx.restore();
+    } else {
+      ctx.shadowColor = "rgba(255, 224, 91, 0.9)";
+      ctx.shadowBlur = 10;
+      ctx.fillStyle = "#fff2a2";
+      ctx.beginPath();
+      ctx.arc(x, y, particle.size * (1 - progress * 0.35), 0, Math.PI * 2);
+      ctx.fill();
+    }
+  }
+  ctx.restore();
+}
+
+function drawHomeBoard(ball = null, hotSlot = -1, slotDrop = 0, activePeg = null, ballTrail = [], effectTimestamp = performance.now()) {
   if (!homeCtx) return;
   const ctx = homeCtx;
   const { width, height } = setupCanvasForDisplay(homeCanvas, ctx);
@@ -442,11 +745,23 @@ function drawHomeBoard(ball = null, hotSlot = -1, slotDrop = 0, activePeg = null
     for (let col = 0; col < count; col += 1) {
       const x = width / 2 + (col - (count - 1) / 2) * pegGap;
       const isActivePeg = activePegs.some((peg) => peg && peg.row === row && peg.col === col);
+      if (isActivePeg) {
+        const activeGlow = ctx.createRadialGradient(x - 1, y - 1, 0.5, x, y, 6.2);
+        activeGlow.addColorStop(0, "rgba(255, 255, 205, 1)");
+        activeGlow.addColorStop(0.48, "rgba(255, 244, 116, 0.95)");
+        activeGlow.addColorStop(1, "rgba(255, 213, 68, 0.18)");
+        ctx.beginPath();
+        ctx.fillStyle = activeGlow;
+        ctx.shadowColor = "rgba(255, 239, 104, 0.95)";
+        ctx.shadowBlur = 14;
+        ctx.arc(x, y, 5.4, 0, Math.PI * 2);
+        ctx.fill();
+      }
       ctx.beginPath();
-      ctx.fillStyle = "#ffd95c";
+      ctx.fillStyle = isActivePeg ? "#fff58c" : "#ffd95c";
       ctx.shadowColor = isActivePeg ? "rgba(255, 225, 92, 1)" : "rgba(255, 203, 68, 0.88)";
-      ctx.shadowBlur = isActivePeg ? 18 : 6;
-      ctx.arc(x, y, isActivePeg ? 5.2 : 3.8, 0, Math.PI * 2);
+      ctx.shadowBlur = isActivePeg ? 12 : 6;
+      ctx.arc(x, y, isActivePeg ? 4.2 : 3.8, 0, Math.PI * 2);
       ctx.fill();
     }
   }
@@ -472,6 +787,8 @@ function drawHomeBoard(ball = null, hotSlot = -1, slotDrop = 0, activePeg = null
     ctx.fillText(formatMultiplier(multiplier), centerX(index), slotY + 26 + impactOffset);
   });
 
+  drawHomeWinEffects(ctx, effectTimestamp);
+
   ctx.textAlign = "left";
   ctx.textBaseline = "alphabetic";
   ballEntries.forEach((entry) => drawHomeBall(ctx, entry.ball, entry.trail || []));
@@ -485,7 +802,7 @@ function animateHomeSlotImpact(slot, onDone) {
     if (!start) start = timestamp;
     const progress = Math.min((timestamp - start) / duration, 1);
     const bounce = Math.sin(progress * Math.PI);
-    drawHomeBoard(null, slot, bounce * maxDrop);
+    drawHomeBoard(null, slot, bounce * maxDrop, null, [], timestamp);
     if (progress < 1) {
       requestAnimationFrame(frame);
     } else {
@@ -510,7 +827,7 @@ function animateHomeBoard(path, slot, onDone) {
     const animation = { path, points, start, duration, trail };
     const frameState = getHomeBallFrame(animation, timestamp);
     if (!frameState.done) {
-      drawHomeBoard(frameState.ball, -1, 0, frameState.activePeg, frameState.trail);
+      drawHomeBoard(frameState.ball, -1, 0, frameState.activePeg, frameState.trail, timestamp);
       requestAnimationFrame(frame);
     } else {
       animateHomeSlotImpact(slot, onDone);
@@ -522,6 +839,12 @@ function animateHomeBoard(path, slot, onDone) {
 let homeWinbarTimer = null;
 let homeAutoCounterTimer = null;
 let homeAutoRunning = false;
+const homeManualAnimations = [];
+let homeManualRunning = false;
+let homeManualImpactSlot = -1;
+let homeManualImpactStarted = 0;
+let homeManualQueuedBalls = 0;
+let homeManualTotalPayout = 0;
 
 function setHomeWinbarContent(text, withRuby = false) {
   const winbar = $("#home-winbar");
@@ -632,14 +955,6 @@ function playHomeAutoPyramid(runs, totalStake) {
   }
 
   function frame(timestamp) {
-    while (
-      spawned < runs &&
-      animations.length < HOME_AUTO_MAX_ACTIVE_BALLS &&
-      (lastSpawn === 0 || timestamp - lastSpawn >= spawnInterval)
-    ) {
-      spawnBall(timestamp);
-    }
-
     const ballEntries = [];
     const activePegs = [];
 
@@ -652,6 +967,7 @@ function playHomeAutoPyramid(runs, totalStake) {
         totalPayout += animation.payout;
         impactSlot = animation.slot;
         impactStarted = timestamp;
+        triggerHomeWinEffect(animation.slot, animation.multiplier, timestamp);
         updateHomeAutoCounter(runs - completed);
         if (animation.payout > 0) {
           setHomeWinbarContent(`+${format(totalPayout)}`, true);
@@ -663,6 +979,14 @@ function playHomeAutoPyramid(runs, totalStake) {
       }
     }
 
+    while (
+      spawned < runs &&
+      animations.length < HOME_AUTO_MAX_ACTIVE_BALLS &&
+      (lastSpawn === 0 || timestamp - lastSpawn >= spawnInterval)
+    ) {
+      spawnBall(timestamp);
+    }
+
     let slotDrop = 0;
     if (impactSlot >= 0) {
       const impactProgress = Math.min((timestamp - impactStarted) / 260, 1);
@@ -670,7 +994,7 @@ function playHomeAutoPyramid(runs, totalStake) {
       if (impactProgress >= 1) impactSlot = -1;
     }
 
-    drawHomeBoard(ballEntries, impactSlot, slotDrop, activePegs);
+    drawHomeBoard(ballEntries, impactSlot, slotDrop, activePegs, [], timestamp);
 
     if (completed < runs) {
       requestAnimationFrame(frame);
@@ -695,6 +1019,93 @@ function playHomeAutoPyramid(runs, totalStake) {
     if (play) play.disabled = false;
     render();
     drawHomeBoard();
+    requestHomeEffectsFrame();
+  }
+
+  requestAnimationFrame(frame);
+}
+
+function spawnHomeManualBall() {
+  const rect = homeCanvas.getBoundingClientRect();
+  const canvasWidth = Math.round(rect.width);
+  const multipliers = getMultipliers(state.homeRows, state.homeRisk);
+  const result = weightedSlotFromFairWalk(state.homeRows);
+  const multiplier = multipliers[result.slot] || 0;
+  homeManualAnimations.push({
+    path: result.path,
+    slot: result.slot,
+    points: getHomeBallPoints(result.path, result.slot, canvasWidth),
+    start: 0,
+    duration: HOME_AUTO_BALL_DURATION,
+    trail: [],
+    multiplier,
+    payout: Math.round(state.homeStake * multiplier),
+  });
+}
+
+function fillHomeManualSlots() {
+  while (homeManualQueuedBalls > 0 && homeManualAnimations.length < HOME_MANUAL_MAX_ACTIVE_BALLS) {
+    homeManualQueuedBalls -= 1;
+    spawnHomeManualBall();
+  }
+}
+
+function runHomeManualLoop() {
+  if (homeManualRunning) return;
+  homeManualRunning = true;
+
+  function frame(timestamp) {
+    fillHomeManualSlots();
+    const ballEntries = [];
+    const activePegs = [];
+
+    for (let index = homeManualAnimations.length - 1; index >= 0; index -= 1) {
+      const animation = homeManualAnimations[index];
+      if (!animation.start) animation.start = timestamp;
+      const frameState = getHomeBallFrame(animation, timestamp);
+      if (frameState.done) {
+        homeManualAnimations.splice(index, 1);
+        homeManualImpactSlot = animation.slot;
+        homeManualImpactStarted = timestamp;
+        triggerHomeWinEffect(animation.slot, animation.multiplier, timestamp);
+        setBalance(state.balance + animation.payout);
+        addLedger(`Pyramid win ${animation.multiplier.toFixed(2)}x`, animation.payout);
+        state.games += 1;
+        homeManualTotalPayout += animation.payout;
+        const winbar = setHomeWinbarContent(`+${format(homeManualTotalPayout)}`, true);
+        if (winbar) winbar.classList.add("show");
+        pulseHomeWinbar(animation.multiplier >= 2);
+        render();
+      } else {
+        ballEntries.push({ ball: frameState.ball, trail: frameState.trail });
+        activePegs.push(frameState.activePeg);
+      }
+    }
+
+    let slotDrop = 0;
+    if (homeManualImpactSlot >= 0) {
+      const impactProgress = Math.min((timestamp - homeManualImpactStarted) / 260, 1);
+      slotDrop = Math.sin(impactProgress * Math.PI) * 9;
+      if (impactProgress >= 1) homeManualImpactSlot = -1;
+    }
+
+    drawHomeBoard(ballEntries, homeManualImpactSlot, slotDrop, activePegs, [], timestamp);
+
+    if (homeManualAnimations.length > 0 || homeManualImpactSlot >= 0 || homeManualQueuedBalls > 0) {
+      requestAnimationFrame(frame);
+      return;
+    }
+
+    homeManualRunning = false;
+    if (homeWinbarTimer) clearTimeout(homeWinbarTimer);
+    homeWinbarTimer = setTimeout(() => {
+      const winbar = $("#home-winbar");
+      if (winbar) winbar.classList.remove("show");
+      homeWinbarTimer = null;
+      homeManualTotalPayout = 0;
+    }, 1300);
+    drawHomeBoard();
+    requestHomeEffectsFrame();
   }
 
   requestAnimationFrame(frame);
@@ -704,7 +1115,6 @@ function playHomePyramid() {
   const runs = state.homeMode === "auto" ? state.homeAutoBalls : 1;
   state.homeRuns = runs;
   const totalStake = state.homeStake * runs;
-  const play = $("#home-play");
   const winbar = $("#home-winbar");
   if (totalStake <= 0) return;
   if (totalStake > state.balance) {
@@ -718,37 +1128,32 @@ function playHomePyramid() {
     return;
   }
 
-  if (winbar) {
-    if (homeWinbarTimer) clearTimeout(homeWinbarTimer);
+  if (!homeManualRunning && homeManualAnimations.length === 0 && homeManualQueuedBalls === 0) {
+    homeManualTotalPayout = 0;
+  }
+
+  if (homeWinbarTimer) {
+    clearTimeout(homeWinbarTimer);
     homeWinbarTimer = null;
+  }
+
+  if (winbar && homeManualTotalPayout === 0) {
     winbar.classList.remove("show");
     winbar.textContent = "";
   }
-  if (play) play.disabled = true;
   setBalance(state.balance - totalStake);
-  addLedger(`Пирамида: ${state.homeRuns} запуск`, -totalStake);
-
-  let result = weightedSlotFromFairWalk(state.homeRows);
-  let multiplier = 0;
-  let payout = 0;
-  const multipliers = getMultipliers(state.homeRows, state.homeRisk);
-  for (let run = 0; run < runs; run += 1) {
-    result = weightedSlotFromFairWalk(state.homeRows);
-    multiplier = multipliers[result.slot] || 0;
-    payout += Math.round(state.homeStake * multiplier);
+  addLedger("Пирамида: 1 шарик", -totalStake);
+  if (homeManualAnimations.length < HOME_MANUAL_MAX_ACTIVE_BALLS) {
+    spawnHomeManualBall();
+  } else {
+    homeManualQueuedBalls += 1;
   }
-
-  animateHomeBoard(result.path, result.slot, () => {
-    setBalance(state.balance + payout);
-    addLedger(`Пирамида выигрыш ${multiplier.toFixed(2)}x`, payout);
-    state.games += runs;
-    flashHomeWinbar(`Выигрыш ${format(payout)}`, 850, true);
-    if (play) play.disabled = false;
-    render();
-  });
+  runHomeManualLoop();
+  render();
 }
 
 function drawPlinko(ball = null, hotSlot = -1) {
+  if (!plinkoCtx || !plinkoCanvas) return;
   const ctx = plinkoCtx;
   const width = plinkoCanvas.width;
   const height = plinkoCanvas.height;
@@ -922,6 +1327,9 @@ function animateRace(playerChance, bank, payout) {
 
 function playPlinko() {
   const button = $("#play-plinko");
+  const stakeInput = $("#stake-input");
+  const resultLine = $("#plinko-result");
+  if (!button || !stakeInput || !resultLine) return;
   const stake = Math.round(Number($("#stake-input").value || 0));
   const limit = riskLimits[state.risk];
   if (stake <= 0) {
@@ -955,6 +1363,247 @@ function playPlinko() {
   });
 }
 
+function pushCarpetHistory(result, multiplier, payout = 0) {
+  state.carpet.history.unshift({
+    result,
+    multiplier: floorMultiplier(Math.max(1, multiplier)),
+    payout,
+  });
+  state.carpet.history = state.carpet.history.slice(0, CARPET_HISTORY_LIMIT);
+}
+
+function resetCarpetRound(delay = 980) {
+  renderCarpet();
+  setTimeout(() => {
+    state.carpet.status = "READY";
+    state.carpet.multiplier = 1;
+    state.carpet.crashPoint = null;
+    state.carpet.roundStartedAt = null;
+    state.carpet.animationFrameId = null;
+    state.carpet.cashedOutMultiplier = null;
+    state.carpet.pendingCashout = false;
+    state.carpet.payout = 0;
+    renderCarpet();
+    maybeContinueCarpetAutoRuns();
+  }, delay);
+}
+
+function finishCarpetCrash() {
+  const carpet = state.carpet;
+  if (carpet.animationFrameId) cancelAnimationFrame(carpet.animationFrameId);
+  carpet.animationFrameId = null;
+  carpet.status = "CRASHED";
+  carpet.multiplier = Math.max(1, carpet.crashPoint || carpet.multiplier);
+  carpet.protectedRoundsPlayed += 1;
+  pushCarpetHistory("crash", carpet.multiplier, 0);
+  addLedger(`Ковер: буря ${formatCarpetMultiplier(carpet.multiplier)}x`, 0);
+  state.games += 1;
+  render();
+  resetCarpetRound(760);
+}
+
+function cashoutCarpetRound() {
+  const carpet = state.carpet;
+  if (carpet.status !== "FLYING") return;
+  if (carpet.animationFrameId) cancelAnimationFrame(carpet.animationFrameId);
+  const locked = floorMultiplier(carpet.multiplier);
+  const payout = Math.floor(carpet.stake * locked);
+  carpet.animationFrameId = null;
+  carpet.status = "CASHED_OUT";
+  carpet.cashedOutMultiplier = locked;
+  carpet.payout = payout;
+  carpet.protectedRoundsPlayed += 1;
+  pushCarpetHistory("cashout", locked, payout);
+  setBalance(state.balance + payout);
+  addLedger(`Ковер: забрано ${formatCarpetMultiplier(locked)}x`, payout);
+  state.games += 1;
+  render();
+  resetCarpetRound(1050);
+}
+
+function tickCarpetRound(timestamp) {
+  const carpet = state.carpet;
+  if (carpet.status !== "FLYING") return;
+  if (!carpet.roundStartedAt) carpet.roundStartedAt = timestamp;
+
+  const elapsed = timestamp - carpet.roundStartedAt;
+  carpet.multiplier = getCarpetMultiplier(elapsed);
+
+  if (carpet.multiplier >= CARPET_MAX_CRASH_DISPLAY) {
+    carpet.multiplier = CARPET_MAX_CRASH_DISPLAY;
+    cashoutCarpetRound();
+    return;
+  }
+
+  if (carpet.mode === "auto" && carpet.autoCashout <= carpet.crashPoint && carpet.multiplier >= carpet.autoCashout) {
+    carpet.multiplier = carpet.autoCashout;
+    cashoutCarpetRound();
+    return;
+  }
+
+  if (carpet.multiplier >= carpet.crashPoint) {
+    finishCarpetCrash();
+    return;
+  }
+
+  renderCarpet();
+  carpet.animationFrameId = requestAnimationFrame(tickCarpetRound);
+}
+
+function startCarpetRound() {
+  const carpet = state.carpet;
+  if (carpet.status !== "READY") return;
+  if (carpet.stake > state.balance) {
+    const stage = $("#carpet-stage");
+    const status = $("#carpet-status");
+    if (status) status.textContent = "НЕДОСТАТОЧНО КРИСТАЛЛОВ";
+    if (stage) {
+      stage.classList.add("message");
+      setTimeout(() => stage.classList.remove("message"), 900);
+    }
+    carpet.autoRunning = false;
+    carpet.autoRunsRemaining = 0;
+    renderCarpet();
+    return;
+  }
+
+  if (carpet.autoRunning) carpet.autoRunsRemaining = Math.max(0, carpet.autoRunsRemaining - 1);
+  carpet.status = "STARTING";
+  carpet.multiplier = 1;
+  carpet.crashPoint = generateCarpetCrashPoint();
+  carpet.roundStartedAt = null;
+  carpet.cashedOutMultiplier = null;
+  carpet.pendingCashout = false;
+  carpet.payout = 0;
+  setBalance(state.balance - carpet.stake);
+  addLedger("Ковер: ставка", -carpet.stake);
+  render();
+
+  setTimeout(() => {
+    if (carpet.status !== "STARTING") return;
+    carpet.status = "FLYING";
+    carpet.roundStartedAt = performance.now();
+    carpet.animationFrameId = requestAnimationFrame(tickCarpetRound);
+    renderCarpet();
+    if (carpet.pendingCashout) cashoutCarpetRound();
+  }, 280);
+}
+
+function handleCarpetMainButton() {
+  if (state.carpet.autoRunning) {
+    cancelCarpetAutoRuns();
+    if (state.carpet.status === "FLYING") cashoutCarpetRound();
+    else if (state.carpet.status === "STARTING") state.carpet.pendingCashout = true;
+    return;
+  }
+  if (state.carpet.status === "FLYING") cashoutCarpetRound();
+  else if (state.carpet.status === "STARTING") state.carpet.pendingCashout = true;
+  else if (state.carpet.status === "READY") {
+    if (state.carpet.betMode === "auto") startCarpetAutoRuns();
+    else startCarpetRound();
+  }
+}
+
+let carpetActionHandledUntil = 0;
+
+function pulseCarpetMainButton() {
+  const button = $("#carpet-action-button");
+  if (!button) return;
+  button.classList.remove("pressed");
+  void button.offsetWidth;
+  button.classList.add("pressed");
+}
+
+function triggerCarpetMainButton() {
+  if (["READY", "STARTING", "FLYING"].includes(state.carpet.status)) pulseCarpetMainButton();
+  handleCarpetMainButton();
+}
+
+function isPrimaryPointer(event) {
+  return event.pointerType !== "mouse" || event.button === 0;
+}
+
+function isCarpetRoomPointer(event) {
+  if (document.body.dataset.activeTab !== "solo") return false;
+  const target = event.target;
+  if (!(target instanceof Element)) return false;
+  return Boolean(target.closest("#screen-solo")) && !target.closest(".bottom-nav");
+}
+
+function handleCarpetRoomPointerDown(event) {
+  if (!isPrimaryPointer(event) || !isCarpetRoomPointer(event)) return;
+  if (state.carpet.status !== "FLYING") return;
+  if (event.cancelable) event.preventDefault();
+  event.stopImmediatePropagation();
+  cancelCarpetAutoRuns();
+  pulseCarpetMainButton();
+  cashoutCarpetRound();
+}
+
+function changeCarpetStake(nextStake) {
+  const carpet = state.carpet;
+  if (carpet.status !== "READY") return;
+  carpet.stake = Math.max(carpet.minStake, Math.min(carpet.maxStake, Math.round(nextStake / carpet.stakeStep) * carpet.stakeStep));
+  renderCarpet();
+}
+
+function changeCarpetAutoCashout(nextValue) {
+  const carpet = state.carpet;
+  if (carpet.status !== "READY") return;
+  const stepped = Math.round(nextValue / CARPET_AUTO_CASHOUT_STEP) * CARPET_AUTO_CASHOUT_STEP;
+  carpet.autoCashout = Math.max(CARPET_AUTO_CASHOUT_MIN, Math.min(CARPET_AUTO_CASHOUT_MAX, stepped));
+  carpet.autoCashout = Math.round(carpet.autoCashout * 100) / 100;
+  renderCarpet();
+}
+
+function changeCarpetAutoRuns(nextValue) {
+  const carpet = state.carpet;
+  if (carpet.status !== "READY" || carpet.autoRunning) return;
+  const stepped = Math.round(nextValue / CARPET_AUTO_RUNS_STEP) * CARPET_AUTO_RUNS_STEP;
+  carpet.autoRuns = Math.max(CARPET_AUTO_RUNS_MIN, Math.min(CARPET_AUTO_RUNS_MAX, stepped));
+  renderCarpet();
+}
+
+function getCarpetAutoRunsStep(value) {
+  if (value >= 500) return 100;
+  if (value >= 100) return 50;
+  if (value >= 50) return 10;
+  if (value >= 20) return 5;
+  return CARPET_AUTO_RUNS_STEP;
+}
+
+function startCarpetAutoRuns() {
+  const carpet = state.carpet;
+  if (carpet.status !== "READY") return;
+  carpet.autoRunning = true;
+  carpet.autoRunsRemaining = carpet.autoRuns;
+  startCarpetRound();
+}
+
+function cancelCarpetAutoRuns() {
+  const carpet = state.carpet;
+  if (!carpet.autoRunning && carpet.autoRunsRemaining === 0) return;
+  carpet.autoRunning = false;
+  carpet.autoRunsRemaining = 0;
+  renderCarpet();
+}
+
+function maybeContinueCarpetAutoRuns() {
+  const carpet = state.carpet;
+  if (!carpet.autoRunning) return;
+  if (carpet.betMode !== "auto" || carpet.autoRunsRemaining <= 0) {
+    carpet.autoRunning = false;
+    carpet.autoRunsRemaining = 0;
+    renderCarpet();
+    return;
+  }
+  setTimeout(() => {
+    if (carpet.status === "READY" && carpet.autoRunning && carpet.autoRunsRemaining > 0) {
+      startCarpetRound();
+    }
+  }, 240);
+}
+
 function startPvp() {
   const price = tiers[state.tier];
   const cost = price * state.balls;
@@ -982,6 +1631,145 @@ function initEvents() {
   $$("[data-tab]").forEach((button) => {
     button.addEventListener("click", () => switchTab(button.dataset.tab));
   });
+
+  const playerProfileLink = $("#player-profile-link");
+  if (playerProfileLink) {
+    playerProfileLink.addEventListener("click", () => switchTab("profile"));
+  }
+
+  const carpetProfileLink = $("#carpet-profile-link");
+  if (carpetProfileLink) {
+    carpetProfileLink.addEventListener("click", () => switchTab("profile"));
+  }
+
+  const carpetActionButton = $("#carpet-action-button");
+  if (carpetActionButton) {
+    carpetActionButton.addEventListener("pointerdown", (event) => {
+      if (event.pointerType === "mouse" && event.button !== 0) return;
+      carpetActionHandledUntil = performance.now() + 320;
+      triggerCarpetMainButton();
+    });
+    carpetActionButton.addEventListener("click", (event) => {
+      event.preventDefault();
+      if (performance.now() < carpetActionHandledUntil) return;
+      triggerCarpetMainButton();
+    });
+  }
+  document.addEventListener("pointerdown", handleCarpetRoomPointerDown, true);
+
+  $$("[data-carpet-mode]").forEach((button) => {
+    button.addEventListener("click", () => {
+      if (state.carpet.autoRunning) {
+        cancelCarpetAutoRuns();
+        return;
+      }
+      if (state.carpet.status !== "READY") return;
+      state.carpet.mode = button.dataset.carpetMode;
+      pulseChoice(button);
+      renderCarpet();
+    });
+  });
+
+  const carpetCashoutMinus = $("#carpet-cashout-minus");
+  if (carpetCashoutMinus) {
+    carpetCashoutMinus.addEventListener("click", () => {
+      if (state.carpet.autoRunning) {
+        cancelCarpetAutoRuns();
+        return;
+      }
+      changeCarpetAutoCashout(state.carpet.autoCashout - CARPET_AUTO_CASHOUT_STEP);
+    });
+  }
+
+  const carpetCashoutPlus = $("#carpet-cashout-plus");
+  if (carpetCashoutPlus) {
+    carpetCashoutPlus.addEventListener("click", () => {
+      if (state.carpet.autoRunning) {
+        cancelCarpetAutoRuns();
+        return;
+      }
+      changeCarpetAutoCashout(state.carpet.autoCashout + CARPET_AUTO_CASHOUT_STEP);
+    });
+  }
+
+  $$("[data-carpet-bet-mode]").forEach((button) => {
+    button.addEventListener("click", () => {
+      if (state.carpet.autoRunning) {
+        cancelCarpetAutoRuns();
+        return;
+      }
+      if (state.carpet.status !== "READY") return;
+      state.carpet.betMode = button.dataset.carpetBetMode;
+      pulseChoice(button);
+      renderCarpet();
+    });
+  });
+
+  const carpetRunsMinus = $("#carpet-runs-minus");
+  if (carpetRunsMinus) {
+    carpetRunsMinus.addEventListener("click", () => {
+      if (state.carpet.autoRunning) {
+        cancelCarpetAutoRuns();
+        return;
+      }
+      changeCarpetAutoRuns(state.carpet.autoRuns - getCarpetAutoRunsStep(state.carpet.autoRuns));
+    });
+  }
+
+  const carpetRunsPlus = $("#carpet-runs-plus");
+  if (carpetRunsPlus) {
+    carpetRunsPlus.addEventListener("click", () => {
+      if (state.carpet.autoRunning) {
+        cancelCarpetAutoRuns();
+        return;
+      }
+      changeCarpetAutoRuns(state.carpet.autoRuns + getCarpetAutoRunsStep(state.carpet.autoRuns));
+    });
+  }
+
+  const carpetStakeMinus = $("#carpet-stake-minus");
+  if (carpetStakeMinus) {
+    carpetStakeMinus.addEventListener("click", () => {
+      if (state.carpet.autoRunning) {
+        cancelCarpetAutoRuns();
+        return;
+      }
+      changeCarpetStake(state.carpet.stake - getHomeStakeDecreaseStep(state.carpet.stake));
+    });
+  }
+
+  const carpetStakePlus = $("#carpet-stake-plus");
+  if (carpetStakePlus) {
+    carpetStakePlus.addEventListener("click", () => {
+      if (state.carpet.autoRunning) {
+        cancelCarpetAutoRuns();
+        return;
+      }
+      changeCarpetStake(state.carpet.stake + state.carpet.stakeStep);
+    });
+  }
+
+  const carpetStakeDouble = $("#carpet-stake-double");
+  if (carpetStakeDouble) {
+    carpetStakeDouble.addEventListener("click", () => {
+      if (state.carpet.autoRunning) {
+        cancelCarpetAutoRuns();
+        return;
+      }
+      changeCarpetStake(state.carpet.stake * 2);
+    });
+  }
+
+  const carpetStakeMax = $("#carpet-stake-max");
+  if (carpetStakeMax) {
+    carpetStakeMax.addEventListener("click", () => {
+      if (state.carpet.autoRunning) {
+        cancelCarpetAutoRuns();
+        return;
+      }
+      changeCarpetStake(Math.min(state.carpet.maxStake, state.balance));
+    });
+  }
 
   const claimDaily = $("#claim-daily");
   if (claimDaily) {
@@ -1124,28 +1912,35 @@ function initEvents() {
     });
   });
 
-  $("#balls-minus").addEventListener("click", () => {
+  const ballsMinus = $("#balls-minus");
+  if (ballsMinus) ballsMinus.addEventListener("click", () => {
     state.balls = Math.max(1, state.balls - 5);
     $("#balls-count").textContent = state.balls;
   });
 
-  $("#balls-plus").addEventListener("click", () => {
+  const ballsPlus = $("#balls-plus");
+  if (ballsPlus) ballsPlus.addEventListener("click", () => {
     state.balls = Math.min(150, state.balls + 5);
     $("#balls-count").textContent = state.balls;
   });
 
-  $("#play-plinko").addEventListener("click", playPlinko);
-  $("#start-pvp").addEventListener("click", startPvp);
+  const playPlinkoButton = $("#play-plinko");
+  if (playPlinkoButton) playPlinkoButton.addEventListener("click", playPlinko);
+  const startPvpButton = $("#start-pvp");
+  if (startPvpButton) startPvpButton.addEventListener("click", startPvp);
 
-  $("#buy-usdt").addEventListener("click", () => {
+  const buyUsdt = $("#buy-usdt");
+  if (buyUsdt) buyUsdt.addEventListener("click", () => {
     setBalance(state.balance + 100);
     addLedger("Покупка за 1 USDT", 100);
   });
-  $("#buy-ton").addEventListener("click", () => {
+  const buyTon = $("#buy-ton");
+  if (buyTon) buyTon.addEventListener("click", () => {
     setBalance(state.balance + 150);
     addLedger("Покупка за 1 TON", 150);
   });
-  $("#withdraw-test").addEventListener("click", () => {
+  const withdrawTest = $("#withdraw-test");
+  if (withdrawTest) withdrawTest.addEventListener("click", () => {
     const amount = 500;
     const fee = 25;
     if (state.balance < amount) {
@@ -1161,5 +1956,7 @@ drawPlinko();
 drawRace();
 drawHomeBoard();
 initEvents();
+document.body.dataset.activeTab = "home";
 render();
 window.addEventListener("resize", drawHomeBoard);
+

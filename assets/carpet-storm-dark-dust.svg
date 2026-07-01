@@ -1,0 +1,17 @@
+Mirage screen29 pack
+
+Recommended coefficient example: 7.60x
+
+Layer order:
+1. Background
+2. core_glow.svg
+3. dust_confetti.svg
+4. soft_light_wisp.svg (optional, low opacity)
+5. sparkles.svg
+6. Hero + Carpet
+
+Design intent:
+- progression intensity = 2.15
+- more particles and sparkles than previous screen
+- no thick trail
+- airy magical confetti-like wake
