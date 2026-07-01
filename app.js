@@ -458,10 +458,10 @@ function setupCanvasForDisplay(canvas, ctx) {
   return { width, height };
 }
 
-function getHomeBoardGeometry(width, rows) {
+function getHomeBoardGeometry(width, rows, height = 420) {
   const slotCount = rows + 1;
   const pegTop = 34;
-  const slotY = 320;
+  const slotY = Math.max(238, Math.min(320, height - 76));
   const pegStep = (slotY - 58 - pegTop) / Math.max(1, rows - 1);
   const pegGap = Math.min(26, (width - 40) / Math.max(1, rows));
   const slotWidth = Math.max(15, Math.min(28, pegGap - 2));
@@ -561,9 +561,9 @@ function drawHomeBall(ctx, ball, trail = []) {
   ctx.restore();
 }
 
-function getHomeBallPoints(path, slot, canvasWidth) {
+function getHomeBallPoints(path, slot, canvasWidth, canvasHeight = 420) {
   const rows = path.length;
-  const { pegTop, slotY, pegStep, pegGap, centerX } = getHomeBoardGeometry(canvasWidth, rows);
+  const { pegTop, slotY, pegStep, pegGap, centerX } = getHomeBoardGeometry(canvasWidth, rows, canvasHeight);
   const points = [{ x: canvasWidth / 2, y: 10 }];
   for (let row = 0; row < path.length; row += 1) {
     const y = pegTop + row * pegStep;
@@ -634,7 +634,8 @@ function createHomeCoinBurst(side, width, height, timestamp) {
 function createHomeSparkBurst(slot, timestamp) {
   const rect = homeCanvas.getBoundingClientRect();
   const width = Math.round(rect.width);
-  const { slotY, centerX } = getHomeBoardGeometry(width, state.homeRows);
+  const height = Math.round(rect.height);
+  const { slotY, centerX } = getHomeBoardGeometry(width, state.homeRows, height);
   for (let index = 0; index < 10; index += 1) {
     const angle = -Math.PI / 2 + (Math.random() - 0.5) * Math.PI * 1.15;
     const distance = 16 + Math.random() * 24;
@@ -740,7 +741,7 @@ function drawHomeBoard(ball = null, hotSlot = -1, slotDrop = 0, activePeg = null
   const activePegs = Array.isArray(activePeg) ? activePeg : activePeg ? [activePeg] : [];
 
   const rows = state.homeRows;
-  const { slotCount, pegTop, slotY, pegStep, pegGap, slotWidth, slotHeight, centerX } = getHomeBoardGeometry(width, rows);
+  const { slotCount, pegTop, slotY, pegStep, pegGap, slotWidth, slotHeight, centerX } = getHomeBoardGeometry(width, rows, height);
 
   drawHomeLauncher(ctx, width);
 
@@ -824,7 +825,9 @@ function animateHomeBoard(path, slot, onDone) {
   const rows = path.length;
   const rect = homeCanvas.getBoundingClientRect();
   const canvasWidth = Math.round(rect.width);
-  const points = getHomeBallPoints(path, slot, canvasWidth);
+  const canvasHeight = Math.round(rect.height);
+  const canvasHeight = Math.round(rect.height);
+  const points = getHomeBallPoints(path, slot, canvasWidth, canvasHeight);
 
   let start = null;
   const trail = [];
@@ -950,7 +953,7 @@ function playHomeAutoPyramid(runs, totalStake) {
     animations.push({
       path: result.path,
       slot: result.slot,
-      points: getHomeBallPoints(result.path, result.slot, canvasWidth),
+      points: getHomeBallPoints(result.path, result.slot, canvasWidth, canvasHeight),
       start: timestamp,
       duration: HOME_AUTO_BALL_DURATION,
       trail: [],
@@ -1035,13 +1038,14 @@ function playHomeAutoPyramid(runs, totalStake) {
 function spawnHomeManualBall() {
   const rect = homeCanvas.getBoundingClientRect();
   const canvasWidth = Math.round(rect.width);
+  const canvasHeight = Math.round(rect.height);
   const multipliers = getMultipliers(state.homeRows, state.homeRisk);
   const result = weightedSlotFromFairWalk(state.homeRows);
   const multiplier = multipliers[result.slot] || 0;
   homeManualAnimations.push({
     path: result.path,
     slot: result.slot,
-    points: getHomeBallPoints(result.path, result.slot, canvasWidth),
+    points: getHomeBallPoints(result.path, result.slot, canvasWidth, canvasHeight),
     start: 0,
     duration: HOME_AUTO_BALL_DURATION,
     trail: [],

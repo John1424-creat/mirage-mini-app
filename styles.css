@@ -2407,18 +2407,27 @@ body[data-active-tab="solo"] .bottom-nav {
   }
 
   .figma-winbar {
-    top: 296px;
+    top: 306px;
     height: 31px;
     width: min(326px, calc(100% - 34px));
   }
 
   .figma-controls {
+    grid-template-columns: 126px 94px 126px;
+    justify-content: center;
+    gap: 5px;
     margin-top: -2px;
     transform: translateY(-8px);
   }
 
   .risk-stack {
+    width: 126px;
     height: 92px;
+  }
+
+  .risk-choice,
+  .mode-choice {
+    width: 126px;
   }
 
   .risk-choice,
@@ -2432,9 +2441,9 @@ body[data-active-tab="solo"] .bottom-nav {
   }
 
   .auto-scale.show {
-    width: 132px;
+    width: 126px;
     height: 24px;
-    margin: -18px 8px 0 auto;
+    margin: -18px 13px 0 auto;
     padding: 0 3px;
     transform: translateY(0);
   }
@@ -2560,20 +2569,24 @@ body[data-active-tab="solo"] .bottom-nav {
   }
 
   .figma-winbar {
-    top: 270px;
+    top: 278px;
     height: 30px;
   }
 
   .figma-controls {
+    grid-template-columns: 122px 88px 122px;
+    gap: 4px;
     transform: translateY(-12px);
   }
 
   .risk-stack {
+    width: 122px;
     height: 84px;
   }
 
   .risk-choice,
   .mode-choice {
+    width: 122px;
     height: 27px;
   }
 
@@ -2613,9 +2626,9 @@ body[data-active-tab="solo"] .bottom-nav {
   }
 
   .auto-scale.show {
-    width: 132px;
+    width: 122px;
     height: 22px;
-    margin: -19px 8px 0 auto;
+    margin: -19px 14px 0 auto;
   }
 
   .auto-scale.show + .stake-strip {
