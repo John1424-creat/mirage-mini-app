@@ -826,7 +826,6 @@ function animateHomeBoard(path, slot, onDone) {
   const rect = homeCanvas.getBoundingClientRect();
   const canvasWidth = Math.round(rect.width);
   const canvasHeight = Math.round(rect.height);
-  const canvasHeight = Math.round(rect.height);
   const points = getHomeBallPoints(path, slot, canvasWidth, canvasHeight);
 
   let start = null;
@@ -921,6 +920,7 @@ function playHomeAutoPyramid(runs, totalStake) {
   const winbar = $("#home-winbar");
   const rect = homeCanvas.getBoundingClientRect();
   const canvasWidth = Math.round(rect.width);
+  const canvasHeight = Math.round(rect.height);
   const multipliers = getMultipliers(state.homeRows, state.homeRisk);
   const spawnInterval = getHomeAutoSpawnInterval(runs);
   const stakePerBall = state.homeStake;
