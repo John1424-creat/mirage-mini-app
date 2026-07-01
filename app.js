@@ -286,7 +286,7 @@ function renderCarpet() {
   }
 
   const multiplier = $("#carpet-multiplier");
-  if (multiplier) multiplier.textContent = formatCarpetMultiplier(displayMultiplier);
+  if (multiplier) multiplier.textContent = `${formatCarpetMultiplier(displayMultiplier)}x`;
 
   const status = $("#carpet-status");
   if (status) {
@@ -300,7 +300,7 @@ function renderCarpet() {
   if (autoCounter) {
     const showCounter = carpet.autoRunning || carpet.autoRunsRemaining > 0;
     autoCounter.classList.toggle("show", showCounter);
-    autoCounter.textContent = `ОСТАЛОСЬ ${format(carpet.autoRunsRemaining)} ПОЛЕТОВ`;
+    autoCounter.textContent = `ОСТАЛОСЬ ${format(carpet.autoRunsRemaining)}`;
   }
 
   const label = $("#carpet-action-label");

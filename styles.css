@@ -2407,7 +2407,7 @@ body[data-active-tab="solo"] .bottom-nav {
   }
 
   .figma-winbar {
-    top: 272px;
+    top: 244px;
     height: 31px;
     width: min(326px, calc(100% - 34px));
   }
@@ -2432,25 +2432,50 @@ body[data-active-tab="solo"] .bottom-nav {
   }
 
   .auto-scale.show {
-    height: 36px;
-    margin-top: -10px;
+    width: 190px;
+    height: 34px;
+    margin: -16px 14px 0 auto;
+    padding: 0 6px;
     transform: translateY(0);
   }
 
   .auto-scale-labels button {
-    font-size: 10px;
+    font-size: 8px;
+  }
+
+  .auto-scale-labels {
+    height: 11px;
+  }
+
+  .auto-scale-track {
+    height: 14px;
+  }
+
+  .auto-scale-track::before {
+    top: 8px;
+  }
+
+  .auto-scale-track::after {
+    height: 9px;
+  }
+
+  .auto-scale-knob {
+    width: 13px;
+    height: 13px;
+    top: 3px;
   }
 
   .auto-scale-value {
-    top: 27px;
+    top: 25px;
+    font-size: 9px;
   }
 
   .stake-strip {
-    margin-top: 2px;
+    margin-top: -3px;
   }
 
   .auto-scale.show + .stake-strip {
-    margin-top: -4px;
+    margin-top: -7px;
   }
 
   .carpet-topbar {
@@ -2507,7 +2532,7 @@ body[data-active-tab="solo"] .bottom-nav {
   }
 
   .carpet-stake-strip {
-    margin-top: -8px;
+    margin-top: -2px;
   }
 
   .bottom-nav {
@@ -2536,7 +2561,7 @@ body[data-active-tab="solo"] .bottom-nav {
   }
 
   .figma-winbar {
-    top: 238px;
+    top: 214px;
     height: 30px;
   }
 
@@ -2585,16 +2610,21 @@ body[data-active-tab="solo"] .bottom-nav {
   }
 
   .stake-strip {
-    margin-top: -2px;
+    margin-top: -4px;
   }
 
   .auto-scale.show {
-    height: 34px;
-    margin-top: -14px;
+    width: 176px;
+    height: 32px;
+    margin: -18px 12px 0 auto;
   }
 
   .auto-scale.show + .stake-strip {
-    margin-top: -8px;
+    margin-top: -9px;
+  }
+
+  .carpet-stake-strip {
+    margin-top: 2px;
   }
 }
 
