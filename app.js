@@ -461,8 +461,10 @@ function setupCanvasForDisplay(canvas, ctx) {
 function getHomeBoardGeometry(width, rows, height = 420) {
   const slotCount = rows + 1;
   const pegTop = 34;
-  const slotY = Math.max(238, Math.min(320, height - 76));
-  const pegStep = (slotY - 58 - pegTop) / Math.max(1, rows - 1);
+  const baseSlotY = Math.max(238, Math.min(320, height - 76));
+  const slotY = baseSlotY - 22;
+  const pegBottomY = baseSlotY - 58;
+  const pegStep = (pegBottomY - pegTop) / Math.max(1, rows - 1);
   const pegGap = Math.min(26, (width - 40) / Math.max(1, rows));
   const slotWidth = Math.max(15, Math.min(28, pegGap - 2));
   const slotHeight = Math.max(8, Math.min(13, slotWidth * (8 / 18)));

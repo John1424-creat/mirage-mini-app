@@ -30,12 +30,21 @@ body {
   width: 100%;
   height: 100%;
   min-height: 100%;
-  background: #05020a;
+  background:
+    linear-gradient(180deg, rgba(5, 2, 10, 0.01), rgba(5, 2, 10, 0.14)),
+    var(--wallpaper) var(--wallpaper-x) center / cover no-repeat #05020a;
   color: var(--text);
   overflow: hidden;
   overscroll-behavior: none;
   touch-action: manipulation;
   -webkit-text-size-adjust: 100%;
+  scrollbar-width: none;
+}
+
+html::-webkit-scrollbar,
+body::-webkit-scrollbar {
+  width: 0;
+  height: 0;
 }
 
 button,
@@ -49,7 +58,8 @@ button {
 }
 
 .app-shell {
-  width: min(100%, 393px);
+  width: 100vw;
+  max-width: 480px;
   height: 100vh;
   height: 100dvh;
   min-height: 0;
@@ -291,7 +301,7 @@ button {
 .figma-winbar {
   position: absolute;
   left: 50%;
-  top: 362px;
+  top: 346px;
   width: min(337px, calc(100% - 24px));
   height: 36px;
   display: flex;
@@ -1668,6 +1678,12 @@ body[data-active-tab="solo"] .app-shell {
     url("./assets/carpet-room-bg.svg") center bottom / cover no-repeat;
 }
 
+body[data-active-tab="solo"] {
+  background:
+    linear-gradient(180deg, rgba(32, 5, 31, 0.05), rgba(32, 5, 31, 0.12) 60%, rgba(8, 2, 13, 0.22)),
+    url("./assets/carpet-room-bg.svg") center bottom / cover no-repeat #05020a;
+}
+
 body[data-active-tab="solo"] .app-shell::before {
   background: linear-gradient(180deg, rgba(30, 4, 35, 0.02), rgba(30, 4, 35, 0.08) 62%, rgba(30, 4, 35, 0.22) 100%);
 }
@@ -2402,12 +2418,12 @@ body[data-active-tab="solo"] .bottom-nav {
   }
 
   .figma-board {
-    height: 342px;
+    height: 388px;
     margin-top: 0;
   }
 
   .figma-winbar {
-    top: 306px;
+    top: 328px;
     height: 31px;
     width: min(326px, calc(100% - 34px));
   }
@@ -2416,8 +2432,8 @@ body[data-active-tab="solo"] .bottom-nav {
     grid-template-columns: 126px 94px 126px;
     justify-content: center;
     gap: 5px;
-    margin-top: -2px;
-    transform: translateY(-8px);
+    margin-top: -12px;
+    transform: translateY(-12px);
   }
 
   .risk-stack {
@@ -2443,9 +2459,9 @@ body[data-active-tab="solo"] .bottom-nav {
   .auto-scale.show {
     width: 126px;
     height: 24px;
-    margin: -18px 13px 0 auto;
+    margin: -18px 0 0 auto;
     padding: 0 3px;
-    transform: translateY(0);
+    transform: translateY(-14px);
   }
 
   .auto-scale-labels button {
@@ -2565,18 +2581,19 @@ body[data-active-tab="solo"] .bottom-nav {
   }
 
   .figma-board {
-    height: 304px;
+    height: 348px;
   }
 
   .figma-winbar {
-    top: 278px;
+    top: 298px;
     height: 30px;
   }
 
   .figma-controls {
     grid-template-columns: 122px 88px 122px;
     gap: 4px;
-    transform: translateY(-12px);
+    margin-top: -14px;
+    transform: translateY(-16px);
   }
 
   .risk-stack {
@@ -2628,7 +2645,8 @@ body[data-active-tab="solo"] .bottom-nav {
   .auto-scale.show {
     width: 122px;
     height: 22px;
-    margin: -19px 14px 0 auto;
+    margin: -19px 0 0 auto;
+    transform: translateY(-14px);
   }
 
   .auto-scale.show + .stake-strip {
