@@ -1642,11 +1642,39 @@ function startPvp() {
 
 function initTelegramViewport() {
   const webApp = window.Telegram?.WebApp;
+  const params = new URLSearchParams(window.location.search);
+  const localTelegramFrame = params.get("preview") === "telegram-frame";
+  if (localTelegramFrame) {
+    document.body.classList.add("local-telegram-frame");
+  }
+
+  const syncViewport = () => {
+    const telegramHeight = webApp?.viewportStableHeight || webApp?.viewportHeight;
+    const browserHeight = window.innerHeight || document.documentElement.clientHeight;
+    const browserWidth = window.innerWidth || document.documentElement.clientWidth;
+    const height = localTelegramFrame
+      ? Math.max(660, Math.min(852, Math.round(browserHeight - 24)))
+      : Math.max(560, Math.round(telegramHeight || browserHeight));
+    const width = localTelegramFrame
+      ? Math.max(360, Math.min(393, Math.round(browserWidth - 24)))
+      : Math.round(browserWidth);
+    document.documentElement.style.setProperty("--app-height", `${height}px`);
+    document.documentElement.style.setProperty("--app-width", `${width}px`);
+    drawHomeBoard();
+    renderCarpet();
+  };
+
+  syncViewport();
+  window.addEventListener("resize", syncViewport);
+
   if (!webApp) return;
   document.body.classList.add("is-telegram-webapp");
   webApp.ready?.();
   webApp.expand?.();
   webApp.disableVerticalSwipes?.();
+  webApp.onEvent?.("viewportChanged", syncViewport);
+  webApp.onEvent?.("safeAreaChanged", syncViewport);
+  syncViewport();
 }
 
 function initMobileGestureGuards() {
