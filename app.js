@@ -462,10 +462,11 @@ function getHomeBoardGeometry(width, rows, height = 420) {
   const slotCount = rows + 1;
   const pegTop = 34;
   const designWidth = Math.min(width, 393);
-  const effectiveHeight = Math.max(398, height);
   const pegGap = Math.max(18, Math.min(26, (designWidth - 44) / Math.max(1, rows)));
-  const pegStep = Math.max(18.4, Math.min(21.4, pegGap * 0.82));
-  const slotY = Math.min(effectiveHeight - 74, pegTop + (rows - 1) * pegStep + 38);
+  const idealStep = pegGap * 0.82;
+  const maxStep = (height - 118 - pegTop) / Math.max(1, rows - 1);
+  const pegStep = Math.max(14.6, Math.min(21.4, idealStep, maxStep));
+  const slotY = Math.max(230, Math.min(height - 72, pegTop + (rows - 1) * pegStep + 38));
   const slotWidth = Math.max(15, Math.min(28, pegGap - 2));
   const slotHeight = Math.max(8, Math.min(13, slotWidth * (8 / 18)));
   const centerX = (index) => width / 2 + (index - (slotCount - 1) / 2) * pegGap;
@@ -1645,7 +1646,6 @@ function initTelegramViewport() {
   const params = new URLSearchParams(window.location.search);
   const localTelegramFrame = params.get("preview") === "telegram-frame";
   const designWidth = 393;
-  const designHeight = 852;
   if (localTelegramFrame) {
     document.body.classList.add("local-telegram-frame");
   }

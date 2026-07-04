@@ -3425,3 +3425,164 @@ body.is-telegram-webapp .carpet-stake-strip {
   margin-top: 4px;
   transform: none;
 }
+
+/* Telegram viewport layout v23.
+   Real WebView height is the source of truth; bottom navigation is reserved. */
+:root {
+  --nav-height: 78px;
+  --nav-gap: max(8px, env(safe-area-inset-bottom));
+  --content-bottom-space: calc(var(--nav-height) + var(--nav-gap) + 10px);
+}
+
+.app-shell,
+body.local-telegram-frame .app-shell {
+  width: min(100vw, var(--design-width)) !important;
+  min-width: 0;
+  max-width: var(--design-width);
+  height: var(--app-height) !important;
+  min-height: 0;
+  max-height: none;
+  transform: none;
+  margin: 0 auto;
+  overflow: hidden;
+}
+
+.screen,
+body.local-telegram-frame .screen,
+body.is-telegram-webapp .screen,
+.carpet-screen,
+body.local-telegram-frame .carpet-screen,
+body.is-telegram-webapp .carpet-screen {
+  width: min(100vw, var(--design-width)) !important;
+  height: var(--app-height) !important;
+  max-width: var(--design-width);
+  padding-left: 8px;
+  padding-right: 8px;
+  padding-bottom: var(--content-bottom-space);
+  overflow: hidden;
+}
+
+.bottom-nav,
+body.local-telegram-frame .bottom-nav,
+body.is-telegram-webapp .bottom-nav {
+  position: fixed !important;
+  left: 50vw;
+  bottom: var(--nav-gap);
+  width: min(365px, calc(100vw - 20px));
+  height: var(--nav-height);
+  transform: translateX(-50%);
+  z-index: 100;
+}
+
+#screen-home .figma-topbar,
+body.local-telegram-frame #screen-home .figma-topbar,
+body.is-telegram-webapp #screen-home .figma-topbar {
+  height: clamp(58px, calc(var(--app-height) * 0.095), 76px);
+  padding-top: clamp(12px, calc(var(--app-height) * 0.022), 20px);
+}
+
+#screen-home .player-row,
+body.local-telegram-frame #screen-home .player-row,
+body.is-telegram-webapp #screen-home .player-row {
+  height: clamp(42px, calc(var(--app-height) * 0.066), 54px);
+  margin-top: 2px;
+}
+
+#screen-home .limit-cluster,
+body.local-telegram-frame #screen-home .limit-cluster,
+body.is-telegram-webapp #screen-home .limit-cluster {
+  top: clamp(124px, calc(var(--app-height) * 0.19), 160px);
+  right: 26px;
+}
+
+#screen-home .figma-board,
+body.local-telegram-frame #screen-home .figma-board,
+body.is-telegram-webapp #screen-home .figma-board {
+  width: 100%;
+  height: clamp(300px, calc(var(--app-height) - 392px), 420px);
+  margin-top: 0;
+}
+
+#screen-home .figma-winbar,
+body.local-telegram-frame #screen-home .figma-winbar,
+body.is-telegram-webapp #screen-home .figma-winbar {
+  top: calc(100% - 58px);
+}
+
+#screen-home .figma-controls,
+body.local-telegram-frame #screen-home .figma-controls,
+body.is-telegram-webapp #screen-home .figma-controls {
+  width: 100%;
+  grid-template-columns: 133px 100px 132px;
+  gap: 6px;
+  margin-top: 4px;
+  transform: none;
+}
+
+#screen-home .stake-strip,
+body.local-telegram-frame #screen-home .stake-strip,
+body.is-telegram-webapp #screen-home .stake-strip {
+  margin-top: -3px;
+}
+
+#screen-home .auto-scale.show,
+body.local-telegram-frame #screen-home .auto-scale.show,
+body.is-telegram-webapp #screen-home .auto-scale.show {
+  margin-top: -15px;
+}
+
+#screen-home .auto-scale.show + .stake-strip,
+body.local-telegram-frame #screen-home .auto-scale.show + .stake-strip,
+body.is-telegram-webapp #screen-home .auto-scale.show + .stake-strip {
+  margin-top: -13px;
+}
+
+.carpet-topbar,
+body.local-telegram-frame .carpet-topbar,
+body.is-telegram-webapp .carpet-topbar {
+  height: clamp(54px, calc(var(--app-height) * 0.086), 68px);
+  padding-top: clamp(10px, calc(var(--app-height) * 0.022), 18px);
+}
+
+.carpet-player-row,
+body.local-telegram-frame .carpet-player-row,
+body.is-telegram-webapp .carpet-player-row {
+  height: clamp(42px, calc(var(--app-height) * 0.064), 54px);
+  margin-top: -2px;
+}
+
+.carpet-stage,
+body.local-telegram-frame .carpet-stage,
+body.is-telegram-webapp .carpet-stage {
+  height: clamp(298px, calc(var(--app-height) - 420px), 452px);
+  margin-top: 0;
+}
+
+.carpet-history,
+body.local-telegram-frame .carpet-history,
+body.is-telegram-webapp .carpet-history {
+  margin: -6px auto 5px;
+}
+
+.carpet-controls,
+body.local-telegram-frame .carpet-controls,
+body.is-telegram-webapp .carpet-controls {
+  height: clamp(116px, calc(var(--app-height) * 0.17), 142px);
+  grid-template-columns: 132px 96px 132px;
+  gap: 6px;
+  margin-top: 0;
+}
+
+.carpet-action,
+body.local-telegram-frame .carpet-action,
+body.is-telegram-webapp .carpet-action {
+  width: clamp(92px, calc(var(--app-height) * 0.13), 100px);
+  height: clamp(92px, calc(var(--app-height) * 0.13), 100px);
+  top: -20px;
+}
+
+.carpet-stake-strip,
+body.local-telegram-frame .carpet-stake-strip,
+body.is-telegram-webapp .carpet-stake-strip {
+  margin-top: -6px;
+}
