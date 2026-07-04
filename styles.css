@@ -3285,10 +3285,10 @@ body.is-telegram-webapp .screen {
 .bottom-nav,
 body.local-telegram-frame .bottom-nav,
 body.is-telegram-webapp .bottom-nav {
-  position: absolute !important;
-  left: 50%;
+  position: fixed !important;
+  left: 50vw;
   right: auto;
-  bottom: 8px;
+  bottom: max(8px, env(safe-area-inset-bottom));
   width: 365px;
   height: 78px;
   transform: translateX(-50%);
