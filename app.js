@@ -1644,6 +1644,8 @@ function initTelegramViewport() {
   const webApp = window.Telegram?.WebApp;
   const params = new URLSearchParams(window.location.search);
   const localTelegramFrame = params.get("preview") === "telegram-frame";
+  const designWidth = 393;
+  const designHeight = 852;
   if (localTelegramFrame) {
     document.body.classList.add("local-telegram-frame");
   }
@@ -1658,8 +1660,10 @@ function initTelegramViewport() {
     const width = localTelegramFrame
       ? Math.max(360, Math.min(393, Math.round(browserWidth)))
       : Math.round(browserWidth);
+    const scale = Math.min(1, width / designWidth, height / designHeight);
     document.documentElement.style.setProperty("--app-height", `${height}px`);
     document.documentElement.style.setProperty("--app-width", `${Math.min(width, 393)}px`);
+    document.documentElement.style.setProperty("--app-scale", `${scale}`);
     drawHomeBoard();
     renderCarpet();
   };

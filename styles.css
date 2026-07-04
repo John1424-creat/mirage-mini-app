@@ -3221,3 +3221,211 @@ body.local-telegram-frame #screen-home .auto-scale.show + .stake-strip {
 body.local-telegram-frame #screen-home .stake-shortcuts {
   margin-top: -1px;
 }
+
+/* Unified Mini App stage v20.
+   Every device renders the same 393x852 game canvas and scales it as one unit. */
+:root {
+  --design-width: 393px;
+  --design-height: 852px;
+  --app-scale: 1;
+}
+
+html,
+body {
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+}
+
+body {
+  display: grid;
+  justify-items: center;
+  align-items: start;
+  background:
+    linear-gradient(180deg, rgba(5, 2, 10, 0.18), rgba(5, 2, 10, 0.32)),
+    var(--wallpaper) 50% center / cover no-repeat #05020a;
+}
+
+body.local-telegram-frame {
+  display: grid;
+  justify-items: center;
+  align-items: start;
+  padding: 0;
+}
+
+body[data-active-tab="solo"] {
+  background:
+    linear-gradient(180deg, rgba(32, 5, 31, 0.05), rgba(32, 5, 31, 0.18)),
+    url("./assets/carpet-room-bg.svg") center bottom / cover no-repeat #05020a;
+}
+
+.app-shell,
+body.local-telegram-frame .app-shell {
+  width: var(--design-width) !important;
+  height: var(--design-height) !important;
+  min-width: var(--design-width);
+  min-height: var(--design-height);
+  max-width: none;
+  max-height: none;
+  transform: scale(var(--app-scale));
+  transform-origin: top center;
+  margin: 0 auto;
+  overflow: hidden;
+}
+
+.screen,
+body.local-telegram-frame .screen,
+body.is-telegram-webapp .screen {
+  width: var(--design-width) !important;
+  height: var(--design-height) !important;
+  max-width: none;
+  margin: 0 auto;
+  padding-left: 8px;
+  padding-right: 8px;
+  padding-bottom: 98px;
+  overflow: hidden;
+}
+
+.bottom-nav,
+body.local-telegram-frame .bottom-nav,
+body.is-telegram-webapp .bottom-nav {
+  position: absolute !important;
+  left: 50%;
+  right: auto;
+  bottom: 8px;
+  width: 365px;
+  height: 78px;
+  transform: translateX(-50%);
+  z-index: 60;
+}
+
+body.local-telegram-frame .app-shell {
+  border-radius: 28px;
+}
+
+body:not(.local-telegram-frame) .app-shell {
+  border-radius: 0;
+}
+
+#screen-home .figma-topbar,
+body.local-telegram-frame #screen-home .figma-topbar,
+body.is-telegram-webapp #screen-home .figma-topbar {
+  height: 86px;
+  padding: 20px 6px 0;
+}
+
+#screen-home .player-row,
+body.local-telegram-frame #screen-home .player-row,
+body.is-telegram-webapp #screen-home .player-row {
+  height: 54px;
+  margin-top: 4px;
+}
+
+#screen-home .limit-cluster,
+body.local-telegram-frame #screen-home .limit-cluster,
+body.is-telegram-webapp #screen-home .limit-cluster {
+  top: 160px;
+  right: 26px;
+}
+
+#screen-home .figma-board,
+body.local-telegram-frame #screen-home .figma-board,
+body.is-telegram-webapp #screen-home .figma-board {
+  width: 377px;
+  height: 420px;
+  margin-top: 6px;
+}
+
+#screen-home .figma-controls,
+body.local-telegram-frame #screen-home .figma-controls,
+body.is-telegram-webapp #screen-home .figma-controls {
+  width: 377px;
+  grid-template-columns: 133px 100px 132px;
+  justify-content: center;
+  gap: 6px;
+  margin-top: 10px;
+  transform: none;
+}
+
+#screen-home .auto-scale.show,
+body.local-telegram-frame #screen-home .auto-scale.show,
+body.is-telegram-webapp #screen-home .auto-scale.show {
+  width: 260px;
+  height: 28px;
+  margin: -14px 38px 0 auto;
+  padding: 0 6px;
+  transform: none;
+}
+
+#screen-home .stake-strip,
+body.local-telegram-frame #screen-home .stake-strip,
+body.is-telegram-webapp #screen-home .stake-strip {
+  margin-top: -2px;
+  transform: none;
+}
+
+#screen-home .auto-scale.show + .stake-strip,
+body.local-telegram-frame #screen-home .auto-scale.show + .stake-strip,
+body.is-telegram-webapp #screen-home .auto-scale.show + .stake-strip {
+  margin-top: -12px;
+}
+
+.carpet-screen,
+body.local-telegram-frame .carpet-screen,
+body.is-telegram-webapp .carpet-screen {
+  width: var(--design-width) !important;
+  height: var(--design-height) !important;
+  padding: 0 8px 98px;
+  margin: 0 auto;
+}
+
+.carpet-topbar,
+body.local-telegram-frame .carpet-topbar,
+body.is-telegram-webapp .carpet-topbar {
+  height: 68px;
+  padding-top: 18px;
+}
+
+.carpet-player-row,
+body.local-telegram-frame .carpet-player-row,
+body.is-telegram-webapp .carpet-player-row {
+  height: 54px;
+  margin-top: -2px;
+}
+
+.carpet-stage,
+body.local-telegram-frame .carpet-stage,
+body.is-telegram-webapp .carpet-stage {
+  height: 452px;
+  margin-top: 2px;
+}
+
+.carpet-history,
+body.local-telegram-frame .carpet-history,
+body.is-telegram-webapp .carpet-history {
+  margin: -4px auto 8px;
+}
+
+.carpet-controls,
+body.local-telegram-frame .carpet-controls,
+body.is-telegram-webapp .carpet-controls {
+  height: 142px;
+  grid-template-columns: 132px 100px 132px;
+  gap: 6px;
+  margin-top: 0;
+}
+
+.carpet-action,
+body.local-telegram-frame .carpet-action,
+body.is-telegram-webapp .carpet-action {
+  width: 100px;
+  height: 100px;
+  top: -24px;
+}
+
+.carpet-stake-strip,
+body.local-telegram-frame .carpet-stake-strip,
+body.is-telegram-webapp .carpet-stake-strip {
+  margin-top: 4px;
+  transform: none;
+}
