@@ -1660,7 +1660,7 @@ function initTelegramViewport() {
     const width = localTelegramFrame
       ? Math.max(360, Math.min(393, Math.round(browserWidth)))
       : Math.round(browserWidth);
-    const scale = Math.min(1, width / designWidth, height / designHeight);
+    const scale = Math.min(1, width / designWidth);
     document.documentElement.style.setProperty("--app-height", `${height}px`);
     document.documentElement.style.setProperty("--app-width", `${Math.min(width, 393)}px`);
     document.documentElement.style.setProperty("--app-scale", `${scale}`);

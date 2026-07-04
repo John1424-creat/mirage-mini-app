@@ -3241,9 +3241,7 @@ body {
   display: grid;
   justify-items: center;
   align-items: start;
-  background:
-    linear-gradient(180deg, rgba(5, 2, 10, 0.18), rgba(5, 2, 10, 0.32)),
-    var(--wallpaper) 50% center / cover no-repeat #05020a;
+  background: #05020a;
 }
 
 body.local-telegram-frame {
@@ -3254,9 +3252,7 @@ body.local-telegram-frame {
 }
 
 body[data-active-tab="solo"] {
-  background:
-    linear-gradient(180deg, rgba(32, 5, 31, 0.05), rgba(32, 5, 31, 0.18)),
-    url("./assets/carpet-room-bg.svg") center bottom / cover no-repeat #05020a;
+  background: #05020a;
 }
 
 .app-shell,
