@@ -3586,3 +3586,79 @@ body.local-telegram-frame .carpet-stake-strip,
 body.is-telegram-webapp .carpet-stake-strip {
   margin-top: -6px;
 }
+
+/* Telegram width model v24:
+   the room background fills the WebView, game controls stay on a stable phone grid. */
+.app-shell,
+body.local-telegram-frame .app-shell {
+  width: 100vw !important;
+  max-width: none;
+  background:
+    linear-gradient(180deg, rgba(5, 2, 10, 0.01), rgba(5, 2, 10, 0.14)),
+    var(--wallpaper) 50% center / cover no-repeat;
+}
+
+body[data-active-tab="solo"] .app-shell {
+  background:
+    linear-gradient(180deg, rgba(32, 5, 31, 0.05), rgba(32, 5, 31, 0.12) 60%, rgba(8, 2, 13, 0.22)),
+    url("./assets/carpet-room-bg.svg") center bottom / cover no-repeat;
+}
+
+.screen,
+body.local-telegram-frame .screen,
+body.is-telegram-webapp .screen,
+.carpet-screen,
+body.local-telegram-frame .carpet-screen,
+body.is-telegram-webapp .carpet-screen {
+  width: 100vw !important;
+  max-width: none;
+}
+
+#screen-home .figma-topbar,
+#screen-home .player-row,
+#screen-home .limit-cluster,
+#screen-home .figma-board,
+#screen-home .figma-controls,
+#screen-home .auto-scale,
+#screen-home .stake-strip {
+  margin-left: auto;
+  margin-right: auto;
+}
+
+#screen-home .figma-board,
+body.local-telegram-frame #screen-home .figma-board,
+body.is-telegram-webapp #screen-home .figma-board {
+  width: min(377px, calc(100vw - 16px));
+}
+
+#screen-home .figma-controls,
+body.local-telegram-frame #screen-home .figma-controls,
+body.is-telegram-webapp #screen-home .figma-controls {
+  width: min(377px, calc(100vw - 16px));
+}
+
+#screen-home .limit-cluster,
+body.local-telegram-frame #screen-home .limit-cluster,
+body.is-telegram-webapp #screen-home .limit-cluster {
+  right: max(26px, calc((100vw - 377px) / 2 + 26px));
+}
+
+.carpet-stage,
+.carpet-history,
+.carpet-controls,
+.carpet-stake-strip {
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.carpet-stage,
+body.local-telegram-frame .carpet-stage,
+body.is-telegram-webapp .carpet-stage,
+.carpet-controls,
+body.local-telegram-frame .carpet-controls,
+body.is-telegram-webapp .carpet-controls,
+.carpet-stake-strip,
+body.local-telegram-frame .carpet-stake-strip,
+body.is-telegram-webapp .carpet-stake-strip {
+  width: min(377px, calc(100vw - 16px));
+}
