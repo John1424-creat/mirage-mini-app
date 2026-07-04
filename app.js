@@ -461,11 +461,11 @@ function setupCanvasForDisplay(canvas, ctx) {
 function getHomeBoardGeometry(width, rows, height = 420) {
   const slotCount = rows + 1;
   const pegTop = 34;
-  const baseSlotY = Math.max(238, Math.min(320, height - 76));
-  const slotY = baseSlotY - 22;
-  const pegBottomY = baseSlotY - 58;
-  const pegStep = (pegBottomY - pegTop) / Math.max(1, rows - 1);
-  const pegGap = Math.min(26, (width - 40) / Math.max(1, rows));
+  const designWidth = Math.min(width, 393);
+  const effectiveHeight = Math.max(398, height);
+  const pegGap = Math.max(18, Math.min(26, (designWidth - 44) / Math.max(1, rows)));
+  const pegStep = Math.max(18.4, Math.min(21.4, pegGap * 0.82));
+  const slotY = Math.min(effectiveHeight - 74, pegTop + (rows - 1) * pegStep + 38);
   const slotWidth = Math.max(15, Math.min(28, pegGap - 2));
   const slotHeight = Math.max(8, Math.min(13, slotWidth * (8 / 18)));
   const centerX = (index) => width / 2 + (index - (slotCount - 1) / 2) * pegGap;
@@ -1653,13 +1653,13 @@ function initTelegramViewport() {
     const browserHeight = window.innerHeight || document.documentElement.clientHeight;
     const browserWidth = window.innerWidth || document.documentElement.clientWidth;
     const height = localTelegramFrame
-      ? Math.max(660, Math.min(852, Math.round(browserHeight - 24)))
+      ? Math.max(660, Math.min(852, Math.round(browserHeight)))
       : Math.max(560, Math.round(telegramHeight || browserHeight));
     const width = localTelegramFrame
-      ? Math.max(360, Math.min(393, Math.round(browserWidth - 24)))
+      ? Math.max(360, Math.min(393, Math.round(browserWidth)))
       : Math.round(browserWidth);
     document.documentElement.style.setProperty("--app-height", `${height}px`);
-    document.documentElement.style.setProperty("--app-width", `${width}px`);
+    document.documentElement.style.setProperty("--app-width", `${Math.min(width, 393)}px`);
     drawHomeBoard();
     renderCarpet();
   };
