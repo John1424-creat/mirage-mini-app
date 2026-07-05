@@ -3662,3 +3662,196 @@ body.local-telegram-frame .carpet-stake-strip,
 body.is-telegram-webapp .carpet-stake-strip {
   width: min(377px, calc(100vw - 16px));
 }
+
+/* Telegram layout contract v25.
+   One background fills the whole WebView. The playable UI is centered on a
+   stable phone grid, so Telegram desktop, mobile, and local preview do not
+   stretch pins or controls differently. */
+:root {
+  --stage-width: min(var(--design-width), 100vw);
+  --stage-inner-width: min(377px, calc(100vw - 16px));
+}
+
+html,
+body {
+  width: 100%;
+  height: 100%;
+  min-height: 100%;
+  overflow: hidden !important;
+}
+
+body {
+  display: block !important;
+  background: #05020a;
+}
+
+body.local-telegram-frame {
+  display: block !important;
+  padding: 0 !important;
+  background: #101116;
+}
+
+.app-shell,
+body.local-telegram-frame .app-shell,
+body.is-telegram-webapp .app-shell {
+  width: 100vw !important;
+  min-width: 100vw !important;
+  max-width: none !important;
+  height: var(--app-height) !important;
+  min-height: var(--app-height) !important;
+  max-height: none !important;
+  margin: 0 !important;
+  transform: none !important;
+  transform-origin: top center !important;
+  overflow: hidden !important;
+  border-radius: 0 !important;
+  background:
+    linear-gradient(180deg, rgba(5, 2, 10, 0.01), rgba(5, 2, 10, 0.14)),
+    var(--wallpaper) 50% center / cover no-repeat !important;
+}
+
+body[data-active-tab="solo"] .app-shell,
+body.local-telegram-frame[data-active-tab="solo"] .app-shell,
+body.is-telegram-webapp[data-active-tab="solo"] .app-shell {
+  background:
+    linear-gradient(180deg, rgba(32, 5, 31, 0.05), rgba(32, 5, 31, 0.12) 60%, rgba(8, 2, 13, 0.22)),
+    url("./assets/carpet-room-bg.svg") 50% bottom / cover no-repeat !important;
+}
+
+.screen,
+body.local-telegram-frame .screen,
+body.is-telegram-webapp .screen,
+.carpet-screen,
+body.local-telegram-frame .carpet-screen,
+body.is-telegram-webapp .carpet-screen {
+  width: var(--stage-width) !important;
+  min-width: 0 !important;
+  max-width: var(--design-width) !important;
+  height: var(--app-height) !important;
+  margin: 0 auto !important;
+  padding-left: 8px !important;
+  padding-right: 8px !important;
+  padding-bottom: var(--content-bottom-space) !important;
+  overflow: hidden !important;
+}
+
+.bottom-nav,
+body.local-telegram-frame .bottom-nav,
+body.is-telegram-webapp .bottom-nav {
+  position: fixed !important;
+  left: 50vw !important;
+  right: auto !important;
+  bottom: var(--nav-gap) !important;
+  width: min(365px, calc(100vw - 20px)) !important;
+  height: var(--nav-height) !important;
+  transform: translateX(-50%) !important;
+  z-index: 100 !important;
+}
+
+#screen-home .figma-topbar,
+body.local-telegram-frame #screen-home .figma-topbar,
+body.is-telegram-webapp #screen-home .figma-topbar {
+  height: clamp(62px, calc(var(--app-height) * 0.095), 76px) !important;
+  padding-top: clamp(12px, calc(var(--app-height) * 0.022), 20px) !important;
+}
+
+#screen-home .player-row,
+body.local-telegram-frame #screen-home .player-row,
+body.is-telegram-webapp #screen-home .player-row {
+  height: clamp(44px, calc(var(--app-height) * 0.064), 54px) !important;
+  margin-top: 2px !important;
+}
+
+#screen-home .limit-cluster,
+body.local-telegram-frame #screen-home .limit-cluster,
+body.is-telegram-webapp #screen-home .limit-cluster {
+  top: clamp(126px, calc(var(--app-height) * 0.19), 160px) !important;
+  right: calc((100vw - var(--stage-width)) / 2 + 26px) !important;
+}
+
+#screen-home .figma-board,
+body.local-telegram-frame #screen-home .figma-board,
+body.is-telegram-webapp #screen-home .figma-board {
+  width: var(--stage-inner-width) !important;
+  height: clamp(326px, calc(var(--app-height) - 392px), 420px) !important;
+  margin: 0 auto !important;
+}
+
+#screen-home .figma-winbar,
+body.local-telegram-frame #screen-home .figma-winbar,
+body.is-telegram-webapp #screen-home .figma-winbar {
+  top: calc(100% - 55px) !important;
+  width: min(337px, calc(100% - 24px)) !important;
+}
+
+#screen-home .figma-controls,
+body.local-telegram-frame #screen-home .figma-controls,
+body.is-telegram-webapp #screen-home .figma-controls {
+  width: var(--stage-inner-width) !important;
+  grid-template-columns: 133px 100px 132px !important;
+  justify-content: center !important;
+  gap: 6px !important;
+  margin: 4px auto 0 !important;
+  transform: none !important;
+}
+
+#screen-home .auto-scale.show,
+body.local-telegram-frame #screen-home .auto-scale.show,
+body.is-telegram-webapp #screen-home .auto-scale.show {
+  width: 260px !important;
+  height: 28px !important;
+  margin: -15px 38px 0 auto !important;
+  padding: 0 6px !important;
+  transform: none !important;
+}
+
+#screen-home .stake-strip,
+body.local-telegram-frame #screen-home .stake-strip,
+body.is-telegram-webapp #screen-home .stake-strip {
+  width: min(260px, calc(100vw - 86px)) !important;
+  margin: -12px auto 0 !important;
+  transform: none !important;
+}
+
+#screen-home .auto-scale.show + .stake-strip,
+body.local-telegram-frame #screen-home .auto-scale.show + .stake-strip,
+body.is-telegram-webapp #screen-home .auto-scale.show + .stake-strip {
+  margin-top: -20px !important;
+}
+
+.carpet-stage,
+body.local-telegram-frame .carpet-stage,
+body.is-telegram-webapp .carpet-stage,
+.carpet-history,
+body.local-telegram-frame .carpet-history,
+body.is-telegram-webapp .carpet-history,
+.carpet-controls,
+body.local-telegram-frame .carpet-controls,
+body.is-telegram-webapp .carpet-controls,
+.carpet-stake-strip,
+body.local-telegram-frame .carpet-stake-strip,
+body.is-telegram-webapp .carpet-stake-strip {
+  width: var(--stage-inner-width) !important;
+  margin-left: auto !important;
+  margin-right: auto !important;
+}
+
+.carpet-stage,
+body.local-telegram-frame .carpet-stage,
+body.is-telegram-webapp .carpet-stage {
+  height: clamp(318px, calc(var(--app-height) - 420px), 452px) !important;
+}
+
+.carpet-controls,
+body.local-telegram-frame .carpet-controls,
+body.is-telegram-webapp .carpet-controls {
+  grid-template-columns: 132px 96px 132px !important;
+  gap: 6px !important;
+  height: clamp(120px, calc(var(--app-height) * 0.17), 142px) !important;
+}
+
+.carpet-stake-strip,
+body.local-telegram-frame .carpet-stake-strip,
+body.is-telegram-webapp .carpet-stake-strip {
+  margin-top: -30px !important;
+}
