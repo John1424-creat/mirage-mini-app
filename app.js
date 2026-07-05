@@ -1646,6 +1646,7 @@ function initTelegramViewport() {
   const params = new URLSearchParams(window.location.search);
   const localTelegramFrame = params.get("preview") === "telegram-frame";
   const designWidth = 393;
+  const designHeight = 852;
   if (localTelegramFrame) {
     document.body.classList.add("local-telegram-frame");
   }
@@ -1654,15 +1655,11 @@ function initTelegramViewport() {
     const telegramHeight = webApp?.viewportStableHeight || webApp?.viewportHeight;
     const browserHeight = window.innerHeight || document.documentElement.clientHeight;
     const browserWidth = window.innerWidth || document.documentElement.clientWidth;
-    const height = localTelegramFrame
-      ? Math.max(660, Math.min(852, Math.round(browserHeight)))
-      : Math.max(560, Math.round(telegramHeight || browserHeight));
-    const width = localTelegramFrame
-      ? Math.max(360, Math.min(393, Math.round(browserWidth)))
-      : Math.round(browserWidth);
-    const scale = Math.min(1, width / designWidth);
+    const height = Math.max(420, Math.round(telegramHeight || browserHeight));
+    const width = Math.max(320, Math.round(browserWidth));
+    const scale = Math.min(1, width / designWidth, height / designHeight);
     document.documentElement.style.setProperty("--app-height", `${height}px`);
-    document.documentElement.style.setProperty("--app-width", `${Math.min(width, 393)}px`);
+    document.documentElement.style.setProperty("--app-width", `${width}px`);
     document.documentElement.style.setProperty("--app-scale", `${scale}`);
     drawHomeBoard();
     renderCarpet();

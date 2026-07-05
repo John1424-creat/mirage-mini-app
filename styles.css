@@ -3855,3 +3855,253 @@ body.local-telegram-frame .carpet-stake-strip,
 body.is-telegram-webapp .carpet-stake-strip {
   margin-top: -30px !important;
 }
+
+/* Fixed scene contract v26.
+   The whole game is one 393x852 stage. Telegram/Desktop resize changes only
+   --app-scale; elements no longer recalculate their own vertical layout. */
+:root {
+  --design-width: 393px;
+  --design-height: 852px;
+  --stage-width: 393px;
+  --stage-inner-width: 377px;
+  --nav-height: 78px;
+  --nav-gap: 8px;
+  --content-bottom-space: 98px;
+}
+
+html,
+body {
+  width: 100%;
+  height: 100%;
+  min-height: 100%;
+  overflow: hidden !important;
+}
+
+body,
+body.local-telegram-frame {
+  display: block !important;
+  padding: 0 !important;
+  background: #05020a !important;
+}
+
+body::before {
+  content: "" !important;
+  display: block !important;
+  position: fixed;
+  inset: -18px;
+  z-index: 0;
+  pointer-events: none;
+  background:
+    linear-gradient(180deg, rgba(5, 2, 10, 0.08), rgba(5, 2, 10, 0.28)),
+    var(--wallpaper) 50% center / cover no-repeat;
+  filter: blur(10px) brightness(0.72) saturate(1.05);
+  transform: scale(1.05);
+}
+
+body[data-active-tab="solo"]::before {
+  background:
+    linear-gradient(180deg, rgba(32, 5, 31, 0.08), rgba(8, 2, 13, 0.26)),
+    url("./assets/carpet-room-bg.svg") 50% bottom / cover no-repeat;
+}
+
+.app-shell,
+body.local-telegram-frame .app-shell,
+body.is-telegram-webapp .app-shell {
+  position: absolute !important;
+  left: 50% !important;
+  top: 0 !important;
+  width: var(--design-width) !important;
+  min-width: var(--design-width) !important;
+  max-width: var(--design-width) !important;
+  height: var(--design-height) !important;
+  min-height: var(--design-height) !important;
+  max-height: var(--design-height) !important;
+  margin: 0 !important;
+  overflow: hidden !important;
+  border-radius: 0 !important;
+  transform: translateX(-50%) scale(var(--app-scale)) !important;
+  transform-origin: top center !important;
+  background:
+    linear-gradient(180deg, rgba(5, 2, 10, 0.01), rgba(5, 2, 10, 0.14)),
+    var(--wallpaper) 50% center / cover no-repeat !important;
+}
+
+body[data-active-tab="solo"] .app-shell,
+body.local-telegram-frame[data-active-tab="solo"] .app-shell,
+body.is-telegram-webapp[data-active-tab="solo"] .app-shell {
+  background:
+    linear-gradient(180deg, rgba(32, 5, 31, 0.05), rgba(32, 5, 31, 0.12) 60%, rgba(8, 2, 13, 0.22)),
+    url("./assets/carpet-room-bg.svg") 50% bottom / cover no-repeat !important;
+}
+
+.screen,
+body.local-telegram-frame .screen,
+body.is-telegram-webapp .screen,
+.carpet-screen,
+body.local-telegram-frame .carpet-screen,
+body.is-telegram-webapp .carpet-screen {
+  width: var(--design-width) !important;
+  min-width: var(--design-width) !important;
+  max-width: var(--design-width) !important;
+  height: var(--design-height) !important;
+  min-height: var(--design-height) !important;
+  max-height: var(--design-height) !important;
+  margin: 0 auto !important;
+  padding-left: 8px !important;
+  padding-right: 8px !important;
+  padding-bottom: var(--content-bottom-space) !important;
+  overflow: hidden !important;
+}
+
+.bottom-nav,
+body.local-telegram-frame .bottom-nav,
+body.is-telegram-webapp .bottom-nav {
+  position: absolute !important;
+  left: 50% !important;
+  right: auto !important;
+  bottom: 8px !important;
+  width: 365px !important;
+  height: 78px !important;
+  transform: translateX(-50%) !important;
+  z-index: 100 !important;
+}
+
+#screen-home .figma-topbar,
+body.local-telegram-frame #screen-home .figma-topbar,
+body.is-telegram-webapp #screen-home .figma-topbar {
+  height: 76px !important;
+  padding: 20px 6px 0 !important;
+}
+
+#screen-home .player-row,
+body.local-telegram-frame #screen-home .player-row,
+body.is-telegram-webapp #screen-home .player-row {
+  height: 54px !important;
+  margin-top: 4px !important;
+}
+
+#screen-home .limit-cluster,
+body.local-telegram-frame #screen-home .limit-cluster,
+body.is-telegram-webapp #screen-home .limit-cluster {
+  top: 160px !important;
+  right: 26px !important;
+}
+
+#screen-home .figma-board,
+body.local-telegram-frame #screen-home .figma-board,
+body.is-telegram-webapp #screen-home .figma-board {
+  width: 377px !important;
+  height: 420px !important;
+  margin: 6px auto 0 !important;
+}
+
+#screen-home .figma-winbar,
+body.local-telegram-frame #screen-home .figma-winbar,
+body.is-telegram-webapp #screen-home .figma-winbar {
+  top: 365px !important;
+  width: min(337px, calc(100% - 24px)) !important;
+}
+
+#screen-home .figma-controls,
+body.local-telegram-frame #screen-home .figma-controls,
+body.is-telegram-webapp #screen-home .figma-controls {
+  width: 377px !important;
+  grid-template-columns: 133px 100px 132px !important;
+  justify-content: center !important;
+  gap: 6px !important;
+  margin: 10px auto 0 !important;
+  transform: none !important;
+}
+
+#screen-home .auto-scale.show,
+body.local-telegram-frame #screen-home .auto-scale.show,
+body.is-telegram-webapp #screen-home .auto-scale.show {
+  width: 260px !important;
+  height: 28px !important;
+  margin: -14px 38px 0 auto !important;
+  padding: 0 6px !important;
+  transform: none !important;
+}
+
+#screen-home .stake-strip,
+body.local-telegram-frame #screen-home .stake-strip,
+body.is-telegram-webapp #screen-home .stake-strip {
+  width: 260px !important;
+  margin: -6px auto 0 !important;
+  transform: none !important;
+}
+
+#screen-home .auto-scale.show + .stake-strip,
+body.local-telegram-frame #screen-home .auto-scale.show + .stake-strip,
+body.is-telegram-webapp #screen-home .auto-scale.show + .stake-strip {
+  margin-top: -16px !important;
+}
+
+.carpet-topbar,
+body.local-telegram-frame .carpet-topbar,
+body.is-telegram-webapp .carpet-topbar {
+  height: 68px !important;
+  padding-top: 18px !important;
+}
+
+.carpet-player-row,
+body.local-telegram-frame .carpet-player-row,
+body.is-telegram-webapp .carpet-player-row {
+  height: 54px !important;
+  margin-top: -2px !important;
+}
+
+.carpet-stage,
+body.local-telegram-frame .carpet-stage,
+body.is-telegram-webapp .carpet-stage,
+.carpet-history,
+body.local-telegram-frame .carpet-history,
+body.is-telegram-webapp .carpet-history,
+.carpet-controls,
+body.local-telegram-frame .carpet-controls,
+body.is-telegram-webapp .carpet-controls,
+.carpet-stake-strip,
+body.local-telegram-frame .carpet-stake-strip,
+body.is-telegram-webapp .carpet-stake-strip {
+  width: 377px !important;
+  margin-left: auto !important;
+  margin-right: auto !important;
+}
+
+.carpet-stage,
+body.local-telegram-frame .carpet-stage,
+body.is-telegram-webapp .carpet-stage {
+  height: 452px !important;
+  margin-top: 2px !important;
+}
+
+.carpet-history,
+body.local-telegram-frame .carpet-history,
+body.is-telegram-webapp .carpet-history {
+  margin-top: -4px !important;
+  margin-bottom: 8px !important;
+}
+
+.carpet-controls,
+body.local-telegram-frame .carpet-controls,
+body.is-telegram-webapp .carpet-controls {
+  grid-template-columns: 132px 100px 132px !important;
+  gap: 6px !important;
+  height: 142px !important;
+  margin-top: 0 !important;
+}
+
+.carpet-action,
+body.local-telegram-frame .carpet-action,
+body.is-telegram-webapp .carpet-action {
+  width: 100px !important;
+  height: 100px !important;
+  top: -54px !important;
+}
+
+.carpet-stake-strip,
+body.local-telegram-frame .carpet-stake-strip,
+body.is-telegram-webapp .carpet-stake-strip {
+  margin-top: -56px !important;
+  transform: none !important;
+}
