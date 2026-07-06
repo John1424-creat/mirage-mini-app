@@ -1,4 +1,4 @@
-@import url("https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&display=swap");
+﻿@import url("https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&display=swap");
 
 :root {
   color-scheme: dark;
@@ -15,7 +15,7 @@
   --green: #60ffa8;
   --danger: #ff6b8a;
   --radius: 8px;
-  --wallpaper: url("./assets/mirage-wallpaper.png");
+  --wallpaper: url("./assets/mirage-wallpaper-v2.png");
   --wallpaper-x: calc(50% - 10px);
   --app-height: 100dvh;
   --app-max-width: 393px;
@@ -553,25 +553,25 @@ body.local-telegram-frame .app-shell::after {
 
 .risk-choice.high::before,
 .risk-choice:not(.high):not(.low)::before {
-  content: "🎰";
+  content: "рџЋ°";
 }
 
 .risk-choice.low::before {
-  content: "🎲";
+  content: "рџЋІ";
 }
 
 .risk-choice.high::before {
-  content: "💰";
+  content: "рџ’°";
   filter: drop-shadow(0 0 5px rgba(255, 215, 85, 0.75));
 }
 
 .risk-choice:not(.high):not(.low)::before {
-  content: "🧰";
+  content: "рџ§°";
   filter: drop-shadow(0 0 4px rgba(255, 120, 190, 0.45));
 }
 
 .risk-choice.low::before {
-  content: "▣";
+  content: "в–Ј";
   color: #6fffa9;
   font-size: 14px;
   filter: drop-shadow(0 0 4px rgba(111, 255, 169, 0.45));
@@ -1892,7 +1892,7 @@ body.local-telegram-frame .carpet-stake-strip {
 body[data-active-tab="solo"] .app-shell {
   background:
     linear-gradient(180deg, rgba(32, 5, 31, 0.05), rgba(32, 5, 31, 0.12) 60%, rgba(8, 2, 13, 0.22)),
-    url("./assets/carpet-room-bg.svg") center bottom / cover no-repeat;
+    url("./assets/carpet-room-bg-v2.png") center bottom / cover no-repeat;
 }
 
 body[data-active-tab="solo"] {
@@ -3072,7 +3072,7 @@ body[data-active-tab="solo"] .bottom-nav {
 body[data-active-tab="solo"] .app-shell {
   background:
     linear-gradient(180deg, rgba(32, 5, 31, 0.05), rgba(32, 5, 31, 0.12) 60%, rgba(8, 2, 13, 0.22)),
-    url("./assets/carpet-room-bg.svg") center bottom / cover no-repeat;
+    url("./assets/carpet-room-bg-v2.png") center bottom / cover no-repeat;
 }
 
 .screen {
@@ -3601,7 +3601,7 @@ body.local-telegram-frame .app-shell {
 body[data-active-tab="solo"] .app-shell {
   background:
     linear-gradient(180deg, rgba(32, 5, 31, 0.05), rgba(32, 5, 31, 0.12) 60%, rgba(8, 2, 13, 0.22)),
-    url("./assets/carpet-room-bg.svg") center bottom / cover no-repeat;
+    url("./assets/carpet-room-bg-v2.png") center bottom / cover no-repeat;
 }
 
 .screen,
@@ -3715,7 +3715,7 @@ body.local-telegram-frame[data-active-tab="solo"] .app-shell,
 body.is-telegram-webapp[data-active-tab="solo"] .app-shell {
   background:
     linear-gradient(180deg, rgba(32, 5, 31, 0.05), rgba(32, 5, 31, 0.12) 60%, rgba(8, 2, 13, 0.22)),
-    url("./assets/carpet-room-bg.svg") 50% bottom / cover no-repeat !important;
+    url("./assets/carpet-room-bg-v2.png") 50% bottom / cover no-repeat !important;
 }
 
 .screen,
@@ -3901,7 +3901,7 @@ body::before {
 body[data-active-tab="solo"]::before {
   background:
     linear-gradient(180deg, rgba(32, 5, 31, 0.08), rgba(8, 2, 13, 0.26)),
-    url("./assets/carpet-room-bg.svg") 50% bottom / cover no-repeat;
+    url("./assets/carpet-room-bg-v2.png") 50% bottom / cover no-repeat;
 }
 
 .app-shell,
@@ -3931,7 +3931,7 @@ body.local-telegram-frame[data-active-tab="solo"] .app-shell,
 body.is-telegram-webapp[data-active-tab="solo"] .app-shell {
   background:
     linear-gradient(180deg, rgba(32, 5, 31, 0.05), rgba(32, 5, 31, 0.12) 60%, rgba(8, 2, 13, 0.22)),
-    url("./assets/carpet-room-bg.svg") 50% bottom / cover no-repeat !important;
+    url("./assets/carpet-room-bg-v2.png") 50% bottom / cover no-repeat !important;
 }
 
 .screen,
@@ -4105,3 +4105,4 @@ body.is-telegram-webapp .carpet-stake-strip {
   margin-top: -56px !important;
   transform: none !important;
 }
+
