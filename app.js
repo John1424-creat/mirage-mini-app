@@ -1661,6 +1661,7 @@ function initTelegramViewport() {
     document.documentElement.style.setProperty("--app-height", `${height}px`);
     document.documentElement.style.setProperty("--app-width", `${width}px`);
     document.documentElement.style.setProperty("--app-scale", `${scale}`);
+    document.documentElement.style.setProperty("--nav-top", `${766 * scale}px`);
     drawHomeBoard();
     renderCarpet();
   };
