@@ -52,7 +52,7 @@ const HOME_AUTO_BALL_MAX = 1000;
 const HOME_AUTO_BALL_OPTIONS = [10, 20, 50, 100, 1000];
 const HOME_AUTO_MAX_ACTIVE_BALLS = 10;
 const HOME_MANUAL_MAX_ACTIVE_BALLS = 12;
-const HOME_AUTO_BALL_DURATION = 2250;
+const HOME_AUTO_BALL_DURATION = 5400;
 const HOME_EFFECT_GOOD_MULTIPLIER = 2;
 const HOME_EFFECT_COIN_COUNT = 16;
 const CARPET_RTP = 0.95;
@@ -460,63 +460,69 @@ function setupCanvasForDisplay(canvas, ctx) {
 
 function getHomeBoardGeometry(width, rows, height = 420) {
   const slotCount = rows + 1;
-  const pegTop = 52;
-  const designWidth = Math.min(width, 393);
-  const pegGap = Math.max(16.5, Math.min(23, (designWidth - 74) / Math.max(1, rows)));
-  const idealStep = pegGap * 0.92;
-  const maxStep = (height - 118 - pegTop) / Math.max(1, rows - 1);
-  const pegStep = Math.max(14.6, Math.min(21.4, idealStep, maxStep));
-  const slotY = Math.max(230, Math.min(height - 72, pegTop + (rows - 1) * pegStep + 38));
-  const slotWidth = Math.max(15, Math.min(28, pegGap - 2));
-  const slotHeight = Math.max(8, Math.min(13, slotWidth * (8 / 18)));
+  const pegTop = 54;
+  const horizontalInset = Math.max(18, Math.min(26, width * 0.055));
+  const pegGap = (width - horizontalInset * 2) / Math.max(1, rows);
+  const pegBottom = Math.min(height - 124, Math.max(286, height * 0.715));
+  const pegStep = rows > 1 ? (pegBottom - pegTop) / (rows - 1) : 0;
+  const slotY = Math.min(height - 82, pegBottom + 18);
+  const slotWidth = Math.max(17, Math.min(24, pegGap - 3));
+  const slotHeight = Math.max(8, Math.min(12, slotWidth * (8 / 18)));
   const centerX = (index) => width / 2 + (index - (slotCount - 1) / 2) * pegGap;
-  return { slotCount, pegTop, slotY, pegStep, pegGap, slotWidth, slotHeight, centerX };
+  return { slotCount, pegTop, pegBottom, slotY, pegStep, pegGap, slotWidth, slotHeight, centerX };
 }
 
-function drawHomeLauncher(ctx, width) {
+function drawHomeLauncher(ctx, width, isLaunching = false, timestamp = performance.now()) {
   const x = width / 2;
-  const y = 25;
-  const glow = ctx.createRadialGradient(x, y, 4, x, y, 24);
-  glow.addColorStop(0, "rgba(255, 73, 182, 0.28)");
-  glow.addColorStop(0.54, "rgba(255, 73, 182, 0.1)");
+  const y = 30;
+  const pulse = isLaunching ? 0.5 + Math.sin(timestamp / 90) * 0.5 : 0;
+  const glow = ctx.createRadialGradient(x, y, 7, x, y, 18 + pulse * 1.5);
+  glow.addColorStop(0, `rgba(255, 73, 182, ${0.1 + pulse * 0.08})`);
+  glow.addColorStop(0.6, "rgba(255, 73, 182, 0.05)");
   glow.addColorStop(1, "rgba(255, 73, 182, 0)");
 
   ctx.save();
   ctx.fillStyle = glow;
   ctx.beginPath();
-  ctx.arc(x, y, 24, 0, Math.PI * 2);
+  ctx.arc(x, y, 18 + pulse * 1.5, 0, Math.PI * 2);
   ctx.fill();
 
-  const rim = ctx.createRadialGradient(x - 4, y - 5, 2, x, y, 15);
-  rim.addColorStop(0, "#fff0a8");
-  rim.addColorStop(0.48, "#ffcc68");
-  rim.addColorStop(1, "#7b3455");
+  ctx.fillStyle = "rgba(0, 0, 0, 0.2)";
+  ctx.beginPath();
+  ctx.ellipse(x, y + 13, 10, 2.5, 0, 0, Math.PI * 2);
+  ctx.fill();
 
-  ctx.shadowColor = "rgba(255, 211, 126, 0.58)";
-  ctx.shadowBlur = 8;
+  const rim = ctx.createLinearGradient(x - 10, y - 10, x + 10, y + 10);
+  rim.addColorStop(0, "#ffd98c");
+  rim.addColorStop(0.45, "#ff67c4");
+  rim.addColorStop(1, "#6f38c8");
+
+  ctx.shadowColor = `rgba(255, 73, 182, ${0.24 + pulse * 0.18})`;
+  ctx.shadowBlur = 5 + pulse * 3;
   ctx.fillStyle = rim;
   ctx.beginPath();
-  ctx.arc(x, y, 13, 0, Math.PI * 2);
+  ctx.arc(x, y, 12.8, 0, Math.PI * 2);
   ctx.fill();
 
   ctx.shadowBlur = 0;
-  const depth = ctx.createRadialGradient(x, y + 2, 1, x, y + 2, 10);
+  const depth = ctx.createRadialGradient(x - 2, y - 3, 1, x, y + 1, 10);
   depth.addColorStop(0, "rgba(3, 1, 8, 0.98)");
-  depth.addColorStop(0.64, "rgba(13, 5, 24, 0.96)");
-  depth.addColorStop(1, "rgba(255, 73, 182, 0.48)");
+  depth.addColorStop(0.62, "rgba(12, 5, 22, 0.98)");
+  depth.addColorStop(1, "rgba(42, 15, 73, 0.92)");
 
   ctx.fillStyle = depth;
-  ctx.strokeStyle = "rgba(255, 73, 182, 0.78)";
-  ctx.lineWidth = 1.4;
+  ctx.strokeStyle = "rgba(255, 203, 240, 0.8)";
+  ctx.lineWidth = 1;
   ctx.beginPath();
-  ctx.arc(x, y + 1, 8.5, 0, Math.PI * 2);
+  ctx.arc(x, y + 1, 8.4, 0, Math.PI * 2);
   ctx.fill();
   ctx.stroke();
 
-  ctx.fillStyle = "rgba(0, 0, 0, 0.22)";
+  ctx.strokeStyle = `rgba(255, 226, 154, ${0.34 + pulse * 0.18})`;
+  ctx.lineWidth = 0.7;
   ctx.beginPath();
-  ctx.ellipse(x, y + 15, 11, 3.5, 0, 0, Math.PI * 2);
-  ctx.fill();
+  ctx.arc(x, y, 14.1 + pulse * 0.45, 0, Math.PI * 2);
+  ctx.stroke();
   ctx.restore();
 }
 
@@ -567,13 +573,39 @@ function drawHomeBall(ctx, ball, trail = []) {
 function getHomeBallPoints(path, slot, canvasWidth, canvasHeight = 420) {
   const rows = path.length;
   const { pegTop, slotY, pegStep, pegGap, centerX } = getHomeBoardGeometry(canvasWidth, rows, canvasHeight);
-  const points = [{ x: canvasWidth / 2, y: 10 }];
+  const launcherX = canvasWidth / 2;
+  const ballRadius = 3.9;
+  const pegRadius = 3.8;
+  const contactDistance = ballRadius + pegRadius + 1.8;
+  const points = [
+    { x: launcherX, y: 31 },
+    { x: launcherX, y: 43 },
+    { x: launcherX, y: pegTop - 15 },
+  ];
   for (let row = 0; row < path.length; row += 1) {
-    const y = pegTop + row * pegStep;
-    const x = canvasWidth / 2 + (path[row] - (row + 1) / 2) * pegGap;
-    points.push({ x, y });
+    const previousSlot = row > 0 ? path[row - 1] : 0;
+    const currentSlot = path[row];
+    const direction = currentSlot > previousSlot ? 1 : -1;
+    const touchedCol = Math.max(0, Math.min(row, currentSlot > previousSlot ? currentSlot - 1 : currentSlot));
+    const pegY = pegTop + row * pegStep;
+    const pegX = canvasWidth / 2 + (touchedCol - row / 2) * pegGap;
+    const contactAngle = direction > 0 ? -0.2 : Math.PI + 0.2;
+    const rawContactX = pegX + Math.cos(contactAngle) * contactDistance;
+    const rawContactY = pegY + Math.sin(contactAngle) * contactDistance;
+    const triangleHalfAtRow = Math.max(contactDistance + 3, ((row + 1) / Math.max(1, rows)) * (rows * pegGap) / 2);
+    const leftLimit = launcherX - triangleHalfAtRow + ballRadius + 2;
+    const rightLimit = launcherX + triangleHalfAtRow - ballRadius - 2;
+    const contactX = Math.max(leftLimit, Math.min(rightLimit, rawContactX));
+    const contactY = rawContactY;
+    const fallY = Math.min(slotY - 12, pegY + pegStep * 0.58);
+    const fallHalf = Math.max(contactDistance + 8, ((row + 0.9) / Math.max(1, rows)) * (rows * pegGap) / 2);
+    const fallXRaw = launcherX + (currentSlot - (row + 1) / 2) * pegGap;
+    const fallX = Math.max(launcherX - fallHalf + ballRadius + 2, Math.min(launcherX + fallHalf - ballRadius - 2, fallXRaw));
+
+    points.push({ x: contactX, y: contactY, peg: getHomeTouchedPeg(path, row), contact: true, pegX, pegY });
+    points.push({ x: fallX, y: fallY, peg: getHomeTouchedPeg(path, row) });
   }
-  points.push({ x: centerX(slot), y: slotY - 4 });
+  points.push({ x: centerX(slot), y: slotY - 5 });
   return points;
 }
 
@@ -594,18 +626,52 @@ function getHomeBallFrame(animation, timestamp) {
   const local = scaled - index;
   const a = animation.points[index];
   const b = animation.points[Math.min(index + 1, animation.points.length - 1)];
+  const easeIn = local * local;
+  const easeOut = 1 - (1 - local) ** 3;
+  const t = b?.contact ? easeIn : a?.contact ? easeOut : local < 0.5 ? 2 * local * local : 1 - ((-2 * local + 2) ** 2) / 2;
+  let x = a.x + (b.x - a.x) * t;
+  let y = a.y + (b.y - a.y) * t;
+
+  if (a?.contact && a.pegX != null && a.pegY != null) {
+    const dx = a.x - a.pegX;
+    const dy = a.y - a.pegY;
+    const distance = Math.max(1, Math.hypot(dx, dy));
+    const normalX = dx / distance;
+    const normalY = dy / distance;
+    const controlX = a.x + normalX * 15;
+    const controlY = a.y + normalY * 8 - 4;
+    const q = easeOut;
+    const qInv = 1 - q;
+    x = qInv * qInv * a.x + 2 * qInv * q * controlX + q * q * b.x;
+    y = qInv * qInv * a.y + 2 * qInv * q * controlY + q * q * b.y;
+  } else if (b?.contact && b.pegX != null && b.pegY != null) {
+    const dx = b.x - b.pegX;
+    const dy = b.y - b.pegY;
+    const distance = Math.max(1, Math.hypot(dx, dy));
+    const normalX = dx / distance;
+    const normalY = dy / distance;
+    const controlX = b.x + normalX * 6;
+    const controlY = b.y + normalY * 3 - 2;
+    const q = easeIn;
+    const qInv = 1 - q;
+    x = qInv * qInv * a.x + 2 * qInv * q * controlX + q * q * b.x;
+    y = qInv * qInv * a.y + 2 * qInv * q * controlY + q * q * b.y;
+  }
+
   const ball = {
-    x: a.x + (b.x - a.x) * local,
-    y: a.y + (b.y - a.y) * local + Math.sin(progress * Math.PI * 10) * 3,
-    radius: 5,
+    x,
+    y,
+    radius: 3.9,
   };
-  const activeRow = Math.max(0, Math.min(animation.path.length - 1, index));
+  let activePeg = null;
+  if (b?.contact && local > 0.7) activePeg = b.peg;
+  else if (a?.contact && local < 0.18) activePeg = a.peg;
   animation.trail.push({ x: ball.x, y: ball.y });
   if (animation.trail.length > 7) animation.trail.shift();
   return {
     ball,
     trail: animation.trail,
-    activePeg: getHomeTouchedPeg(animation.path, activeRow),
+    activePeg,
     done: progress >= 1,
   };
 }
@@ -746,7 +812,12 @@ function drawHomeBoard(ball = null, hotSlot = -1, slotDrop = 0, activePeg = null
   const rows = state.homeRows;
   const { slotCount, pegTop, slotY, pegStep, pegGap, slotWidth, slotHeight, centerX } = getHomeBoardGeometry(width, rows, height);
 
-  drawHomeLauncher(ctx, width);
+  drawHomeLauncher(
+    ctx,
+    width,
+    ballEntries.some((entry) => entry.ball && entry.ball.y < pegTop + 4),
+    effectTimestamp
+  );
 
   ctx.save();
   ctx.globalAlpha = 0.95;

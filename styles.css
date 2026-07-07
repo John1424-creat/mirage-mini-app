@@ -4848,3 +4848,171 @@ body.is-telegram-webapp #screen-solo .carpet-stake-strip {
   font-size: 9px !important;
 }
 
+/* Pyramid scene rebuild v35.
+   One fixed composition lane for the first room: board, win flash, controls,
+   play button, auto scale, stake row and nav no longer fight each other. */
+#screen-home,
+body.local-telegram-frame #screen-home,
+body.is-telegram-webapp #screen-home {
+  --hud-top: 70px;
+  --game-top: 112px;
+  --controls-top: 535px;
+  --stake-top: 672px;
+}
+
+#screen-home .player-row,
+body.local-telegram-frame #screen-home .player-row,
+body.is-telegram-webapp #screen-home .player-row {
+  left: 10px !important;
+  right: 10px !important;
+  top: var(--hud-top) !important;
+}
+
+#screen-home .player,
+body.local-telegram-frame #screen-home .player,
+body.is-telegram-webapp #screen-home .player {
+  max-width: 252px !important;
+}
+
+#screen-home .player strong,
+body.local-telegram-frame #screen-home .player strong,
+body.is-telegram-webapp #screen-home .player strong {
+  max-width: 198px !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+}
+
+#screen-home .gem-balance,
+body.local-telegram-frame #screen-home .gem-balance,
+body.is-telegram-webapp #screen-home .gem-balance {
+  position: absolute !important;
+  right: 0 !important;
+  top: 8px !important;
+}
+
+#screen-home .limit-cluster,
+body.local-telegram-frame #screen-home .limit-cluster,
+body.is-telegram-webapp #screen-home .limit-cluster {
+  top: 146px !important;
+  right: 22px !important;
+}
+
+#screen-home .figma-board,
+body.local-telegram-frame #screen-home .figma-board,
+body.is-telegram-webapp #screen-home .figma-board {
+  left: 8px !important;
+  top: var(--game-top) !important;
+  width: 377px !important;
+  height: 420px !important;
+}
+
+#screen-home .figma-board canvas,
+body.local-telegram-frame #screen-home .figma-board canvas,
+body.is-telegram-webapp #screen-home .figma-board canvas {
+  display: block !important;
+  width: 100% !important;
+  height: 100% !important;
+}
+
+#screen-home .figma-winbar,
+body.local-telegram-frame #screen-home .figma-winbar,
+body.is-telegram-webapp #screen-home .figma-winbar {
+  top: 366px !important;
+}
+
+#screen-home .figma-controls,
+body.local-telegram-frame #screen-home .figma-controls,
+body.is-telegram-webapp #screen-home .figma-controls {
+  left: 12px !important;
+  top: var(--controls-top) !important;
+  width: 369px !important;
+  height: 128px !important;
+  grid-template-columns: 132px 93px 132px !important;
+  gap: 6px !important;
+  align-items: start !important;
+}
+
+#screen-home .risk-block,
+#screen-home .mode-block {
+  width: 132px !important;
+}
+
+#screen-home .risk-stack,
+#screen-home .risk-choice,
+#screen-home .mode-choice,
+body.local-telegram-frame #screen-home .risk-stack,
+body.local-telegram-frame #screen-home .risk-choice,
+body.local-telegram-frame #screen-home .mode-choice,
+body.is-telegram-webapp #screen-home .risk-stack,
+body.is-telegram-webapp #screen-home .risk-choice,
+body.is-telegram-webapp #screen-home .mode-choice {
+  width: 132px !important;
+}
+
+#screen-home .lamp-play,
+body.local-telegram-frame #screen-home .lamp-play,
+body.is-telegram-webapp #screen-home .lamp-play {
+  width: 96px !important;
+  height: 96px !important;
+  margin-top: 11px !important;
+  justify-self: center !important;
+  align-self: start !important;
+}
+
+#screen-home .lamp-play img,
+body.local-telegram-frame #screen-home .lamp-play img,
+body.is-telegram-webapp #screen-home .lamp-play img {
+  width: 31px !important;
+  height: 31px !important;
+}
+
+#screen-home .lamp-play strong,
+body.local-telegram-frame #screen-home .lamp-play strong,
+body.is-telegram-webapp #screen-home .lamp-play strong {
+  font-size: 13px !important;
+}
+
+#screen-home .auto-scale,
+body.local-telegram-frame #screen-home .auto-scale,
+body.is-telegram-webapp #screen-home .auto-scale {
+  left: 244px !important;
+  top: 639px !important;
+  width: 132px !important;
+}
+
+#screen-home .auto-scale.show,
+body.local-telegram-frame #screen-home .auto-scale.show,
+body.is-telegram-webapp #screen-home .auto-scale.show {
+  height: 29px !important;
+  width: 132px !important;
+  padding: 0 4px !important;
+}
+
+#screen-home .auto-scale-labels,
+body.local-telegram-frame #screen-home .auto-scale-labels,
+body.is-telegram-webapp #screen-home .auto-scale-labels {
+  top: -13px !important;
+}
+
+#screen-home .auto-scale-track,
+body.local-telegram-frame #screen-home .auto-scale-track,
+body.is-telegram-webapp #screen-home .auto-scale-track {
+  margin-top: 13px !important;
+}
+
+#screen-home .stake-strip,
+body.local-telegram-frame #screen-home .stake-strip,
+body.is-telegram-webapp #screen-home .stake-strip {
+  top: var(--stake-top) !important;
+  width: 260px !important;
+  height: 64px !important;
+  grid-template-columns: 30px 169px 30px !important;
+  gap: 6px !important;
+}
+
+#screen-home .stake-strip .stake-shortcuts,
+body.local-telegram-frame #screen-home .stake-strip .stake-shortcuts,
+body.is-telegram-webapp #screen-home .stake-strip .stake-shortcuts {
+  top: 40px !important;
+}
+
