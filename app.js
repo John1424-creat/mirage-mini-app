@@ -266,8 +266,8 @@ function renderCarpet() {
 
   const displayMultiplier = Math.min(CARPET_MAX_CRASH_DISPLAY, carpet.multiplier);
   const progress = getCarpetProgress(displayMultiplier);
-  const x = Math.pow(progress, 0.72) * 210;
-  const y = Math.pow(progress, 1.35) * -310;
+  const x = Math.pow(progress, 0.72) * 184;
+  const y = Math.pow(progress, 1.28) * -226;
   const scale = 1;
   const rotate = -8 + progress * 12;
 
@@ -460,7 +460,7 @@ function setupCanvasForDisplay(canvas, ctx) {
 
 function getHomeBoardGeometry(width, rows, height = 420) {
   const slotCount = rows + 1;
-  const pegTop = 34;
+  const pegTop = 52;
   const designWidth = Math.min(width, 393);
   const pegGap = Math.max(16.5, Math.min(23, (designWidth - 74) / Math.max(1, rows)));
   const idealStep = pegGap * 0.92;
@@ -475,7 +475,7 @@ function getHomeBoardGeometry(width, rows, height = 420) {
 
 function drawHomeLauncher(ctx, width) {
   const x = width / 2;
-  const y = 10;
+  const y = 25;
   const glow = ctx.createRadialGradient(x, y, 4, x, y, 24);
   glow.addColorStop(0, "rgba(255, 73, 182, 0.28)");
   glow.addColorStop(0.54, "rgba(255, 73, 182, 0.1)");

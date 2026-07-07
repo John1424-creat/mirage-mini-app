@@ -4227,3 +4227,624 @@ body.is-telegram-webapp .bottom-nav {
   z-index: 100 !important;
 }
 
+/* Room composition contract v29.
+   Both rooms use the same zones: top HUD, game area, controls, stake row,
+   bottom navigation. The old Figma logo is removed from the flow. */
+#screen-home,
+#screen-solo {
+  --hud-top: 70px;
+  --game-top: 118px;
+  --controls-top: 548px;
+  --stake-top: 684px;
+}
+
+#screen-solo {
+  --game-top: 118px;
+  --controls-top: 580px;
+  --stake-top: 702px;
+}
+
+#screen-home .figma-topbar,
+#screen-solo .figma-topbar,
+body.local-telegram-frame #screen-home .figma-topbar,
+body.local-telegram-frame #screen-solo .figma-topbar,
+body.is-telegram-webapp #screen-home .figma-topbar,
+body.is-telegram-webapp #screen-solo .figma-topbar {
+  display: none !important;
+  height: 0 !important;
+  min-height: 0 !important;
+  padding: 0 !important;
+  margin: 0 !important;
+}
+
+#screen-home .player-row,
+#screen-solo .player-row,
+body.local-telegram-frame #screen-home .player-row,
+body.local-telegram-frame #screen-solo .player-row,
+body.is-telegram-webapp #screen-home .player-row,
+body.is-telegram-webapp #screen-solo .player-row {
+  position: absolute !important;
+  left: 8px !important;
+  right: 8px !important;
+  top: var(--hud-top) !important;
+  height: 48px !important;
+  margin: 0 !important;
+  z-index: 80 !important;
+}
+
+#screen-home .limit-cluster,
+body.local-telegram-frame #screen-home .limit-cluster,
+body.is-telegram-webapp #screen-home .limit-cluster {
+  top: 156px !important;
+  right: 27px !important;
+  z-index: 81 !important;
+}
+
+#screen-home .figma-board,
+body.local-telegram-frame #screen-home .figma-board,
+body.is-telegram-webapp #screen-home .figma-board {
+  position: absolute !important;
+  left: 8px !important;
+  top: var(--game-top) !important;
+  width: 377px !important;
+  height: 420px !important;
+  margin: 0 !important;
+  z-index: 10 !important;
+  overflow: visible !important;
+}
+
+#screen-home .figma-winbar,
+body.local-telegram-frame #screen-home .figma-winbar,
+body.is-telegram-webapp #screen-home .figma-winbar {
+  top: 378px !important;
+  z-index: 42 !important;
+}
+
+#screen-home .figma-controls,
+body.local-telegram-frame #screen-home .figma-controls,
+body.is-telegram-webapp #screen-home .figma-controls {
+  position: absolute !important;
+  left: 8px !important;
+  top: var(--controls-top) !important;
+  width: 377px !important;
+  height: 126px !important;
+  margin: 0 !important;
+  grid-template-columns: 133px 100px 132px !important;
+  gap: 6px !important;
+  align-items: start !important;
+  z-index: 40 !important;
+}
+
+#screen-home .lamp-play,
+body.local-telegram-frame #screen-home .lamp-play,
+body.is-telegram-webapp #screen-home .lamp-play {
+  width: 100px !important;
+  height: 100px !important;
+  align-self: start !important;
+  margin-top: 24px !important;
+}
+
+#screen-home .auto-scale,
+body.local-telegram-frame #screen-home .auto-scale,
+body.is-telegram-webapp #screen-home .auto-scale {
+  position: absolute !important;
+  left: 249px !important;
+  top: 650px !important;
+  width: 128px !important;
+  margin: 0 !important;
+  z-index: 50 !important;
+}
+
+#screen-home .auto-scale.show,
+body.local-telegram-frame #screen-home .auto-scale.show,
+body.is-telegram-webapp #screen-home .auto-scale.show {
+  width: 128px !important;
+  height: 28px !important;
+  padding: 0 3px !important;
+  transform: none !important;
+}
+
+#screen-home .auto-scale-labels button,
+body.local-telegram-frame #screen-home .auto-scale-labels button,
+body.is-telegram-webapp #screen-home .auto-scale-labels button {
+  font-size: 7px !important;
+}
+
+#screen-home .auto-scale-value,
+body.local-telegram-frame #screen-home .auto-scale-value,
+body.is-telegram-webapp #screen-home .auto-scale-value {
+  display: none !important;
+}
+
+#screen-home .stake-strip,
+body.local-telegram-frame #screen-home .stake-strip,
+body.is-telegram-webapp #screen-home .stake-strip {
+  position: absolute !important;
+  left: 50% !important;
+  top: var(--stake-top) !important;
+  width: 260px !important;
+  margin: 0 !important;
+  transform: translateX(-50%) !important;
+  z-index: 55 !important;
+}
+
+#screen-home .auto-scale.show + .stake-strip,
+body.local-telegram-frame #screen-home .auto-scale.show + .stake-strip,
+body.is-telegram-webapp #screen-home .auto-scale.show + .stake-strip {
+  margin-top: 0 !important;
+}
+
+#screen-solo .carpet-stage,
+body.local-telegram-frame #screen-solo .carpet-stage,
+body.is-telegram-webapp #screen-solo .carpet-stage {
+  position: absolute !important;
+  left: 8px !important;
+  top: var(--game-top) !important;
+  width: 377px !important;
+  height: 450px !important;
+  margin: 0 !important;
+  overflow: hidden !important;
+  z-index: 10 !important;
+}
+
+#screen-solo .carpet-multiplier {
+  top: 50px !important;
+}
+
+#screen-solo .carpet-hero-wrap {
+  left: 28px !important;
+  top: 282px !important;
+}
+
+#screen-solo .carpet-history,
+body.local-telegram-frame #screen-solo .carpet-history,
+body.is-telegram-webapp #screen-solo .carpet-history {
+  position: absolute !important;
+  left: 50% !important;
+  top: 546px !important;
+  width: 256px !important;
+  height: 27px !important;
+  margin: 0 !important;
+  transform: translateX(-50%) !important;
+  z-index: 45 !important;
+}
+
+#screen-solo .carpet-controls,
+body.local-telegram-frame #screen-solo .carpet-controls,
+body.is-telegram-webapp #screen-solo .carpet-controls {
+  position: absolute !important;
+  left: 8px !important;
+  top: var(--controls-top) !important;
+  width: 377px !important;
+  height: 92px !important;
+  margin: 0 !important;
+  grid-template-columns: 132px 100px 132px !important;
+  gap: 6px !important;
+  align-items: start !important;
+  z-index: 50 !important;
+}
+
+#screen-solo .carpet-action,
+body.local-telegram-frame #screen-solo .carpet-action,
+body.is-telegram-webapp #screen-solo .carpet-action {
+  width: 100px !important;
+  height: 100px !important;
+  top: -38px !important;
+}
+
+#screen-solo .carpet-stake-strip,
+body.local-telegram-frame #screen-solo .carpet-stake-strip,
+body.is-telegram-webapp #screen-solo .carpet-stake-strip {
+  position: absolute !important;
+  left: 50% !important;
+  top: var(--stake-top) !important;
+  width: 260px !important;
+  margin: 0 !important;
+  transform: translateX(-50%) !important;
+  z-index: 58 !important;
+}
+
+/* Carpet control console v30.
+   The lower controls are a console, not loose controls around the action button. */
+#screen-solo {
+  --controls-top: 576px;
+  --stake-top: 704px;
+}
+
+#screen-solo .carpet-history,
+body.local-telegram-frame #screen-solo .carpet-history,
+body.is-telegram-webapp #screen-solo .carpet-history {
+  top: 534px !important;
+}
+
+#screen-solo .carpet-controls,
+body.local-telegram-frame #screen-solo .carpet-controls,
+body.is-telegram-webapp #screen-solo .carpet-controls {
+  top: var(--controls-top) !important;
+  height: 120px !important;
+  grid-template-columns: 132px 100px 132px !important;
+  align-items: start !important;
+  isolation: isolate !important;
+}
+
+#screen-solo .carpet-return-block,
+#screen-solo .carpet-bet-block {
+  width: 132px !important;
+  position: static !important;
+  display: grid !important;
+  justify-items: stretch !important;
+  gap: 3px !important;
+}
+
+#screen-solo .carpet-return-block {
+  grid-column: 1 !important;
+}
+
+#screen-solo .carpet-bet-block {
+  grid-column: 3 !important;
+}
+
+#screen-solo .carpet-controls .control-title {
+  height: 13px !important;
+  line-height: 13px !important;
+  text-align: center !important;
+  font-size: 10px !important;
+}
+
+#screen-solo .carpet-controls .mode-choice {
+  width: 132px !important;
+  height: 28px !important;
+  min-height: 28px !important;
+  padding: 0 8px !important;
+  font-size: 10px !important;
+  line-height: 1 !important;
+}
+
+#screen-solo .carpet-action,
+body.local-telegram-frame #screen-solo .carpet-action,
+body.is-telegram-webapp #screen-solo .carpet-action {
+  position: absolute !important;
+  left: 50% !important;
+  top: 18px !important;
+  width: 96px !important;
+  height: 96px !important;
+  margin: 0 !important;
+  transform: translateX(-50%) !important;
+  z-index: 5 !important;
+}
+
+#screen-solo .carpet-action:active {
+  transform: translateX(-50%) translateY(3px) scale(0.99) !important;
+}
+
+#screen-solo .carpet-autocash,
+#screen-solo .carpet-autostarts {
+  position: absolute !important;
+  top: 84px !important;
+  width: 132px !important;
+  display: grid !important;
+  justify-items: center !important;
+  gap: 2px !important;
+  z-index: 6 !important;
+}
+
+#screen-solo .carpet-autocash {
+  left: 0 !important;
+}
+
+#screen-solo .carpet-autostarts {
+  right: 0 !important;
+}
+
+#screen-solo .carpet-autocash.show,
+#screen-solo .carpet-autostarts.show {
+  max-height: 44px !important;
+}
+
+#screen-solo .carpet-cashout-strip {
+  width: 132px !important;
+  height: 28px !important;
+  grid-template-columns: 28px 58px 28px !important;
+  gap: 6px !important;
+}
+
+#screen-solo .carpet-cashout-value {
+  width: 58px !important;
+  height: 27px !important;
+}
+
+#screen-solo .carpet-cashout-strip .stake-step {
+  width: 28px !important;
+  height: 27px !important;
+}
+
+#screen-solo .carpet-stake-strip,
+body.local-telegram-frame #screen-solo .carpet-stake-strip,
+body.is-telegram-webapp #screen-solo .carpet-stake-strip {
+  top: var(--stake-top) !important;
+  width: 260px !important;
+  z-index: 7 !important;
+}
+
+/* Carpet compact console v31.
+   Three non-overlapping rows: mode switches, auto settings, stake shortcuts. */
+#screen-solo {
+  --controls-top: 552px;
+  --stake-top: 696px;
+}
+
+#screen-solo .carpet-history,
+body.local-telegram-frame #screen-solo .carpet-history,
+body.is-telegram-webapp #screen-solo .carpet-history {
+  top: 526px !important;
+}
+
+#screen-solo .carpet-stage.ready .carpet-status {
+  display: none !important;
+}
+
+#screen-solo .carpet-status {
+  top: 96px !important;
+}
+
+#screen-solo .carpet-controls,
+body.local-telegram-frame #screen-solo .carpet-controls,
+body.is-telegram-webapp #screen-solo .carpet-controls {
+  top: var(--controls-top) !important;
+  height: 136px !important;
+  grid-template-columns: 124px 104px 124px !important;
+  gap: 8px !important;
+}
+
+#screen-solo .carpet-return-block,
+#screen-solo .carpet-bet-block {
+  width: 124px !important;
+  gap: 2px !important;
+}
+
+#screen-solo .carpet-controls .control-title {
+  height: 12px !important;
+  line-height: 12px !important;
+  font-size: 9px !important;
+}
+
+#screen-solo .carpet-controls .mode-choice {
+  width: 124px !important;
+  height: 24px !important;
+  min-height: 24px !important;
+  padding: 0 7px !important;
+  font-size: 9px !important;
+}
+
+#screen-solo .carpet-action,
+body.local-telegram-frame #screen-solo .carpet-action,
+body.is-telegram-webapp #screen-solo .carpet-action {
+  top: 44px !important;
+  width: 88px !important;
+  height: 88px !important;
+}
+
+#screen-solo .carpet-action-icon {
+  width: 28px !important;
+  height: 28px !important;
+}
+
+#screen-solo .carpet-action strong {
+  font-size: 11px !important;
+}
+
+#screen-solo .carpet-autocash,
+#screen-solo .carpet-autostarts {
+  top: 70px !important;
+  width: 124px !important;
+  gap: 1px !important;
+}
+
+#screen-solo .carpet-autocash.show,
+#screen-solo .carpet-autostarts.show {
+  max-height: 38px !important;
+}
+
+#screen-solo .carpet-cashout-strip {
+  width: 124px !important;
+  height: 25px !important;
+  grid-template-columns: 25px 58px 25px !important;
+  gap: 5px !important;
+}
+
+#screen-solo .carpet-cashout-value {
+  width: 58px !important;
+  height: 24px !important;
+  font-size: 9px !important;
+}
+
+#screen-solo .carpet-cashout-strip .stake-step {
+  width: 25px !important;
+  height: 24px !important;
+  transform: translateY(0) !important;
+}
+
+#screen-solo .carpet-stake-strip,
+body.local-telegram-frame #screen-solo .carpet-stake-strip,
+body.is-telegram-webapp #screen-solo .carpet-stake-strip {
+  top: var(--stake-top) !important;
+  width: 260px !important;
+  height: 66px !important;
+  grid-template-columns: 30px 169px 30px !important;
+  gap: 6px !important;
+}
+
+#screen-solo .carpet-stake-strip .stake-step {
+  transform: translateY(-4px) !important;
+}
+
+#screen-solo .carpet-stake-strip .stake-shortcuts {
+  position: absolute !important;
+  left: 50% !important;
+  top: 36px !important;
+  grid-column: auto !important;
+  margin: 0 !important;
+  transform: translateX(-50%) !important;
+  z-index: 2 !important;
+}
+
+/* Carpet console v32.
+   Treat the lower controls as one compact console with reserved lanes:
+   history, mode/auto settings, stake, shortcuts. */
+#screen-solo {
+  --controls-top: 554px;
+  --stake-top: 690px;
+}
+
+#screen-solo .carpet-history,
+body.local-telegram-frame #screen-solo .carpet-history,
+body.is-telegram-webapp #screen-solo .carpet-history {
+  top: 512px !important;
+  height: 27px !important;
+  z-index: 34 !important;
+}
+
+#screen-solo .carpet-stage.ready .carpet-status {
+  display: none !important;
+}
+
+#screen-solo .carpet-status,
+body.local-telegram-frame #screen-solo .carpet-status,
+body.is-telegram-webapp #screen-solo .carpet-status {
+  top: 150px !important;
+  max-width: 170px !important;
+  min-height: 22px !important;
+  padding: 4px 10px !important;
+  font-size: 9px !important;
+  z-index: 28 !important;
+}
+
+#screen-solo .carpet-controls,
+body.local-telegram-frame #screen-solo .carpet-controls,
+body.is-telegram-webapp #screen-solo .carpet-controls {
+  top: var(--controls-top) !important;
+  height: 134px !important;
+  grid-template-columns: 124px 104px 124px !important;
+  gap: 8px !important;
+  align-items: start !important;
+  z-index: 35 !important;
+}
+
+#screen-solo .carpet-return-block,
+#screen-solo .carpet-bet-block {
+  width: 124px !important;
+  gap: 2px !important;
+}
+
+#screen-solo .carpet-controls .control-title {
+  height: 12px !important;
+  line-height: 12px !important;
+  font-size: 9px !important;
+  text-shadow: 0 1px 2px rgba(30, 8, 22, 0.55) !important;
+}
+
+#screen-solo .carpet-controls .mode-choice {
+  width: 124px !important;
+  height: 24px !important;
+  min-height: 24px !important;
+  padding: 0 7px !important;
+  font-size: 9px !important;
+}
+
+#screen-solo .carpet-action,
+body.local-telegram-frame #screen-solo .carpet-action,
+body.is-telegram-webapp #screen-solo .carpet-action {
+  top: 46px !important;
+  width: 86px !important;
+  height: 86px !important;
+  z-index: 37 !important;
+}
+
+#screen-solo .carpet-action::before {
+  transform: translateY(6px) scale(0.985) !important;
+}
+
+#screen-solo .carpet-action-icon {
+  width: 27px !important;
+  height: 27px !important;
+}
+
+#screen-solo .carpet-action strong {
+  font-size: 11px !important;
+}
+
+#screen-solo .carpet-action small {
+  font-size: 8px !important;
+}
+
+#screen-solo .carpet-autocash,
+#screen-solo .carpet-autostarts {
+  top: 70px !important;
+  width: 124px !important;
+  gap: 1px !important;
+}
+
+#screen-solo .carpet-autocash.show,
+#screen-solo .carpet-autostarts.show {
+  max-height: 38px !important;
+}
+
+#screen-solo .carpet-cashout-strip {
+  width: 124px !important;
+  height: 25px !important;
+  grid-template-columns: 25px 58px 25px !important;
+  gap: 5px !important;
+}
+
+#screen-solo .carpet-cashout-value {
+  width: 58px !important;
+  height: 24px !important;
+  font-size: 9px !important;
+}
+
+#screen-solo .carpet-cashout-strip .stake-step {
+  width: 25px !important;
+  height: 24px !important;
+  transform: translateY(0) !important;
+}
+
+#screen-solo .carpet-stake-strip,
+body.local-telegram-frame #screen-solo .carpet-stake-strip,
+body.is-telegram-webapp #screen-solo .carpet-stake-strip {
+  top: var(--stake-top) !important;
+  width: 260px !important;
+  height: 64px !important;
+  grid-template-columns: 30px 169px 30px !important;
+  gap: 6px !important;
+  z-index: 36 !important;
+}
+
+#screen-solo .carpet-stake-strip .stake-step {
+  width: 30px !important;
+  height: 27px !important;
+  transform: translateY(-2px) !important;
+}
+
+#screen-solo .carpet-stake-strip .stake-value {
+  height: 29px !important;
+}
+
+#screen-solo .carpet-stake-strip .stake-value strong {
+  font-size: 12px !important;
+}
+
+#screen-solo .carpet-stake-strip .stake-shortcuts {
+  position: absolute !important;
+  left: 50% !important;
+  top: 39px !important;
+  grid-column: auto !important;
+  margin: 0 !important;
+  transform: translateX(-50%) !important;
+  z-index: 2 !important;
+}
+
+#screen-solo .carpet-stake-strip .stake-shortcuts button {
+  height: 24px !important;
+  font-size: 9px !important;
+}
+
