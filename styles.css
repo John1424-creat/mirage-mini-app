@@ -4232,7 +4232,7 @@ body.is-telegram-webapp .bottom-nav {
    bottom navigation. The old Figma logo is removed from the flow. */
 #screen-home,
 #screen-solo {
-  --hud-top: 70px;
+  --hud-top: 58px;
   --game-top: 118px;
   --controls-top: 548px;
   --stake-top: 684px;
@@ -5014,5 +5014,318 @@ body.is-telegram-webapp #screen-home .stake-strip {
 body.local-telegram-frame #screen-home .stake-strip .stake-shortcuts,
 body.is-telegram-webapp #screen-home .stake-strip .stake-shortcuts {
   top: 40px !important;
+}
+
+/* Carpet console v43.
+   Final layout layer for the second room: side mode blocks, central action and
+   stake controls use fixed lanes so they cannot collide in Telegram WebView. */
+#screen-solo,
+body.local-telegram-frame #screen-solo,
+body.is-telegram-webapp #screen-solo {
+  --carpet-console-top: 532px;
+  --carpet-stake-top: 681px;
+}
+
+#screen-solo .carpet-history,
+body.local-telegram-frame #screen-solo .carpet-history,
+body.is-telegram-webapp #screen-solo .carpet-history {
+  top: 497px !important;
+  height: 27px !important;
+  z-index: 34 !important;
+}
+
+#screen-solo .carpet-controls,
+body.local-telegram-frame #screen-solo .carpet-controls,
+body.is-telegram-webapp #screen-solo .carpet-controls {
+  position: absolute !important;
+  left: 8px !important;
+  top: var(--carpet-console-top) !important;
+  width: 377px !important;
+  height: 142px !important;
+  display: grid !important;
+  grid-template-columns: 126px 109px 126px !important;
+  gap: 8px !important;
+  align-items: start !important;
+  margin: 0 !important;
+  transform: none !important;
+  overflow: visible !important;
+  z-index: 35 !important;
+}
+
+#screen-solo .carpet-return-block,
+#screen-solo .carpet-bet-block,
+body.local-telegram-frame #screen-solo .carpet-return-block,
+body.local-telegram-frame #screen-solo .carpet-bet-block,
+body.is-telegram-webapp #screen-solo .carpet-return-block,
+body.is-telegram-webapp #screen-solo .carpet-bet-block {
+  position: relative !important;
+  width: 126px !important;
+  min-width: 126px !important;
+  display: grid !important;
+  justify-items: center !important;
+  gap: 3px !important;
+  overflow: visible !important;
+}
+
+#screen-solo .carpet-return-block,
+body.local-telegram-frame #screen-solo .carpet-return-block,
+body.is-telegram-webapp #screen-solo .carpet-return-block {
+  grid-column: 1 !important;
+}
+
+#screen-solo .carpet-bet-block,
+body.local-telegram-frame #screen-solo .carpet-bet-block,
+body.is-telegram-webapp #screen-solo .carpet-bet-block {
+  grid-column: 3 !important;
+}
+
+#screen-solo .carpet-controls .control-title,
+body.local-telegram-frame #screen-solo .carpet-controls .control-title,
+body.is-telegram-webapp #screen-solo .carpet-controls .control-title {
+  width: 126px !important;
+  height: 12px !important;
+  line-height: 12px !important;
+  font-size: 9px !important;
+  text-align: center !important;
+  letter-spacing: 0 !important;
+  white-space: nowrap !important;
+}
+
+#screen-solo .carpet-controls .mode-choice,
+body.local-telegram-frame #screen-solo .carpet-controls .mode-choice,
+body.is-telegram-webapp #screen-solo .carpet-controls .mode-choice {
+  width: 126px !important;
+  height: 25px !important;
+  min-height: 25px !important;
+  padding: 0 8px !important;
+  font-size: 9px !important;
+  line-height: 1 !important;
+  border-width: 1px !important;
+}
+
+#screen-solo .carpet-action,
+body.local-telegram-frame #screen-solo .carpet-action,
+body.is-telegram-webapp #screen-solo .carpet-action {
+  position: absolute !important;
+  left: 50% !important;
+  top: 30px !important;
+  width: 94px !important;
+  height: 94px !important;
+  margin: 0 !important;
+  transform: translateX(-50%) !important;
+  z-index: 38 !important;
+}
+
+#screen-solo .carpet-action:active,
+body.local-telegram-frame #screen-solo .carpet-action:active,
+body.is-telegram-webapp #screen-solo .carpet-action:active {
+  transform: translateX(-50%) translateY(3px) scale(0.99) !important;
+}
+
+#screen-solo .carpet-action::before,
+body.local-telegram-frame #screen-solo .carpet-action::before,
+body.is-telegram-webapp #screen-solo .carpet-action::before {
+  transform: translateY(7px) scale(0.985) !important;
+}
+
+#screen-solo .carpet-action-icon,
+body.local-telegram-frame #screen-solo .carpet-action-icon,
+body.is-telegram-webapp #screen-solo .carpet-action-icon {
+  width: 29px !important;
+  height: 29px !important;
+}
+
+#screen-solo .carpet-action strong,
+body.local-telegram-frame #screen-solo .carpet-action strong,
+body.is-telegram-webapp #screen-solo .carpet-action strong {
+  font-size: 11px !important;
+}
+
+#screen-solo .carpet-action small,
+body.local-telegram-frame #screen-solo .carpet-action small,
+body.is-telegram-webapp #screen-solo .carpet-action small {
+  font-size: 8px !important;
+}
+
+#screen-solo .carpet-autocash,
+#screen-solo .carpet-autostarts,
+body.local-telegram-frame #screen-solo .carpet-autocash,
+body.local-telegram-frame #screen-solo .carpet-autostarts,
+body.is-telegram-webapp #screen-solo .carpet-autocash,
+body.is-telegram-webapp #screen-solo .carpet-autostarts {
+  position: absolute !important;
+  left: 0 !important;
+  top: 68px !important;
+  width: 126px !important;
+  display: grid !important;
+  justify-items: center !important;
+  gap: 2px !important;
+  overflow: visible !important;
+  transform: none !important;
+}
+
+#screen-solo .carpet-autocash.show,
+#screen-solo .carpet-autostarts.show,
+body.local-telegram-frame #screen-solo .carpet-autocash.show,
+body.local-telegram-frame #screen-solo .carpet-autostarts.show,
+body.is-telegram-webapp #screen-solo .carpet-autocash.show,
+body.is-telegram-webapp #screen-solo .carpet-autostarts.show {
+  max-height: 42px !important;
+  opacity: 1 !important;
+  pointer-events: auto !important;
+}
+
+#screen-solo .carpet-cashout-strip,
+body.local-telegram-frame #screen-solo .carpet-cashout-strip,
+body.is-telegram-webapp #screen-solo .carpet-cashout-strip {
+  width: 126px !important;
+  height: 27px !important;
+  display: grid !important;
+  grid-template-columns: 27px 58px 27px !important;
+  gap: 5px !important;
+  align-items: center !important;
+  justify-content: center !important;
+  overflow: visible !important;
+}
+
+#screen-solo .carpet-cashout-value,
+body.local-telegram-frame #screen-solo .carpet-cashout-value,
+body.is-telegram-webapp #screen-solo .carpet-cashout-value {
+  width: 58px !important;
+  height: 25px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  font-size: 9px !important;
+  white-space: nowrap !important;
+}
+
+#screen-solo .carpet-cashout-strip .stake-step,
+body.local-telegram-frame #screen-solo .carpet-cashout-strip .stake-step,
+body.is-telegram-webapp #screen-solo .carpet-cashout-strip .stake-step {
+  width: 27px !important;
+  height: 25px !important;
+  transform: none !important;
+  align-self: center !important;
+}
+
+#screen-solo .carpet-stake-strip,
+body.local-telegram-frame #screen-solo .carpet-stake-strip,
+body.is-telegram-webapp #screen-solo .carpet-stake-strip {
+  position: absolute !important;
+  left: 50% !important;
+  top: var(--carpet-stake-top) !important;
+  width: 278px !important;
+  height: 68px !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  display: grid !important;
+  grid-template-columns: 32px 182px 32px !important;
+  grid-template-rows: 31px 29px !important;
+  column-gap: 8px !important;
+  row-gap: 4px !important;
+  align-items: start !important;
+  justify-content: center !important;
+  transform: translateX(-50%) !important;
+  overflow: visible !important;
+  z-index: 36 !important;
+}
+
+#screen-solo .carpet-stake-strip > .stake-step,
+body.local-telegram-frame #screen-solo .carpet-stake-strip > .stake-step,
+body.is-telegram-webapp #screen-solo .carpet-stake-strip > .stake-step {
+  width: 32px !important;
+  height: 29px !important;
+  align-self: center !important;
+  transform: none !important;
+}
+
+#screen-solo .carpet-stake-strip .stake-value,
+body.local-telegram-frame #screen-solo .carpet-stake-strip .stake-value,
+body.is-telegram-webapp #screen-solo .carpet-stake-strip .stake-value {
+  width: 182px !important;
+  height: 31px !important;
+  align-self: center !important;
+}
+
+#screen-solo .carpet-stake-strip .stake-value::after,
+body.local-telegram-frame #screen-solo .carpet-stake-strip .stake-value::after,
+body.is-telegram-webapp #screen-solo .carpet-stake-strip .stake-value::after {
+  left: 107px !important;
+  top: 6px !important;
+  height: 18px !important;
+}
+
+#screen-solo .carpet-stake-strip .stake-value strong,
+body.local-telegram-frame #screen-solo .carpet-stake-strip .stake-value strong,
+body.is-telegram-webapp #screen-solo .carpet-stake-strip .stake-value strong {
+  left: 15px !important;
+  top: 6px !important;
+  width: 88px !important;
+  height: 18px !important;
+  font-size: 13px !important;
+  justify-content: center !important;
+}
+
+#screen-solo .carpet-stake-strip .stake-value > span,
+body.local-telegram-frame #screen-solo .carpet-stake-strip .stake-value > span,
+body.is-telegram-webapp #screen-solo .carpet-stake-strip .stake-value > span {
+  left: 113px !important;
+  top: 6px !important;
+  width: 48px !important;
+  height: 18px !important;
+  justify-content: flex-end !important;
+  gap: 4px !important;
+  font-size: 13px !important;
+  overflow: visible !important;
+}
+
+#screen-solo #carpet-stake,
+body.local-telegram-frame #screen-solo #carpet-stake,
+body.is-telegram-webapp #screen-solo #carpet-stake {
+  max-width: 38px !important;
+  font-size: 13px !important;
+  line-height: 1 !important;
+}
+
+#screen-solo #carpet-stake[data-digits="medium"],
+body.local-telegram-frame #screen-solo #carpet-stake[data-digits="medium"],
+body.is-telegram-webapp #screen-solo #carpet-stake[data-digits="medium"] {
+  font-size: 11px !important;
+}
+
+#screen-solo #carpet-stake[data-digits="long"],
+body.local-telegram-frame #screen-solo #carpet-stake[data-digits="long"],
+body.is-telegram-webapp #screen-solo #carpet-stake[data-digits="long"] {
+  font-size: 9px !important;
+}
+
+#screen-solo .carpet-stake-strip .stake-ruby,
+body.local-telegram-frame #screen-solo .carpet-stake-strip .stake-ruby,
+body.is-telegram-webapp #screen-solo .carpet-stake-strip .stake-ruby {
+  width: 8px !important;
+  height: 8px !important;
+  flex: 0 0 8px !important;
+}
+
+#screen-solo .carpet-stake-strip .stake-shortcuts,
+body.local-telegram-frame #screen-solo .carpet-stake-strip .stake-shortcuts,
+body.is-telegram-webapp #screen-solo .carpet-stake-strip .stake-shortcuts {
+  position: static !important;
+  grid-column: 2 / 3 !important;
+  grid-row: 2 !important;
+  display: flex !important;
+  justify-content: center !important;
+  gap: 7px !important;
+  margin: 0 !important;
+  transform: none !important;
+  z-index: 2 !important;
+}
+
+#screen-solo .carpet-stake-strip .stake-shortcuts button,
+body.local-telegram-frame #screen-solo .carpet-stake-strip .stake-shortcuts button,
+body.is-telegram-webapp #screen-solo .carpet-stake-strip .stake-shortcuts button {
+  height: 26px !important;
+  font-size: 9px !important;
 }
 
