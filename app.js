@@ -50,11 +50,16 @@ const HOME_STAKE_MAX = 10000;
 const HOME_AUTO_BALL_MIN = 10;
 const HOME_AUTO_BALL_MAX = 1000;
 const HOME_AUTO_BALL_OPTIONS = [10, 20, 50, 100, 1000];
-const HOME_AUTO_MAX_ACTIVE_BALLS = 24;
-const HOME_MANUAL_MAX_ACTIVE_BALLS = 28;
+const HOME_AUTO_MAX_ACTIVE_BALLS = 34;
+const HOME_MANUAL_MAX_ACTIVE_BALLS = 40;
 const HOME_AUTO_BALL_DURATION = 5400;
 const HOME_EFFECT_GOOD_MULTIPLIER = 2;
 const HOME_EFFECT_COIN_COUNT = 16;
+const HOME_BALL_RADIUS = 4.4;
+const HOME_PEG_RADIUS = 3.6;
+const HOME_PHYSICS_GRAVITY = 220;
+const HOME_PHYSICS_RESTITUTION = 0.62;
+const HOME_PHYSICS_WALL_RESTITUTION = 0.46;
 const CARPET_RTP = 0.95;
 const CARPET_PROTECTED_ROUNDS = 3;
 const CARPET_MIN_PROTECTED_CRASH = 1.1;
@@ -105,11 +110,11 @@ function getHomeAutoBallsFromProgress(progress) {
 }
 
 function getHomeAutoSpawnInterval(total) {
-  if (total <= 20) return 675;
-  if (total <= 50) return 495;
-  if (total <= 100) return 375;
-  if (total <= 250) return 310;
-  return 270;
+  if (total <= 20) return 430;
+  if (total <= 50) return 315;
+  if (total <= 100) return 235;
+  if (total <= 250) return 190;
+  return 160;
 }
 
 const riskProfiles = {
@@ -611,7 +616,184 @@ function getHomeTouchedPeg(path, row) {
   };
 }
 
+function getHomePegPosition(row, col, width, rows, height) {
+  const { pegTop, pegStep, pegGap } = getHomeBoardGeometry(width, rows, height);
+  const count = row + 3;
+  return {
+    x: width / 2 + (col - (count - 1) / 2) * pegGap,
+    y: pegTop + row * pegStep,
+  };
+}
+
+function getHomeSlotFromX(x, width, rows, height) {
+  const { slotCount, centerX } = getHomeBoardGeometry(width, rows, height);
+  let closest = 0;
+  let closestDistance = Infinity;
+  for (let index = 0; index < slotCount; index += 1) {
+    const distance = Math.abs(centerX(index) - x);
+    if (distance < closestDistance) {
+      closest = index;
+      closestDistance = distance;
+    }
+  }
+  return closest;
+}
+
+function createHomePhysicsAnimation(stake, timestamp, canvasWidth, canvasHeight, risk, rows) {
+  return {
+    physics: true,
+    rows,
+    risk,
+    width: canvasWidth,
+    height: canvasHeight,
+    x: canvasWidth / 2 + (Math.random() - 0.5) * 1.4,
+    y: 42,
+    vx: (Math.random() - 0.5) * 26,
+    vy: 32 + Math.random() * 8,
+    radius: HOME_BALL_RADIUS,
+    last: timestamp || 0,
+    trail: [],
+    activePegs: [],
+    stake,
+    slot: null,
+    multiplier: 0,
+    payout: 0,
+    stuckMs: 0,
+    lastY: 42,
+  };
+}
+
+function resolveHomePhysicsAnimation(animation) {
+  if (animation.slot !== null) return;
+  const slot = getHomeSlotFromX(animation.x, animation.width, animation.rows, animation.height);
+  const multiplier = getMultipliers(animation.rows, animation.risk)[slot] || 0;
+  animation.slot = slot;
+  animation.multiplier = multiplier;
+  animation.payout = Math.round(animation.stake * multiplier);
+}
+
+function getHomeTriangleBounds(y, geometry, width, rows, radius) {
+  if (y < geometry.pegTop - 18) {
+    return {
+      left: width / 2 - 13,
+      right: width / 2 + 13,
+    };
+  }
+  const rowFloat = Math.max(0, Math.min(rows - 1, (y - geometry.pegTop) / Math.max(1, geometry.pegStep)));
+  const visualCount = rowFloat + 3;
+  const half = ((visualCount - 1) * geometry.pegGap) / 2 + geometry.pegGap * 0.58;
+  return {
+    left: width / 2 - half + radius,
+    right: width / 2 + half - radius,
+  };
+}
+
+function stepHomePhysicsAnimation(animation, timestamp) {
+  const geometry = getHomeBoardGeometry(animation.width, animation.rows, animation.height);
+  const now = timestamp || performance.now();
+  if (!animation.last) animation.last = now;
+  const elapsed = Math.max(0, Math.min(48, now - animation.last));
+  animation.last = now;
+
+  let remaining = elapsed / 1000;
+  while (remaining > 0) {
+    const dt = Math.min(remaining, 1 / 120);
+    remaining -= dt;
+
+    animation.vy += HOME_PHYSICS_GRAVITY * dt;
+    animation.x += animation.vx * dt;
+    animation.y += animation.vy * dt;
+
+    const bounds = getHomeTriangleBounds(animation.y, geometry, animation.width, animation.rows, animation.radius);
+    if (animation.x < bounds.left) {
+      animation.x = bounds.left;
+      animation.vx = Math.abs(animation.vx) * HOME_PHYSICS_WALL_RESTITUTION;
+    } else if (animation.x > bounds.right) {
+      animation.x = bounds.right;
+      animation.vx = -Math.abs(animation.vx) * HOME_PHYSICS_WALL_RESTITUTION;
+    }
+
+    const approximateRow = Math.round((animation.y - geometry.pegTop) / Math.max(1, geometry.pegStep));
+    const firstRow = Math.max(0, approximateRow - 2);
+    const lastRow = Math.min(animation.rows - 1, approximateRow + 2);
+    for (let row = firstRow; row <= lastRow; row += 1) {
+      const count = row + 3;
+      for (let col = 0; col < count; col += 1) {
+        const peg = getHomePegPosition(row, col, animation.width, animation.rows, animation.height);
+        const dx = animation.x - peg.x;
+        const dy = animation.y - peg.y;
+        const distance = Math.sqrt(dx * dx + dy * dy) || 0.0001;
+        const minDistance = animation.radius + HOME_PEG_RADIUS + 0.9;
+        if (distance >= minDistance) continue;
+
+        const nx = dx / distance;
+        const ny = dy / distance;
+        const overlap = minDistance - distance;
+        animation.x += nx * overlap;
+        animation.y += ny * overlap;
+
+        const normalVelocity = animation.vx * nx + animation.vy * ny;
+        if (normalVelocity < 0) {
+          animation.vx -= (1 + HOME_PHYSICS_RESTITUTION) * normalVelocity * nx;
+          animation.vy -= (1 + HOME_PHYSICS_RESTITUTION) * normalVelocity * ny;
+          animation.vx += nx * (8 + Math.random() * 14);
+          animation.vy -= Math.max(0, Math.min(18, Math.abs(normalVelocity) * 0.08));
+        }
+        if (Math.abs(animation.vx) < 24) {
+          const side = nx || (Math.random() < 0.5 ? -1 : 1);
+          animation.vx += side * (18 + Math.random() * 18);
+        }
+        if (animation.vy < 38) {
+          animation.vy = 38 + Math.random() * 18;
+        }
+
+        animation.activePegs.push({ row, col, until: now + 150 });
+      }
+    }
+
+    animation.vx = Math.max(-190, Math.min(190, animation.vx * 0.997));
+    animation.vy = Math.max(-120, Math.min(430, animation.vy));
+
+    if (animation.y >= geometry.slotY - 5) {
+      animation.y = geometry.slotY - 5;
+      resolveHomePhysicsAnimation(animation);
+      animation.done = true;
+      break;
+    }
+  }
+
+  animation.trail.push({ x: animation.x, y: animation.y });
+  if (animation.trail.length > 7) animation.trail.shift();
+  animation.activePegs = animation.activePegs.filter((peg) => peg.until >= now);
+
+  const verticalProgress = animation.y - (animation.lastY ?? animation.y);
+  if (!animation.done && animation.y > geometry.pegTop - 6 && verticalProgress < 0.22 && Math.abs(animation.vy) < 72) {
+    animation.stuckMs = (animation.stuckMs || 0) + elapsed;
+  } else {
+    animation.stuckMs = 0;
+  }
+  if (!animation.done && animation.stuckMs > 140) {
+    animation.vx += (Math.random() < 0.5 ? -1 : 1) * (34 + Math.random() * 22);
+    animation.vy = Math.max(animation.vy, 112);
+    animation.y += 1.8;
+    animation.stuckMs = 0;
+  }
+  animation.lastY = animation.y;
+
+  return {
+    ball: {
+      x: animation.x,
+      y: animation.y,
+      radius: animation.radius,
+    },
+    trail: animation.trail,
+    activePeg: animation.activePegs.map(({ row, col }) => ({ row, col })),
+    done: Boolean(animation.done),
+  };
+}
+
 function getHomeBallFrame(animation, timestamp) {
+  if (animation.physics) return stepHomePhysicsAnimation(animation, timestamp);
   const progress = Math.min((timestamp - animation.start) / animation.duration, 1);
   const scaled = progress * (animation.points.length - 1);
   const index = Math.floor(scaled);
@@ -826,7 +1008,7 @@ function drawHomeBoard(ball = null, hotSlot = -1, slotDrop = 0, activePeg = null
       ctx.fillStyle = isActivePeg ? "#fff58c" : "#ffd95c";
       ctx.shadowColor = isActivePeg ? "rgba(255, 225, 92, 1)" : "rgba(255, 203, 68, 0.88)";
       ctx.shadowBlur = isActivePeg ? 12 : 6;
-      ctx.arc(x, y, isActivePeg ? 4.2 : 3.8, 0, Math.PI * 2);
+      ctx.arc(x, y, isActivePeg ? HOME_PEG_RADIUS + 0.6 : HOME_PEG_RADIUS, 0, Math.PI * 2);
       ctx.fill();
     }
   }
@@ -1001,18 +1183,7 @@ function playHomeAutoPyramid(runs, totalStake) {
   if (activeWinbar) activeWinbar.classList.add("show");
 
   function spawnBall(timestamp) {
-    const result = weightedSlotFromFairWalk(state.homeRows);
-    const multiplier = multipliers[result.slot] || 0;
-    animations.push({
-      path: result.path,
-      slot: result.slot,
-      points: getHomeBallPoints(result.path, result.slot, canvasWidth, canvasHeight),
-      start: timestamp,
-      duration: HOME_AUTO_BALL_DURATION,
-      trail: [],
-      multiplier,
-      payout: Math.round(stakePerBall * multiplier),
-    });
+    animations.push(createHomePhysicsAnimation(stakePerBall, timestamp, canvasWidth, canvasHeight, state.homeRisk, state.homeRows));
     spawned += 1;
     lastSpawn = timestamp;
   }
@@ -1025,6 +1196,7 @@ function playHomeAutoPyramid(runs, totalStake) {
       const animation = animations[index];
       const frameState = getHomeBallFrame(animation, timestamp);
       if (frameState.done) {
+        resolveHomePhysicsAnimation(animation);
         animations.splice(index, 1);
         completed += 1;
         totalPayout += animation.payout;
@@ -1038,7 +1210,8 @@ function playHomeAutoPyramid(runs, totalStake) {
         }
       } else {
         ballEntries.push({ ball: frameState.ball, trail: frameState.trail });
-        activePegs.push(frameState.activePeg);
+        if (Array.isArray(frameState.activePeg)) activePegs.push(...frameState.activePeg);
+        else activePegs.push(frameState.activePeg);
       }
     }
 
@@ -1092,19 +1265,7 @@ function spawnHomeManualBall() {
   const rect = homeCanvas.getBoundingClientRect();
   const canvasWidth = Math.round(rect.width);
   const canvasHeight = Math.round(rect.height);
-  const multipliers = getMultipliers(state.homeRows, state.homeRisk);
-  const result = weightedSlotFromFairWalk(state.homeRows);
-  const multiplier = multipliers[result.slot] || 0;
-  homeManualAnimations.push({
-    path: result.path,
-    slot: result.slot,
-    points: getHomeBallPoints(result.path, result.slot, canvasWidth, canvasHeight),
-    start: 0,
-    duration: HOME_AUTO_BALL_DURATION,
-    trail: [],
-    multiplier,
-    payout: Math.round(state.homeStake * multiplier),
-  });
+  homeManualAnimations.push(createHomePhysicsAnimation(state.homeStake, 0, canvasWidth, canvasHeight, state.homeRisk, state.homeRows));
 }
 
 function fillHomeManualSlots() {
@@ -1128,6 +1289,7 @@ function runHomeManualLoop() {
       if (!animation.start) animation.start = timestamp;
       const frameState = getHomeBallFrame(animation, timestamp);
       if (frameState.done) {
+        resolveHomePhysicsAnimation(animation);
         homeManualAnimations.splice(index, 1);
         homeManualImpactSlot = animation.slot;
         homeManualImpactStarted = timestamp;
@@ -1135,14 +1297,13 @@ function runHomeManualLoop() {
         setBalance(state.balance + animation.payout);
         addLedger(`Pyramid win ${animation.multiplier.toFixed(2)}x`, animation.payout);
         state.games += 1;
-        homeManualTotalPayout += animation.payout;
-        const winbar = setHomeWinbarContent(`+${format(homeManualTotalPayout)}`, true);
-        if (winbar) winbar.classList.add("show");
-        pulseHomeWinbar(animation.multiplier >= 2);
+        flashHomeWinbar(`+${format(animation.payout)}`, 820, true);
+        if (animation.multiplier >= 2) pulseHomeWinbar(true);
         render();
       } else {
         ballEntries.push({ ball: frameState.ball, trail: frameState.trail });
-        activePegs.push(frameState.activePeg);
+        if (Array.isArray(frameState.activePeg)) activePegs.push(...frameState.activePeg);
+        else activePegs.push(frameState.activePeg);
       }
     }
 
@@ -1201,7 +1362,7 @@ function playHomePyramid() {
     homeWinbarTimer = null;
   }
 
-  if (winbar && homeManualTotalPayout === 0) {
+  if (winbar) {
     winbar.classList.remove("show");
     winbar.textContent = "";
   }
