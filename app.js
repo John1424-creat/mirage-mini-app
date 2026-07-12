@@ -57,7 +57,7 @@ const HOME_EFFECT_GOOD_MULTIPLIER = 2;
 const HOME_EFFECT_COIN_COUNT = 16;
 const HOME_BALL_RADIUS = 4.4;
 const HOME_PEG_RADIUS = 3.6;
-const HOME_PHYSICS_GRAVITY = 220;
+const HOME_PHYSICS_GRAVITY = 176;
 const HOME_PHYSICS_RESTITUTION = 0.62;
 const HOME_PHYSICS_WALL_RESTITUTION = 0.46;
 const CARPET_RTP = 0.95;
@@ -794,7 +794,7 @@ function stepHomePhysicsAnimation(animation, timestamp) {
     }
 
     animation.vx = Math.max(-190, Math.min(190, animation.vx * 0.997));
-    animation.vy = Math.max(-120, Math.min(430, animation.vy));
+    animation.vy = Math.max(-120, Math.min(344, animation.vy));
 
     if (animation.y >= geometry.slotY - 5) {
       animation.y = geometry.slotY - 5;
