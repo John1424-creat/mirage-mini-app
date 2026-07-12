@@ -463,10 +463,50 @@ function setupCanvasForDisplay(canvas, ctx) {
   return { width, height };
 }
 
+function isRealTelegramWebApp() {
+  return document.body.classList.contains("is-telegram-webapp") &&
+    !document.body.classList.contains("local-telegram-frame");
+}
+
+function getHomeCanvasProfile() {
+  if (isRealTelegramWebApp()) {
+    return {
+      horizontalInsetMin: 10,
+      horizontalInsetMax: 16,
+      horizontalInsetRatio: 0.04,
+      pegRadius: 2.85,
+      activePegRadius: 3.15,
+      activeGlowRadius: 4.35,
+      activeGlowBlur: 7,
+      idleGlowBlur: 3.8,
+      activeDuration: 82,
+      collisionPadding: 0.55,
+      ballRadius: HOME_BALL_RADIUS,
+    };
+  }
+  return {
+    horizontalInsetMin: 18,
+    horizontalInsetMax: 26,
+    horizontalInsetRatio: 0.055,
+    pegRadius: HOME_PEG_RADIUS,
+    activePegRadius: HOME_PEG_RADIUS + 0.6,
+    activeGlowRadius: 5.4,
+    activeGlowBlur: 14,
+    idleGlowBlur: 6,
+    activeDuration: 150,
+    collisionPadding: 0.9,
+    ballRadius: HOME_BALL_RADIUS,
+  };
+}
+
 function getHomeBoardGeometry(width, rows, height = 420) {
+  const profile = getHomeCanvasProfile();
   const slotCount = rows + 1;
   const pegTop = 66;
-  const horizontalInset = Math.max(18, Math.min(26, width * 0.055));
+  const horizontalInset = Math.max(
+    profile.horizontalInsetMin,
+    Math.min(profile.horizontalInsetMax, width * profile.horizontalInsetRatio)
+  );
   const pegGap = (width - horizontalInset * 2) / Math.max(1, rows + 1);
   const pegBottom = Math.min(height - 124, Math.max(286, height * 0.715));
   const pegStep = rows > 1 ? (pegBottom - pegTop) / (rows - 1) : 0;
@@ -640,6 +680,7 @@ function getHomeSlotFromX(x, width, rows, height) {
 }
 
 function createHomePhysicsAnimation(stake, timestamp, canvasWidth, canvasHeight, risk, rows) {
+  const profile = getHomeCanvasProfile();
   return {
     physics: true,
     rows,
@@ -650,7 +691,7 @@ function createHomePhysicsAnimation(stake, timestamp, canvasWidth, canvasHeight,
     y: 42,
     vx: (Math.random() - 0.5) * 26,
     vy: 32 + Math.random() * 8,
-    radius: HOME_BALL_RADIUS,
+    radius: profile.ballRadius,
     last: timestamp || 0,
     trail: [],
     activePegs: [],
@@ -690,6 +731,7 @@ function getHomeTriangleBounds(y, geometry, width, rows, radius) {
 
 function stepHomePhysicsAnimation(animation, timestamp) {
   const geometry = getHomeBoardGeometry(animation.width, animation.rows, animation.height);
+  const profile = getHomeCanvasProfile();
   const now = timestamp || performance.now();
   if (!animation.last) animation.last = now;
   const elapsed = Math.max(0, Math.min(48, now - animation.last));
@@ -723,7 +765,7 @@ function stepHomePhysicsAnimation(animation, timestamp) {
         const dx = animation.x - peg.x;
         const dy = animation.y - peg.y;
         const distance = Math.sqrt(dx * dx + dy * dy) || 0.0001;
-        const minDistance = animation.radius + HOME_PEG_RADIUS + 0.9;
+        const minDistance = animation.radius + profile.pegRadius + profile.collisionPadding;
         if (distance >= minDistance) continue;
 
         const nx = dx / distance;
@@ -747,7 +789,7 @@ function stepHomePhysicsAnimation(animation, timestamp) {
           animation.vy = 38 + Math.random() * 18;
         }
 
-        animation.activePegs.push({ row, col, until: now + 150 });
+        animation.activePegs.push({ row, col, until: now + profile.activeDuration });
       }
     }
 
@@ -972,6 +1014,7 @@ function drawHomeBoard(ball = null, hotSlot = -1, slotDrop = 0, activePeg = null
 
   const rows = state.homeRows;
   const { slotCount, pegTop, slotY, pegStep, pegGap, slotWidth, slotHeight, centerX } = getHomeBoardGeometry(width, rows, height);
+  const canvasProfile = getHomeCanvasProfile();
 
   drawHomeLauncher(
     ctx,
@@ -993,22 +1036,22 @@ function drawHomeBoard(ball = null, hotSlot = -1, slotDrop = 0, activePeg = null
       const x = width / 2 + (col - (count - 1) / 2) * pegGap;
       const isActivePeg = activePegs.some((peg) => peg && peg.row === row && peg.col === col);
       if (isActivePeg) {
-        const activeGlow = ctx.createRadialGradient(x - 1, y - 1, 0.5, x, y, 6.2);
+        const activeGlow = ctx.createRadialGradient(x - 1, y - 1, 0.5, x, y, canvasProfile.activeGlowRadius + 0.8);
         activeGlow.addColorStop(0, "rgba(255, 255, 205, 1)");
-        activeGlow.addColorStop(0.48, "rgba(255, 244, 116, 0.95)");
-        activeGlow.addColorStop(1, "rgba(255, 213, 68, 0.18)");
+        activeGlow.addColorStop(0.48, "rgba(255, 244, 116, 0.82)");
+        activeGlow.addColorStop(1, "rgba(255, 213, 68, 0.1)");
         ctx.beginPath();
         ctx.fillStyle = activeGlow;
-        ctx.shadowColor = "rgba(255, 239, 104, 0.95)";
-        ctx.shadowBlur = 14;
-        ctx.arc(x, y, 5.4, 0, Math.PI * 2);
+        ctx.shadowColor = "rgba(255, 239, 104, 0.76)";
+        ctx.shadowBlur = canvasProfile.activeGlowBlur;
+        ctx.arc(x, y, canvasProfile.activeGlowRadius, 0, Math.PI * 2);
         ctx.fill();
       }
       ctx.beginPath();
       ctx.fillStyle = isActivePeg ? "#fff58c" : "#ffd95c";
-      ctx.shadowColor = isActivePeg ? "rgba(255, 225, 92, 1)" : "rgba(255, 203, 68, 0.88)";
-      ctx.shadowBlur = isActivePeg ? 12 : 6;
-      ctx.arc(x, y, isActivePeg ? HOME_PEG_RADIUS + 0.6 : HOME_PEG_RADIUS, 0, Math.PI * 2);
+      ctx.shadowColor = isActivePeg ? "rgba(255, 225, 92, 0.82)" : "rgba(255, 203, 68, 0.76)";
+      ctx.shadowBlur = isActivePeg ? canvasProfile.activeGlowBlur : canvasProfile.idleGlowBlur;
+      ctx.arc(x, y, isActivePeg ? canvasProfile.activePegRadius : canvasProfile.pegRadius, 0, Math.PI * 2);
       ctx.fill();
     }
   }
