@@ -57,9 +57,12 @@ const HOME_EFFECT_GOOD_MULTIPLIER = 2;
 const HOME_EFFECT_COIN_COUNT = 16;
 const HOME_BALL_RADIUS = 4.4;
 const HOME_PEG_RADIUS = 3.6;
-const HOME_PHYSICS_GRAVITY = 176;
+const HOME_PHYSICS_GRAVITY = 158;
 const HOME_PHYSICS_RESTITUTION = 0.62;
 const HOME_PHYSICS_WALL_RESTITUTION = 0.46;
+const HOME_MATTER_STEP_MS = 1000 / 60;
+const HOME_MATTER_MAX_STEPS = 620;
+const HOME_MATTER_REPLAY_SLOWDOWN = 1.2;
 const CARPET_RTP = 0.95;
 const CARPET_PROTECTED_ROUNDS = 3;
 const CARPET_MIN_PROTECTED_CRASH = 1.1;
@@ -136,17 +139,36 @@ function slotProbability(rows, slot) {
   return combination(rows, slot) / 2 ** rows;
 }
 
+const homeMatterSlotProbabilities = {
+  8: [0.138667, 0.060333, 0.093667, 0.129334, 0.156, 0.129334, 0.093667, 0.060333, 0.138667],
+  9: [0.116334, 0.059, 0.096, 0.113667, 0.115, 0.115, 0.113667, 0.096, 0.059, 0.116334],
+  10: [0.076333, 0.059333, 0.083666, 0.105, 0.116333, 0.118667, 0.116333, 0.105, 0.083666, 0.059333, 0.076333],
+  11: [0.078333, 0.063334, 0.067667, 0.080667, 0.098, 0.112, 0.112, 0.098, 0.080667, 0.067667, 0.063334, 0.078333],
+  12: [0.087667, 0.065333, 0.072334, 0.072, 0.080334, 0.081, 0.082667, 0.081, 0.080334, 0.072, 0.072334, 0.065333, 0.087667],
+  13: [0.052, 0.063333, 0.063666, 0.071667, 0.083333, 0.081, 0.085, 0.085, 0.081, 0.083333, 0.071667, 0.063666, 0.063333, 0.052],
+  14: [0.043667, 0.043667, 0.054667, 0.070667, 0.077667, 0.078, 0.088667, 0.086, 0.088667, 0.078, 0.077667, 0.070667, 0.054667, 0.043667, 0.043667],
+  15: [0.033333, 0.035, 0.048, 0.061667, 0.076, 0.082667, 0.082667, 0.080667, 0.080667, 0.082667, 0.082667, 0.076, 0.061667, 0.048, 0.035, 0.033333],
+  16: [0.039333, 0.039333, 0.043667, 0.055333, 0.058, 0.067667, 0.085666, 0.08, 0.062, 0.08, 0.085666, 0.067667, 0.058, 0.055333, 0.043667, 0.039333, 0.039333],
+};
+
+function getHomeSlotProbabilities(rows) {
+  const calibrated = homeMatterSlotProbabilities[rows];
+  if (calibrated && calibrated.length === rows + 1) return calibrated;
+  return Array.from({ length: rows + 1 }, (_, slot) => slotProbability(rows, slot));
+}
+
 function getMultipliers(rows, risk) {
   const key = `${rows}:${risk}`;
   if (multiplierCache.has(key)) return multiplierCache.get(key);
 
   const profile = riskProfiles[risk] || riskProfiles.medium;
   const center = rows / 2;
+  const probabilities = getHomeSlotProbabilities(rows);
   const raw = Array.from({ length: rows + 1 }, (_, slot) => {
     const distance = Math.abs(slot - center) / center;
     return profile.base + profile.edge * distance ** profile.power;
   });
-  const expected = raw.reduce((sum, value, slot) => sum + value * slotProbability(rows, slot), 0);
+  const expected = raw.reduce((sum, value, slot) => sum + value * (probabilities[slot] || 0), 0);
   const scaled = raw.map((value) => value * (RTP / expected));
   multiplierCache.set(key, scaled);
   return scaled;
@@ -469,7 +491,7 @@ function isRealTelegramWebApp() {
 }
 
 function getHomeCanvasProfile() {
-  if (isRealTelegramWebApp()) {
+  if (isRealTelegramWebApp() || document.body.classList.contains("local-telegram-frame")) {
     return {
       horizontalInsetMin: 10,
       horizontalInsetMax: 16,
@@ -523,41 +545,56 @@ function drawHomeLauncher(ctx, width, isLaunching = false, timestamp = performan
   const pulse = isLaunching ? 0.5 + Math.sin(timestamp / 110) * 0.5 : 0;
 
   ctx.save();
-  ctx.fillStyle = "rgba(0, 0, 0, 0.24)";
+  ctx.fillStyle = "rgba(0, 0, 0, 0.32)";
   ctx.beginPath();
-  ctx.ellipse(x, y + 11, 10, 2.4, 0, 0, Math.PI * 2);
+  ctx.ellipse(x, y + 10.8, 8.8, 2.1, 0, 0, Math.PI * 2);
   ctx.fill();
 
-  const rim = ctx.createLinearGradient(x - 9, y - 9, x + 9, y + 9);
-  rim.addColorStop(0, "#f8d883");
-  rim.addColorStop(0.48, "#8c6a38");
-  rim.addColorStop(1, "#21131c");
-
-  ctx.shadowColor = `rgba(255, 214, 128, ${0.12 + pulse * 0.12})`;
-  ctx.shadowBlur = 3 + pulse * 2;
-  ctx.fillStyle = rim;
+  const halo = ctx.createRadialGradient(x, y, 5.5, x, y, 15.5 + pulse * 1.5);
+  halo.addColorStop(0, `rgba(255, 222, 134, ${0.18 + pulse * 0.12})`);
+  halo.addColorStop(0.46, `rgba(255, 98, 189, ${0.09 + pulse * 0.08})`);
+  halo.addColorStop(1, "rgba(255, 98, 189, 0)");
+  ctx.fillStyle = halo;
   ctx.beginPath();
-  ctx.arc(x, y, 11.4, 0, Math.PI * 2);
+  ctx.arc(x, y, 15.5 + pulse * 1.5, 0, Math.PI * 2);
   ctx.fill();
 
-  ctx.shadowBlur = 0;
-  const depth = ctx.createRadialGradient(x - 2, y - 3, 1, x, y + 1, 9);
-  depth.addColorStop(0, "rgba(0, 0, 0, 1)");
-  depth.addColorStop(0.68, "rgba(7, 5, 10, 0.99)");
-  depth.addColorStop(1, "rgba(30, 19, 31, 0.96)");
+  if (isLaunching) {
+    ctx.strokeStyle = `rgba(255, 236, 156, ${0.58 + pulse * 0.26})`;
+    ctx.lineWidth = 1.15;
+    ctx.beginPath();
+    ctx.arc(x, y + 0.4, 10.2 + pulse * 0.8, 0, Math.PI * 2);
+    ctx.stroke();
+  }
 
-  ctx.fillStyle = depth;
-  ctx.strokeStyle = "rgba(255, 217, 137, 0.5)";
-  ctx.lineWidth = 1;
+  const rim = ctx.createLinearGradient(x - 8, y - 8, x + 8, y + 8);
+  rim.addColorStop(0, "#f4d678");
+  rim.addColorStop(0.44, "#c49445");
+  rim.addColorStop(1, "#4b2b31");
+
+  ctx.shadowColor = `rgba(255, 213, 116, ${0.2 + pulse * 0.18})`;
+  ctx.shadowBlur = 5 + pulse * 3;
+  ctx.strokeStyle = rim;
+  ctx.lineWidth = 2.1;
   ctx.beginPath();
-  ctx.arc(x, y + 1, 8.2, 0, Math.PI * 2);
-  ctx.fill();
+  ctx.arc(x, y, 10.4, 0, Math.PI * 2);
   ctx.stroke();
 
-  ctx.strokeStyle = `rgba(255, 231, 166, ${0.18 + pulse * 0.12})`;
-  ctx.lineWidth = 0.6;
+  ctx.shadowBlur = 0;
+  const depth = ctx.createRadialGradient(x - 2, y - 3, 1, x, y + 1, 8.8);
+  depth.addColorStop(0, "#050307");
+  depth.addColorStop(0.7, "#08050c");
+  depth.addColorStop(1, "#17101a");
+
+  ctx.fillStyle = depth;
   ctx.beginPath();
-  ctx.arc(x, y, 12.8 + pulse * 0.25, 0, Math.PI * 2);
+  ctx.arc(x, y + 0.4, 7.9, 0, Math.PI * 2);
+  ctx.fill();
+
+  ctx.strokeStyle = `rgba(255, 229, 151, ${0.38 + pulse * 0.16})`;
+  ctx.lineWidth = 0.75;
+  ctx.beginPath();
+  ctx.arc(x, y + 0.4, 8.8, 0, Math.PI * 2);
   ctx.stroke();
   ctx.restore();
 }
@@ -608,40 +645,54 @@ function drawHomeBall(ctx, ball, trail = []) {
 
 function getHomeBallPoints(path, slot, canvasWidth, canvasHeight = 420) {
   const rows = path.length;
-  const { pegTop, slotY, pegStep, pegGap, centerX } = getHomeBoardGeometry(canvasWidth, rows, canvasHeight);
+  const geometry = getHomeBoardGeometry(canvasWidth, rows, canvasHeight);
+  const { pegTop, slotY, pegStep, pegGap, centerX } = geometry;
   const launcherX = canvasWidth / 2;
-  const ballRadius = 3.5;
-  const pegRadius = 3.8;
-  const contactDistance = ballRadius + pegRadius + 4.2;
+  const profile = getHomeCanvasProfile();
+  const ballRadius = profile.ballRadius;
+  const contactDistance = ballRadius + profile.pegRadius + profile.collisionPadding + 1.4;
+  const clampToBoard = (x, y) => {
+    const bounds = getHomeTriangleBounds(y, geometry, canvasWidth, rows, ballRadius);
+    return Math.max(bounds.left, Math.min(bounds.right, x));
+  };
   const points = [
-    { x: launcherX, y: 31 },
-    { x: launcherX, y: 43 },
-    { x: launcherX, y: pegTop - 15 },
+    { x: launcherX, y: 30 },
+    { x: launcherX + (Math.random() - 0.5) * 1.2, y: 42 },
+    { x: launcherX + (Math.random() - 0.5) * 2.2, y: pegTop - 17 },
   ];
   for (let row = 0; row < path.length; row += 1) {
     const previousSlot = row > 0 ? path[row - 1] : 0;
     const currentSlot = path[row];
     const direction = currentSlot > previousSlot ? 1 : -1;
-    const visualCount = row + 3;
-    const touchedCol = Math.max(0, Math.min(visualCount - 1, (currentSlot > previousSlot ? currentSlot - 1 : currentSlot) + 1));
+    const touchedPeg = getHomeTouchedPeg(path, row);
     const pegY = pegTop + row * pegStep;
-    const pegX = canvasWidth / 2 + (touchedCol - (visualCount - 1) / 2) * pegGap;
-    const contactAngle = direction > 0 ? -0.2 : Math.PI + 0.2;
-    const rawContactX = pegX + Math.cos(contactAngle) * contactDistance;
-    const rawContactY = pegY + Math.sin(contactAngle) * contactDistance;
-    const triangleHalfAtRow = ((visualCount - 1) * pegGap) / 2 + contactDistance;
-    const leftLimit = launcherX - triangleHalfAtRow + ballRadius + 2;
-    const rightLimit = launcherX + triangleHalfAtRow - ballRadius - 2;
-    const contactX = Math.max(leftLimit, Math.min(rightLimit, rawContactX));
-    const contactY = rawContactY;
-    const fallY = Math.min(slotY - 12, pegY + pegStep * 0.58);
-    const fallHalf = Math.max(contactDistance + 8, ((row + 0.9) / Math.max(1, rows)) * (rows * pegGap) / 2);
-    const fallXRaw = launcherX + (currentSlot - (row + 1) / 2) * pegGap;
-    const fallX = Math.max(launcherX - fallHalf + ballRadius + 2, Math.min(launcherX + fallHalf - ballRadius - 2, fallXRaw));
+    const peg = getHomePegPosition(row, touchedPeg.col, canvasWidth, rows, canvasHeight);
+    const rowNoise = (Math.random() - 0.5) * Math.min(pegGap * 0.18, 5);
+    const contactX = clampToBoard(peg.x - direction * contactDistance * 0.78 + rowNoise, pegY);
+    const contactY = pegY - Math.min(3.4, pegStep * 0.12) + (Math.random() - 0.5) * 1.2;
+    const reboundY = Math.min(slotY - 16, pegY + pegStep * (0.32 + Math.random() * 0.1));
+    const reboundX = clampToBoard(
+      peg.x + direction * (pegGap * (0.27 + Math.random() * 0.12)) + (Math.random() - 0.5) * Math.min(pegGap * 0.15, 5),
+      reboundY
+    );
+    const driftY = Math.min(slotY - 12, pegY + pegStep * (0.67 + Math.random() * 0.09));
+    const laneX = launcherX + (currentSlot - (row + 1) / 2) * pegGap;
+    const driftX = clampToBoard(
+      laneX + direction * Math.min(pegGap * 0.2, 6) + (Math.random() - 0.5) * Math.min(pegGap * 0.28, 8),
+      driftY
+    );
 
-    points.push({ x: contactX, y: contactY, peg: getHomeTouchedPeg(path, row), contact: true, pegX, pegY });
-    points.push({ x: fallX, y: fallY, peg: getHomeTouchedPeg(path, row) });
+    points.push({ x: contactX, y: contactY, peg: touchedPeg, contact: true, pegX: peg.x, pegY });
+    points.push({ x: reboundX, y: reboundY, peg: touchedPeg });
+    if (row < path.length - 1) {
+      points.push({ x: driftX, y: driftY, peg: touchedPeg });
+    }
   }
+  const settleY = Math.max(pegTop, slotY - Math.max(16, pegStep * 0.58));
+  points.push({
+    x: clampToBoard(centerX(slot) + (Math.random() - 0.5) * Math.min(pegGap * 0.18, 5), settleY),
+    y: settleY,
+  });
   points.push({ x: centerX(slot), y: slotY - 5 });
   return points;
 }
@@ -679,16 +730,163 @@ function getHomeSlotFromX(x, width, rows, height) {
   return closest;
 }
 
+function getHomeMatterApi() {
+  return window.Matter || null;
+}
+
+function createMatterWall(MatterApi, x1, y1, x2, y2, thickness) {
+  const { Bodies } = MatterApi;
+  const dx = x2 - x1;
+  const dy = y2 - y1;
+  const length = Math.sqrt(dx * dx + dy * dy);
+  return Bodies.rectangle((x1 + x2) / 2, (y1 + y2) / 2, length, thickness, {
+    isStatic: true,
+    angle: Math.atan2(dy, dx),
+    render: { visible: false },
+    friction: 0,
+    restitution: 0.5,
+  });
+}
+
+function simulateHomeMatterDrop(canvasWidth, canvasHeight, rows) {
+  const MatterApi = getHomeMatterApi();
+  if (!MatterApi) return null;
+
+  const { Engine, World, Bodies, Body, Events } = MatterApi;
+  const profile = getHomeCanvasProfile();
+  const geometry = getHomeBoardGeometry(canvasWidth, rows, canvasHeight);
+  const engine = Engine.create({ enableSleeping: false });
+  engine.gravity.y = 0.92;
+  engine.gravity.scale = 0.001;
+  engine.positionIterations = 8;
+  engine.velocityIterations = 6;
+
+  const ball = Bodies.circle(canvasWidth / 2 + (Math.random() - 0.5) * 1.2, 31.5, profile.ballRadius, {
+    label: "ball",
+    restitution: 0.52,
+    friction: 0,
+    frictionStatic: 0,
+    frictionAir: 0.0026,
+    density: 0.0016,
+    slop: 0.01,
+  });
+  Body.setVelocity(ball, { x: (Math.random() - 0.5) * 0.42, y: 1.18 + Math.random() * 0.22 });
+
+  const bodies = [ball];
+  for (let row = 0; row < rows; row += 1) {
+    const count = row + 3;
+    for (let col = 0; col < count; col += 1) {
+      const peg = getHomePegPosition(row, col, canvasWidth, rows, canvasHeight);
+      bodies.push(
+        Bodies.circle(peg.x, peg.y, profile.pegRadius + 0.15, {
+          label: `peg:${row}:${col}`,
+          isStatic: true,
+          restitution: 0.68,
+          friction: 0,
+          slop: 0.01,
+        })
+      );
+    }
+  }
+
+  const topBounds = getHomeTriangleBounds(geometry.pegTop - 2, geometry, canvasWidth, rows, profile.ballRadius);
+  const bottomBounds = getHomeTriangleBounds(geometry.slotY - 8, geometry, canvasWidth, rows, profile.ballRadius);
+  bodies.push(createMatterWall(MatterApi, topBounds.left - 8, geometry.pegTop - 14, bottomBounds.left - 12, geometry.slotY - 6, 10));
+  bodies.push(createMatterWall(MatterApi, topBounds.right + 8, geometry.pegTop - 14, bottomBounds.right + 12, geometry.slotY - 6, 10));
+  bodies.push(
+    Bodies.rectangle(canvasWidth / 2, geometry.slotY + 13, canvasWidth, 8, {
+      isStatic: true,
+      render: { visible: false },
+      restitution: 0.1,
+    })
+  );
+
+  World.add(engine.world, bodies);
+
+  let simTime = 0;
+  const activeUntil = new Map();
+  Events.on(engine, "collisionStart", (event) => {
+    event.pairs.forEach((pair) => {
+      const labels = [pair.bodyA.label, pair.bodyB.label];
+      const pegLabel = labels.find((label) => label.startsWith("peg:"));
+      if (!pegLabel || !labels.includes("ball")) return;
+      const [, row, col] = pegLabel.split(":").map(Number);
+      if (Number.isFinite(row) && Number.isFinite(col)) {
+        activeUntil.set(`${row}:${col}`, simTime + profile.activeDuration);
+      }
+    });
+  });
+
+  const frames = [];
+  for (let step = 0; step < HOME_MATTER_MAX_STEPS; step += 1) {
+    simTime += HOME_MATTER_STEP_MS;
+    Engine.update(engine, HOME_MATTER_STEP_MS);
+
+    const bounds = getHomeTriangleBounds(ball.position.y, geometry, canvasWidth, rows, profile.ballRadius);
+    if (ball.position.x < bounds.left) {
+      Body.setPosition(ball, { x: bounds.left, y: ball.position.y });
+      Body.setVelocity(ball, { x: Math.abs(ball.velocity.x) * 0.42, y: ball.velocity.y });
+    } else if (ball.position.x > bounds.right) {
+      Body.setPosition(ball, { x: bounds.right, y: ball.position.y });
+      Body.setVelocity(ball, { x: -Math.abs(ball.velocity.x) * 0.42, y: ball.velocity.y });
+    }
+
+    const activePeg = [];
+    activeUntil.forEach((until, key) => {
+      if (until < simTime) {
+        activeUntil.delete(key);
+        return;
+      }
+      const [row, col] = key.split(":").map(Number);
+      activePeg.push({ row, col });
+    });
+
+    frames.push({
+      t: simTime,
+      x: ball.position.x,
+      y: ball.position.y,
+      activePeg,
+    });
+
+    if (ball.position.y >= geometry.slotY - 5) break;
+    if (step > 100 && Math.abs(ball.velocity.y) < 0.03) {
+      Body.setVelocity(ball, {
+        x: ball.velocity.x + (Math.random() < 0.5 ? -0.45 : 0.45),
+        y: Math.max(ball.velocity.y, 0.85),
+      });
+    }
+  }
+
+  const lastFrame = frames[frames.length - 1] || { x: canvasWidth / 2, y: geometry.slotY - 5, t: 0, activePeg: [] };
+  const slot = getHomeSlotFromX(lastFrame.x, canvasWidth, rows, canvasHeight);
+  frames.push({ t: lastFrame.t + 70, x: geometry.centerX(slot), y: geometry.slotY - 5, activePeg: lastFrame.activePeg || [] });
+
+  World.clear(engine.world, false);
+  Engine.clear(engine);
+
+  return {
+    frames,
+    slot,
+    duration: frames[frames.length - 1]?.t || 1200,
+  };
+}
+
 function createHomePhysicsAnimation(stake, timestamp, canvasWidth, canvasHeight, risk, rows) {
   const profile = getHomeCanvasProfile();
+  const matterDrop = simulateHomeMatterDrop(canvasWidth, canvasHeight, rows);
   return {
-    physics: true,
+    physics: !matterDrop,
+    matterReplay: Boolean(matterDrop),
     rows,
     risk,
+    targetSlot: matterDrop?.slot ?? null,
+    frames: matterDrop?.frames || null,
+    duration: matterDrop?.duration || 0,
+    start: timestamp || 0,
     width: canvasWidth,
     height: canvasHeight,
     x: canvasWidth / 2 + (Math.random() - 0.5) * 1.4,
-    y: 42,
+    y: 31.5,
     vx: (Math.random() - 0.5) * 26,
     vy: 32 + Math.random() * 8,
     radius: profile.ballRadius,
@@ -706,7 +904,10 @@ function createHomePhysicsAnimation(stake, timestamp, canvasWidth, canvasHeight,
 
 function resolveHomePhysicsAnimation(animation) {
   if (animation.slot !== null) return;
-  const slot = getHomeSlotFromX(animation.x, animation.width, animation.rows, animation.height);
+  const slot =
+    typeof animation.targetSlot === "number"
+      ? Math.max(0, Math.min(animation.rows, animation.targetSlot))
+      : getHomeSlotFromX(animation.x, animation.width, animation.rows, animation.height);
   const multiplier = getMultipliers(animation.rows, animation.risk)[slot] || 0;
   animation.slot = slot;
   animation.multiplier = multiplier;
@@ -793,10 +994,28 @@ function stepHomePhysicsAnimation(animation, timestamp) {
       }
     }
 
+    if (typeof animation.targetSlot === "number") {
+      const targetX = geometry.centerX(animation.targetSlot);
+      const progress = Math.max(
+        0,
+        Math.min(1, (animation.y - (geometry.pegTop + geometry.pegStep * 1.5)) / Math.max(1, geometry.slotY - geometry.pegTop))
+      );
+      if (progress > 0) {
+        const ease = progress * progress * (3 - 2 * progress);
+        animation.vx += (targetX - animation.x) * (0.2 + ease * 0.62) * dt;
+        if (progress > 0.74) {
+          animation.x += (targetX - animation.x) * 0.018 * ease;
+        }
+      }
+    }
+
     animation.vx = Math.max(-190, Math.min(190, animation.vx * 0.997));
-    animation.vy = Math.max(-120, Math.min(344, animation.vy));
+    animation.vy = Math.max(-120, Math.min(310, animation.vy));
 
     if (animation.y >= geometry.slotY - 5) {
+      if (typeof animation.targetSlot === "number") {
+        animation.x = geometry.centerX(animation.targetSlot);
+      }
       animation.y = geometry.slotY - 5;
       resolveHomePhysicsAnimation(animation);
       animation.done = true;
@@ -835,6 +1054,33 @@ function stepHomePhysicsAnimation(animation, timestamp) {
 }
 
 function getHomeBallFrame(animation, timestamp) {
+  if (animation.matterReplay && Array.isArray(animation.frames)) {
+    const elapsed = Math.max(0, timestamp - animation.start);
+    const replayElapsed = elapsed / HOME_MATTER_REPLAY_SLOWDOWN;
+    const frames = animation.frames;
+    let index = 0;
+    while (index < frames.length - 2 && frames[index + 1].t < replayElapsed) {
+      index += 1;
+    }
+    const a = frames[index] || frames[0];
+    const b = frames[Math.min(index + 1, frames.length - 1)] || a;
+    const span = Math.max(1, b.t - a.t);
+    const local = Math.max(0, Math.min(1, (replayElapsed - a.t) / span));
+    const smooth = local * local * (3 - 2 * local);
+    const ball = {
+      x: a.x + (b.x - a.x) * smooth,
+      y: a.y + (b.y - a.y) * smooth,
+      radius: animation.radius || HOME_BALL_RADIUS,
+    };
+    animation.trail.push({ x: ball.x, y: ball.y });
+    if (animation.trail.length > 7) animation.trail.shift();
+    return {
+      ball,
+      trail: animation.trail,
+      activePeg: b.activePeg || a.activePeg || [],
+      done: elapsed >= animation.duration * HOME_MATTER_REPLAY_SLOWDOWN,
+    };
+  }
   if (animation.physics) return stepHomePhysicsAnimation(animation, timestamp);
   const progress = Math.min((timestamp - animation.start) / animation.duration, 1);
   const scaled = progress * (animation.points.length - 1);
@@ -864,7 +1110,7 @@ function getHomeBallFrame(animation, timestamp) {
   const ball = {
     x,
     y,
-    radius: 3.5,
+    radius: animation.radius || HOME_BALL_RADIUS,
   };
   let activePeg = null;
   if (b?.contact && local > 0.7) activePeg = b.peg;
