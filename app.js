@@ -55,6 +55,8 @@ const HOME_MANUAL_MAX_ACTIVE_BALLS = 40;
 const HOME_AUTO_BALL_DURATION = 5400;
 const HOME_EFFECT_GOOD_MULTIPLIER = 2;
 const HOME_EFFECT_COIN_COUNT = 16;
+const HOME_MONKEY_INNER_COIN_COUNT = 10;
+const HOME_MONKEY_EDGE_COIN_COUNT = 18;
 const HOME_BALL_RADIUS = 4.4;
 const HOME_PEG_RADIUS = 3.6;
 const HOME_PHYSICS_GRAVITY = 158;
@@ -464,6 +466,19 @@ const plinkoCanvas = $("#plinko-canvas");
 const plinkoCtx = plinkoCanvas?.getContext("2d");
 const homeCanvas = $("#home-plinko-canvas");
 const homeCtx = homeCanvas?.getContext("2d");
+const homeMonkeyImages = {
+  left: new Image(),
+  right: new Image(),
+};
+const homeMonkeyState = {
+  left: { start: 0, until: 0, intensity: 0 },
+  right: { start: 0, until: 0, intensity: 0 },
+};
+homeMonkeyImages.left.src = "./assets/monkey-left.png?v=telegram62";
+homeMonkeyImages.right.src = "./assets/monkey-right.png?v=telegram62";
+Object.values(homeMonkeyImages).forEach((image) => {
+  image.onload = () => drawHomeBoard();
+});
 const coefficientSlotPath = new Path2D(
   "M3.83726 0H0C0 1.49347 0 5.9736 0.21799 6.544C0.40973 7.04573 0.71569 7.45373 1.09202 7.70933C1.51984 8 2.07989 8 3.2 8H14.8C15.9201 8 16.4802 8 16.908 7.70933C17.2843 7.45373 17.5903 7.04573 17.782 6.544C18 5.9736 18 1.49347 18 0H14.1627C13.9182 0 13.7959 0 13.6808 0.0368005C13.5787 0.0694672 13.4812 0.123333 13.3917 0.196533C13.2908 0.278933 13.2043 0.394266 13.0314 0.6248L12.4373 1.41693C12.0914 1.87814 11.9184 2.1088 11.7166 2.27373C11.5376 2.41987 11.3425 2.5276 11.1385 2.59293C10.9083 2.66667 10.6637 2.66667 10.1745 2.66667H7.8255C7.3363 2.66667 7.0917 2.66667 6.86154 2.59293C6.65746 2.5276 6.46237 2.41987 6.28343 2.27373C6.08174 2.10892 5.9089 1.87846 5.56348 1.41792L5.56274 1.41693L4.96863 0.6248C4.79548 0.394 4.70908 0.278838 4.60828 0.196533C4.51881 0.123333 4.42127 0.0694672 4.31923 0.0368005C4.20414 0 4.08185 0 3.83726 0Z"
 );
@@ -789,10 +804,6 @@ function simulateHomeMatterDrop(canvasWidth, canvasHeight, rows) {
     }
   }
 
-  const topBounds = getHomeTriangleBounds(geometry.pegTop - 2, geometry, canvasWidth, rows, profile.ballRadius);
-  const bottomBounds = getHomeTriangleBounds(geometry.slotY - 8, geometry, canvasWidth, rows, profile.ballRadius);
-  bodies.push(createMatterWall(MatterApi, topBounds.left - 8, geometry.pegTop - 14, bottomBounds.left - 12, geometry.slotY - 6, 10));
-  bodies.push(createMatterWall(MatterApi, topBounds.right + 8, geometry.pegTop - 14, bottomBounds.right + 12, geometry.slotY - 6, 10));
   bodies.push(
     Bodies.rectangle(canvasWidth / 2, geometry.slotY + 13, canvasWidth, 8, {
       isStatic: true,
@@ -823,12 +834,29 @@ function simulateHomeMatterDrop(canvasWidth, canvasHeight, rows) {
     Engine.update(engine, HOME_MATTER_STEP_MS);
 
     const bounds = getHomeTriangleBounds(ball.position.y, geometry, canvasWidth, rows, profile.ballRadius);
+    const boundaryNudge = Math.max(2.2, profile.ballRadius * 0.55);
     if (ball.position.x < bounds.left) {
-      Body.setPosition(ball, { x: bounds.left, y: ball.position.y });
-      Body.setVelocity(ball, { x: Math.abs(ball.velocity.x) * 0.42, y: ball.velocity.y });
+      Body.setPosition(ball, { x: bounds.left + boundaryNudge, y: ball.position.y });
+      Body.setVelocity(ball, {
+        x: Math.abs(ball.velocity.x) * 0.62 + 0.18 + Math.random() * 0.08,
+        y: Math.max(ball.velocity.y, 0.72),
+      });
     } else if (ball.position.x > bounds.right) {
-      Body.setPosition(ball, { x: bounds.right, y: ball.position.y });
-      Body.setVelocity(ball, { x: -Math.abs(ball.velocity.x) * 0.42, y: ball.velocity.y });
+      Body.setPosition(ball, { x: bounds.right - boundaryNudge, y: ball.position.y });
+      Body.setVelocity(ball, {
+        x: -Math.abs(ball.velocity.x) * 0.62 - 0.18 - Math.random() * 0.08,
+        y: Math.max(ball.velocity.y, 0.72),
+      });
+    } else if (
+      (ball.position.x - bounds.left < boundaryNudge || bounds.right - ball.position.x < boundaryNudge) &&
+      Math.abs(ball.velocity.x) < 0.08 &&
+      ball.velocity.y < 0.5
+    ) {
+      const pushRight = ball.position.x - bounds.left < bounds.right - ball.position.x;
+      Body.setVelocity(ball, {
+        x: pushRight ? 0.24 + Math.random() * 0.08 : -0.24 - Math.random() * 0.08,
+        y: 0.76,
+      });
     }
 
     const activePeg = [];
@@ -1128,6 +1156,59 @@ function getHomeBallFrame(animation, timestamp) {
 const homeWinEffects = [];
 let homeEffectsRunning = false;
 
+function getHomeMonkeyLayout(side, width, height) {
+  const drawWidth = Math.max(42, Math.min(58, width * 0.15));
+  const aspect = side === "left" ? 499 / 360 : 491 / 360;
+  const drawHeight = drawWidth * aspect;
+  const top = Math.min(height - drawHeight - 160, Math.max(90, height * 0.285));
+  const left = side === "left" ? 7 : width - drawWidth - 7;
+  return {
+    left,
+    top,
+    width: drawWidth,
+    height: drawHeight,
+    mouthX: side === "left" ? left + drawWidth * 0.76 : left + drawWidth * 0.24,
+    mouthY: top + drawHeight * 0.63,
+  };
+}
+
+function drawHomeMonkeys(ctx, width, height, timestamp) {
+  ["left", "right"].forEach((side) => {
+    const image = homeMonkeyImages[side];
+    if (!image || !image.complete || image.naturalWidth === 0) return;
+
+    const layout = getHomeMonkeyLayout(side, width, height);
+    const state = homeMonkeyState[side];
+    const active = state.until > timestamp;
+    const progress = active ? Math.max(0, Math.min(1, (timestamp - state.start) / Math.max(1, state.until - state.start))) : 1;
+    const shake = active ? Math.sin(timestamp / 22) * (1 - progress) * (1.1 + state.intensity * 1.8) : 0;
+    const pulse = active ? Math.sin(progress * Math.PI) : 0;
+    const scale = 1 + pulse * (0.035 + state.intensity * 0.025);
+
+    ctx.save();
+    ctx.globalAlpha = 0.9 + pulse * 0.1;
+    ctx.translate(layout.left + layout.width / 2 + shake, layout.top + layout.height / 2);
+    ctx.scale(scale, scale);
+    ctx.shadowColor = `rgba(255, 205, 92, ${0.24 + pulse * 0.56})`;
+    ctx.shadowBlur = 7 + pulse * 12;
+    ctx.drawImage(image, -layout.width / 2, -layout.height / 2, layout.width, layout.height);
+    ctx.restore();
+
+    if (active) {
+      ctx.save();
+      const mouth = ctx.createRadialGradient(layout.mouthX, layout.mouthY, 1, layout.mouthX, layout.mouthY, 11 + state.intensity * 3.5);
+      mouth.addColorStop(0, `rgba(255, 241, 167, ${0.5 + pulse * 0.46})`);
+      mouth.addColorStop(0.42, `rgba(255, 205, 88, ${0.24 + pulse * 0.32})`);
+      mouth.addColorStop(1, "rgba(255, 205, 88, 0)");
+      ctx.fillStyle = mouth;
+      ctx.beginPath();
+      ctx.arc(layout.mouthX, layout.mouthY, 11 + state.intensity * 3.5, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.restore();
+    }
+  });
+}
+
 function createHomeCoinBurst(side, width, height, timestamp) {
   const originX = side === "left" ? 28 : width - 28;
   const direction = side === "left" ? 1 : -1;
@@ -1144,6 +1225,33 @@ function createHomeCoinBurst(side, width, height, timestamp) {
       gravity: 120 + Math.random() * 60,
       size: 3.4 + Math.random() * 2.3,
       spin: (Math.random() - 0.5) * Math.PI * 4,
+      phase: Math.random() * Math.PI * 2,
+    });
+  }
+}
+
+function createHomeMonkeyBurst(side, width, height, timestamp, count, intensity) {
+  const layout = getHomeMonkeyLayout(side, width, height);
+  const direction = side === "left" ? 1 : -1;
+  homeMonkeyState[side] = {
+    start: timestamp,
+    until: timestamp + 760 + intensity * 120,
+    intensity,
+  };
+
+  for (let index = 0; index < count; index += 1) {
+    const spread = index / Math.max(1, count - 1);
+    homeWinEffects.push({
+      type: "coin",
+      start: timestamp + Math.random() * 90,
+      duration: 780 + Math.random() * 260 + intensity * 80,
+      x: layout.mouthX + (Math.random() - 0.5) * 4,
+      y: layout.mouthY + (Math.random() - 0.5) * 4,
+      vx: direction * (42 + Math.random() * 64 + intensity * 20),
+      vy: -42 - Math.random() * 72 - Math.sin(spread * Math.PI) * 16,
+      gravity: 118 + Math.random() * 62,
+      size: 3.1 + Math.random() * 2.4 + intensity * 0.4,
+      spin: (Math.random() - 0.5) * Math.PI * (4.5 + intensity),
       phase: Math.random() * Math.PI * 2,
     });
   }
@@ -1192,10 +1300,22 @@ function triggerHomeWinEffect(slot, multiplier, timestamp = performance.now()) {
   const width = Math.round(rect.width);
   const height = Math.round(rect.height);
   const slotCount = state.homeRows + 1;
-  const edgeWin = slot <= 1 || slot >= slotCount - 2;
-  if (edgeWin) {
-    createHomeCoinBurst("left", width, height, timestamp);
-    createHomeCoinBurst("right", width, height, timestamp);
+  const leftOuter = slot === 0;
+  const rightOuter = slot === slotCount - 1;
+  const leftInner = slot === 1;
+  const rightInner = slot === slotCount - 2;
+
+  if (leftOuter || rightOuter || leftInner || rightInner) {
+    const side = leftOuter || leftInner ? "left" : "right";
+    const outer = leftOuter || rightOuter;
+    createHomeMonkeyBurst(
+      side,
+      width,
+      height,
+      timestamp,
+      outer ? HOME_MONKEY_EDGE_COIN_COUNT : HOME_MONKEY_INNER_COIN_COUNT,
+      outer ? 1 : 0.55
+    );
   } else {
     createHomeSparkBurst(slot, timestamp);
   }
@@ -1207,7 +1327,9 @@ function drawHomeWinEffects(ctx, timestamp) {
   ctx.save();
   for (let index = homeWinEffects.length - 1; index >= 0; index -= 1) {
     const particle = homeWinEffects[index];
-    const progress = Math.min((timestamp - particle.start) / particle.duration, 1);
+    const rawProgress = (timestamp - particle.start) / particle.duration;
+    if (rawProgress < 0) continue;
+    const progress = Math.min(rawProgress, 1);
     if (progress >= 1) {
       homeWinEffects.splice(index, 1);
       continue;
@@ -1268,6 +1390,7 @@ function drawHomeBoard(ball = null, hotSlot = -1, slotDrop = 0, activePeg = null
     ballEntries.some((entry) => entry.ball && entry.ball.y < pegTop + 4),
     effectTimestamp
   );
+  drawHomeMonkeys(ctx, width, height, effectTimestamp);
 
   ctx.textAlign = "left";
   ctx.textBaseline = "alphabetic";
