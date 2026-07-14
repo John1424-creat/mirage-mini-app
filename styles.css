@@ -1892,7 +1892,7 @@ body.local-telegram-frame .carpet-stake-strip {
 body[data-active-tab="solo"] .app-shell {
   background:
     linear-gradient(180deg, rgba(32, 5, 31, 0.05), rgba(32, 5, 31, 0.12) 60%, rgba(8, 2, 13, 0.22)),
-    url("./assets/carpet-room-bg-v2.png") center bottom / cover no-repeat;
+    url("./assets/carpet-room-bg-night.png") center bottom / cover no-repeat;
 }
 
 body[data-active-tab="solo"] {
@@ -3072,7 +3072,7 @@ body[data-active-tab="solo"] .bottom-nav {
 body[data-active-tab="solo"] .app-shell {
   background:
     linear-gradient(180deg, rgba(32, 5, 31, 0.05), rgba(32, 5, 31, 0.12) 60%, rgba(8, 2, 13, 0.22)),
-    url("./assets/carpet-room-bg-v2.png") center bottom / cover no-repeat;
+    url("./assets/carpet-room-bg-night.png") center bottom / cover no-repeat;
 }
 
 .screen {
@@ -3601,7 +3601,7 @@ body.local-telegram-frame .app-shell {
 body[data-active-tab="solo"] .app-shell {
   background:
     linear-gradient(180deg, rgba(32, 5, 31, 0.05), rgba(32, 5, 31, 0.12) 60%, rgba(8, 2, 13, 0.22)),
-    url("./assets/carpet-room-bg-v2.png") center bottom / cover no-repeat;
+    url("./assets/carpet-room-bg-night.png") center bottom / cover no-repeat;
 }
 
 .screen,
@@ -3715,7 +3715,7 @@ body.local-telegram-frame[data-active-tab="solo"] .app-shell,
 body.is-telegram-webapp[data-active-tab="solo"] .app-shell {
   background:
     linear-gradient(180deg, rgba(32, 5, 31, 0.05), rgba(32, 5, 31, 0.12) 60%, rgba(8, 2, 13, 0.22)),
-    url("./assets/carpet-room-bg-v2.png") 50% bottom / cover no-repeat !important;
+    url("./assets/carpet-room-bg-night.png") 50% bottom / cover no-repeat !important;
 }
 
 .screen,
@@ -3901,7 +3901,7 @@ body::before {
 body[data-active-tab="solo"]::before {
   background:
     linear-gradient(180deg, rgba(32, 5, 31, 0.08), rgba(8, 2, 13, 0.26)),
-    url("./assets/carpet-room-bg-v2.png") 50% bottom / cover no-repeat;
+    url("./assets/carpet-room-bg-night.png") 50% bottom / cover no-repeat;
 }
 
 .app-shell,
@@ -3931,7 +3931,7 @@ body.local-telegram-frame[data-active-tab="solo"] .app-shell,
 body.is-telegram-webapp[data-active-tab="solo"] .app-shell {
   background:
     linear-gradient(180deg, rgba(32, 5, 31, 0.05), rgba(32, 5, 31, 0.12) 60%, rgba(8, 2, 13, 0.22)),
-    url("./assets/carpet-room-bg-v2.png") 50% bottom / cover no-repeat !important;
+    url("./assets/carpet-room-bg-night.png") 50% bottom / cover no-repeat !important;
 }
 
 .screen,
@@ -4169,7 +4169,7 @@ body.local-telegram-frame[data-active-tab="solo"] .app-shell,
 body.is-telegram-webapp[data-active-tab="solo"] .app-shell {
   background:
     linear-gradient(180deg, rgba(32, 5, 31, 0.05), rgba(32, 5, 31, 0.12) 60%, rgba(8, 2, 13, 0.22)),
-    url("./assets/carpet-room-bg-v2.png") 50% center / cover no-repeat !important;
+    url("./assets/carpet-room-bg-night.png") 50% center / cover no-repeat !important;
 }
 
 .app-shell::before,
@@ -5677,3 +5677,2705 @@ body.is-telegram-webapp #screen-solo .gem-balance span {
   line-height: 1 !important;
 }
 
+/* Telegram 65: Carpet console rebuild.
+   The second room now uses one stable control grid and a right-side flight history. */
+#screen-solo,
+body.local-telegram-frame #screen-solo,
+body.is-telegram-webapp #screen-solo {
+  --carpet-stage-top: 112px;
+  --carpet-console-top: 540px;
+  --carpet-stake-top: 678px;
+}
+
+#screen-solo .player-row,
+body.local-telegram-frame #screen-solo .player-row,
+body.is-telegram-webapp #screen-solo .player-row,
+#screen-solo .carpet-player-row,
+body.local-telegram-frame #screen-solo .carpet-player-row,
+body.is-telegram-webapp #screen-solo .carpet-player-row {
+  left: 8px !important;
+  right: 8px !important;
+  top: 58px !important;
+  height: 48px !important;
+  align-items: center !important;
+}
+
+#screen-solo .gem-balance,
+body.local-telegram-frame #screen-solo .gem-balance,
+body.is-telegram-webapp #screen-solo .gem-balance {
+  min-width: 78px !important;
+  height: 32px !important;
+  padding: 0 10px !important;
+  border-radius: 7px !important;
+}
+
+#screen-solo .carpet-stage,
+body.local-telegram-frame #screen-solo .carpet-stage,
+body.is-telegram-webapp #screen-solo .carpet-stage {
+  top: var(--carpet-stage-top) !important;
+  height: 418px !important;
+  overflow: visible !important;
+}
+
+#screen-solo .carpet-multiplier,
+body.local-telegram-frame #screen-solo .carpet-multiplier,
+body.is-telegram-webapp #screen-solo .carpet-multiplier {
+  top: 42px !important;
+  color: #ffe7a2 !important;
+  font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif !important;
+  font-size: 28px !important;
+  font-weight: 500 !important;
+  letter-spacing: 0 !important;
+  text-shadow:
+    0 2px 3px rgba(15, 6, 28, 0.78),
+    0 0 12px rgba(255, 195, 84, 0.32) !important;
+}
+
+#screen-solo .carpet-hero-wrap,
+body.local-telegram-frame #screen-solo .carpet-hero-wrap,
+body.is-telegram-webapp #screen-solo .carpet-hero-wrap {
+  left: 28px !important;
+  top: 282px !important;
+}
+
+#screen-solo .carpet-status,
+body.local-telegram-frame #screen-solo .carpet-status,
+body.is-telegram-webapp #screen-solo .carpet-status {
+  top: 80px !important;
+  min-width: 102px !important;
+  height: 21px !important;
+  padding: 0 10px !important;
+  border-radius: 7px !important;
+  font: 700 8px/21px Inter, ui-sans-serif, system-ui, sans-serif !important;
+  color: #fff5d8 !important;
+  background: linear-gradient(90deg, rgba(211, 67, 156, 0.78), rgba(154, 92, 77, 0.62)) !important;
+  border: 1px solid rgba(255, 211, 126, 0.72) !important;
+  box-shadow: 0 0 10px rgba(255, 75, 177, 0.22) !important;
+}
+
+#screen-solo .carpet-history,
+body.local-telegram-frame #screen-solo .carpet-history,
+body.is-telegram-webapp #screen-solo .carpet-history {
+  position: absolute !important;
+  left: auto !important;
+  right: 14px !important;
+  top: 230px !important;
+  width: 58px !important;
+  height: auto !important;
+  min-height: 174px !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  display: grid !important;
+  grid-template-columns: 1fr !important;
+  gap: 5px !important;
+  justify-items: center !important;
+  align-content: start !important;
+  transform: none !important;
+  z-index: 48 !important;
+  pointer-events: none !important;
+}
+
+#screen-solo .carpet-history-title,
+body.local-telegram-frame #screen-solo .carpet-history-title,
+body.is-telegram-webapp #screen-solo .carpet-history-title {
+  display: block !important;
+  width: 58px !important;
+  color: #fff2cc !important;
+  font: 700 10px/1 "Playfair Display", Georgia, "Times New Roman", serif !important;
+  text-align: center !important;
+  text-transform: uppercase !important;
+  text-shadow: 0 1px 2px rgba(26, 8, 28, 0.84), 0 0 6px rgba(255, 212, 116, 0.2) !important;
+}
+
+#screen-solo .carpet-chip,
+body.local-telegram-frame #screen-solo .carpet-chip,
+body.is-telegram-webapp #screen-solo .carpet-chip {
+  width: 48px !important;
+  height: 22px !important;
+  min-width: 48px !important;
+  border-radius: 7px !important;
+  padding: 0 4px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  font: 700 9px/1 Inter, ui-sans-serif, system-ui, sans-serif !important;
+  letter-spacing: 0 !important;
+  color: #221220 !important;
+  border: 1px solid rgba(255, 211, 126, 0.76) !important;
+  box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.32), 0 0 7px rgba(255, 72, 176, 0.22) !important;
+}
+
+#screen-solo .carpet-chip.cashout,
+body.local-telegram-frame #screen-solo .carpet-chip.cashout,
+body.is-telegram-webapp #screen-solo .carpet-chip.cashout {
+  background: linear-gradient(90deg, rgba(255, 210, 127, 0.98), rgba(226, 81, 167, 0.9)) !important;
+}
+
+#screen-solo .carpet-chip.crash,
+body.local-telegram-frame #screen-solo .carpet-chip.crash,
+body.is-telegram-webapp #screen-solo .carpet-chip.crash {
+  color: #fff0d6 !important;
+  background: linear-gradient(90deg, rgba(66, 33, 78, 0.86), rgba(151, 42, 109, 0.76)) !important;
+}
+
+#screen-solo .carpet-chip.unknown,
+body.local-telegram-frame #screen-solo .carpet-chip.unknown,
+body.is-telegram-webapp #screen-solo .carpet-chip.unknown {
+  color: #fff5d2 !important;
+  background: linear-gradient(90deg, rgba(255, 76, 175, 0.76), rgba(126, 60, 132, 0.62)) !important;
+}
+
+#screen-solo .carpet-controls,
+body.local-telegram-frame #screen-solo .carpet-controls,
+body.is-telegram-webapp #screen-solo .carpet-controls {
+  left: 8px !important;
+  top: var(--carpet-console-top) !important;
+  width: 377px !important;
+  height: 128px !important;
+  display: grid !important;
+  grid-template-columns: 132px 101px 132px !important;
+  column-gap: 6px !important;
+  align-items: start !important;
+  overflow: visible !important;
+  z-index: 55 !important;
+}
+
+#screen-solo .carpet-return-block,
+#screen-solo .carpet-bet-block,
+body.local-telegram-frame #screen-solo .carpet-return-block,
+body.local-telegram-frame #screen-solo .carpet-bet-block,
+body.is-telegram-webapp #screen-solo .carpet-return-block,
+body.is-telegram-webapp #screen-solo .carpet-bet-block {
+  position: relative !important;
+  width: 132px !important;
+  min-width: 132px !important;
+  display: grid !important;
+  grid-template-columns: 1fr !important;
+  gap: 4px !important;
+  justify-items: stretch !important;
+  overflow: visible !important;
+}
+
+#screen-solo .carpet-return-block,
+body.local-telegram-frame #screen-solo .carpet-return-block,
+body.is-telegram-webapp #screen-solo .carpet-return-block {
+  grid-column: 1 !important;
+}
+
+#screen-solo .carpet-bet-block,
+body.local-telegram-frame #screen-solo .carpet-bet-block,
+body.is-telegram-webapp #screen-solo .carpet-bet-block {
+  grid-column: 3 !important;
+}
+
+#screen-solo .control-title,
+body.local-telegram-frame #screen-solo .control-title,
+body.is-telegram-webapp #screen-solo .control-title {
+  width: 132px !important;
+  height: 13px !important;
+  line-height: 13px !important;
+  font-size: 10px !important;
+  text-align: center !important;
+  white-space: nowrap !important;
+}
+
+#screen-solo .carpet-controls .mode-choice,
+body.local-telegram-frame #screen-solo .carpet-controls .mode-choice,
+body.is-telegram-webapp #screen-solo .carpet-controls .mode-choice {
+  width: 132px !important;
+  height: 28px !important;
+  min-height: 28px !important;
+  border-radius: 7px !important;
+  padding: 0 8px !important;
+  font: 500 10px/1 Inter, ui-sans-serif, system-ui, sans-serif !important;
+}
+
+#screen-solo .carpet-action,
+body.local-telegram-frame #screen-solo .carpet-action,
+body.is-telegram-webapp #screen-solo .carpet-action {
+  grid-column: 2 !important;
+  position: relative !important;
+  left: auto !important;
+  top: 12px !important;
+  width: 101px !important;
+  height: 101px !important;
+  margin: 0 auto !important;
+  transform: none !important;
+  z-index: 62 !important;
+}
+
+#screen-solo .carpet-action:active,
+body.local-telegram-frame #screen-solo .carpet-action:active,
+body.is-telegram-webapp #screen-solo .carpet-action:active {
+  transform: translateY(3px) scale(0.99) !important;
+}
+
+#screen-solo .carpet-action strong,
+body.local-telegram-frame #screen-solo .carpet-action strong,
+body.is-telegram-webapp #screen-solo .carpet-action strong {
+  font-size: 11px !important;
+}
+
+#screen-solo .carpet-autocash,
+#screen-solo .carpet-autostarts,
+body.local-telegram-frame #screen-solo .carpet-autocash,
+body.local-telegram-frame #screen-solo .carpet-autostarts,
+body.is-telegram-webapp #screen-solo .carpet-autocash,
+body.is-telegram-webapp #screen-solo .carpet-autostarts {
+  position: relative !important;
+  left: auto !important;
+  top: auto !important;
+  width: 132px !important;
+  display: grid !important;
+  grid-template-columns: 1fr !important;
+  gap: 3px !important;
+  justify-items: center !important;
+  margin-top: 2px !important;
+  overflow: visible !important;
+}
+
+#screen-solo .carpet-autocash:not(.show),
+#screen-solo .carpet-autostarts:not(.show),
+body.local-telegram-frame #screen-solo .carpet-autocash:not(.show),
+body.local-telegram-frame #screen-solo .carpet-autostarts:not(.show),
+body.is-telegram-webapp #screen-solo .carpet-autocash:not(.show),
+body.is-telegram-webapp #screen-solo .carpet-autostarts:not(.show) {
+  max-height: 0 !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
+  overflow: hidden !important;
+}
+
+#screen-solo .carpet-autocash.show,
+#screen-solo .carpet-autostarts.show,
+body.local-telegram-frame #screen-solo .carpet-autocash.show,
+body.local-telegram-frame #screen-solo .carpet-autostarts.show,
+body.is-telegram-webapp #screen-solo .carpet-autocash.show,
+body.is-telegram-webapp #screen-solo .carpet-autostarts.show {
+  max-height: 46px !important;
+  opacity: 1 !important;
+  pointer-events: auto !important;
+}
+
+#screen-solo .carpet-cashout-strip,
+body.local-telegram-frame #screen-solo .carpet-cashout-strip,
+body.is-telegram-webapp #screen-solo .carpet-cashout-strip {
+  width: 132px !important;
+  height: 29px !important;
+  display: grid !important;
+  grid-template-columns: 29px 62px 29px !important;
+  gap: 6px !important;
+  align-items: center !important;
+  justify-content: center !important;
+  overflow: visible !important;
+}
+
+#screen-solo .carpet-cashout-value,
+body.local-telegram-frame #screen-solo .carpet-cashout-value,
+body.is-telegram-webapp #screen-solo .carpet-cashout-value {
+  width: 62px !important;
+  height: 27px !important;
+  border-radius: 6px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  font: 700 9px/1 Inter, ui-sans-serif, system-ui, sans-serif !important;
+  color: #241320 !important;
+  background: linear-gradient(90deg, rgba(255, 210, 127, 0.98), rgba(175, 141, 82, 0.9)) !important;
+  border: 1px solid rgba(255, 92, 181, 0.9) !important;
+}
+
+#screen-solo .stake-step,
+body.local-telegram-frame #screen-solo .stake-step,
+body.is-telegram-webapp #screen-solo .stake-step {
+  border-radius: 8px !important;
+  font: 700 16px/1 Inter, ui-sans-serif, system-ui, sans-serif !important;
+}
+
+#screen-solo .carpet-cashout-strip .stake-step,
+body.local-telegram-frame #screen-solo .carpet-cashout-strip .stake-step,
+body.is-telegram-webapp #screen-solo .carpet-cashout-strip .stake-step {
+  width: 29px !important;
+  height: 27px !important;
+}
+
+#screen-solo .carpet-stake-strip,
+body.local-telegram-frame #screen-solo .carpet-stake-strip,
+body.is-telegram-webapp #screen-solo .carpet-stake-strip {
+  position: absolute !important;
+  left: 50% !important;
+  top: var(--carpet-stake-top) !important;
+  width: 274px !important;
+  height: 70px !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  display: grid !important;
+  grid-template-columns: 32px 188px 32px !important;
+  grid-template-rows: 32px 28px !important;
+  column-gap: 8px !important;
+  row-gap: 5px !important;
+  align-items: start !important;
+  justify-content: center !important;
+  transform: translateX(-50%) !important;
+  overflow: visible !important;
+  z-index: 58 !important;
+}
+
+#screen-solo .carpet-stake-strip > .stake-step,
+body.local-telegram-frame #screen-solo .carpet-stake-strip > .stake-step,
+body.is-telegram-webapp #screen-solo .carpet-stake-strip > .stake-step {
+  width: 32px !important;
+  height: 30px !important;
+  align-self: center !important;
+}
+
+#screen-solo .carpet-stake-strip .stake-value,
+body.local-telegram-frame #screen-solo .carpet-stake-strip .stake-value,
+body.is-telegram-webapp #screen-solo .carpet-stake-strip .stake-value {
+  width: 188px !important;
+  height: 32px !important;
+  border-radius: 7px !important;
+  display: grid !important;
+  grid-template-columns: 1fr 1px 72px !important;
+  align-items: center !important;
+  padding: 0 !important;
+  overflow: hidden !important;
+  background: linear-gradient(90deg, rgba(255, 218, 139, 0.98), rgba(181, 146, 84, 0.93)) !important;
+  border: 1px solid rgba(255, 92, 181, 0.9) !important;
+  box-shadow: inset 0 1px 1px rgba(255, 252, 222, 0.4), 0 0 8px rgba(255, 72, 176, 0.22) !important;
+}
+
+#screen-solo .carpet-stake-strip .stake-value::after,
+body.local-telegram-frame #screen-solo .carpet-stake-strip .stake-value::after,
+body.is-telegram-webapp #screen-solo .carpet-stake-strip .stake-value::after {
+  position: static !important;
+  width: 1px !important;
+  height: 20px !important;
+  display: block !important;
+  background: rgba(54, 39, 33, 0.62) !important;
+  content: "" !important;
+}
+
+#screen-solo .carpet-stake-strip .stake-value strong,
+body.local-telegram-frame #screen-solo .carpet-stake-strip .stake-value strong,
+body.is-telegram-webapp #screen-solo .carpet-stake-strip .stake-value strong {
+  position: static !important;
+  width: auto !important;
+  height: auto !important;
+  justify-content: center !important;
+  font: 700 13px/1 Inter, ui-sans-serif, system-ui, sans-serif !important;
+  color: #241320 !important;
+}
+
+#screen-solo .carpet-stake-strip .stake-value > span,
+body.local-telegram-frame #screen-solo .carpet-stake-strip .stake-value > span,
+body.is-telegram-webapp #screen-solo .carpet-stake-strip .stake-value > span {
+  position: static !important;
+  width: auto !important;
+  height: auto !important;
+  justify-content: center !important;
+  gap: 5px !important;
+  font: 700 13px/1 Inter, ui-sans-serif, system-ui, sans-serif !important;
+  color: #241320 !important;
+  overflow: visible !important;
+}
+
+#screen-solo #carpet-stake,
+body.local-telegram-frame #screen-solo #carpet-stake,
+body.is-telegram-webapp #screen-solo #carpet-stake {
+  display: inline-block !important;
+  width: auto !important;
+  min-width: 18px !important;
+  max-width: 48px !important;
+  font-size: 13px !important;
+  text-align: right !important;
+}
+
+#screen-solo .carpet-stake-strip .stake-ruby,
+body.local-telegram-frame #screen-solo .carpet-stake-strip .stake-ruby,
+body.is-telegram-webapp #screen-solo .carpet-stake-strip .stake-ruby {
+  width: 9px !important;
+  height: 9px !important;
+  flex: 0 0 9px !important;
+}
+
+#screen-solo .carpet-stake-strip .stake-shortcuts,
+body.local-telegram-frame #screen-solo .carpet-stake-strip .stake-shortcuts,
+body.is-telegram-webapp #screen-solo .carpet-stake-strip .stake-shortcuts {
+  position: static !important;
+  grid-column: 2 / 3 !important;
+  grid-row: 2 !important;
+  display: flex !important;
+  justify-content: center !important;
+  gap: 8px !important;
+  margin: 0 !important;
+  transform: none !important;
+}
+
+#screen-solo .carpet-stake-strip .stake-shortcuts button,
+body.local-telegram-frame #screen-solo .carpet-stake-strip .stake-shortcuts button,
+body.is-telegram-webapp #screen-solo .carpet-stake-strip .stake-shortcuts button {
+  min-width: 42px !important;
+  height: 27px !important;
+  border-radius: 8px !important;
+  font: 700 10px/1 Inter, ui-sans-serif, system-ui, sans-serif !important;
+}
+
+/* Telegram 66: make Carpet stake controls inherit the Pyramid stake pattern exactly. */
+#screen-solo,
+body.local-telegram-frame #screen-solo,
+body.is-telegram-webapp #screen-solo {
+  --carpet-console-top: 542px;
+  --carpet-stake-top: 680px;
+}
+
+#screen-solo .carpet-controls,
+body.local-telegram-frame #screen-solo .carpet-controls,
+body.is-telegram-webapp #screen-solo .carpet-controls {
+  grid-template-columns: 132px 96px 132px !important;
+  column-gap: 8px !important;
+}
+
+#screen-solo .carpet-action,
+body.local-telegram-frame #screen-solo .carpet-action,
+body.is-telegram-webapp #screen-solo .carpet-action {
+  width: 96px !important;
+  height: 96px !important;
+  top: 10px !important;
+}
+
+#screen-solo .carpet-action-icon,
+body.local-telegram-frame #screen-solo .carpet-action-icon,
+body.is-telegram-webapp #screen-solo .carpet-action-icon {
+  width: 31px !important;
+  height: 31px !important;
+}
+
+#screen-solo .carpet-action strong,
+body.local-telegram-frame #screen-solo .carpet-action strong,
+body.is-telegram-webapp #screen-solo .carpet-action strong {
+  font-size: 13px !important;
+  font-weight: 500 !important;
+}
+
+/* Telegram 77 final: make the rebuilt Carpet magic layer win over older overrides. */
+#screen-solo,
+body.local-telegram-frame #screen-solo,
+body.is-telegram-webapp #screen-solo {
+  --carpet-cloud-speed: 14500ms;
+}
+
+#screen-solo.carpet-flying,
+body.local-telegram-frame #screen-solo.carpet-flying,
+body.is-telegram-webapp #screen-solo.carpet-flying {
+  --carpet-cloud-speed: 6400ms;
+}
+
+#screen-solo .carpet-cloud-layer,
+body.local-telegram-frame #screen-solo .carpet-cloud-layer,
+body.is-telegram-webapp #screen-solo .carpet-cloud-layer {
+  opacity: 0.72 !important;
+}
+
+#screen-solo.carpet-flying .carpet-cloud-layer,
+body.local-telegram-frame #screen-solo.carpet-flying .carpet-cloud-layer,
+body.is-telegram-webapp #screen-solo.carpet-flying .carpet-cloud-layer {
+  opacity: 0.86 !important;
+}
+
+#screen-solo .carpet-cloud,
+body.local-telegram-frame #screen-solo .carpet-cloud,
+body.is-telegram-webapp #screen-solo .carpet-cloud {
+  filter: blur(10px) saturate(1.22) !important;
+}
+
+#screen-solo .carpet-flight-fx,
+body.local-telegram-frame #screen-solo .carpet-flight-fx,
+body.is-telegram-webapp #screen-solo .carpet-flight-fx {
+  left: -78px !important;
+  top: 238px !important;
+  width: 420px !important;
+  height: 245px !important;
+  transform-origin: 162px 112px !important;
+  opacity: 0.34 !important;
+  mix-blend-mode: screen !important;
+}
+
+#screen-solo .carpet-flight-aura,
+#screen-solo .carpet-flight-trail,
+#screen-solo .carpet-flight-goldline,
+#screen-solo .carpet-flight-particles,
+body.local-telegram-frame #screen-solo .carpet-flight-aura,
+body.local-telegram-frame #screen-solo .carpet-flight-trail,
+body.local-telegram-frame #screen-solo .carpet-flight-goldline,
+body.local-telegram-frame #screen-solo .carpet-flight-particles,
+body.is-telegram-webapp #screen-solo .carpet-flight-aura,
+body.is-telegram-webapp #screen-solo .carpet-flight-trail,
+body.is-telegram-webapp #screen-solo .carpet-flight-goldline,
+body.is-telegram-webapp #screen-solo .carpet-flight-particles {
+  position: absolute !important;
+  display: block !important;
+  pointer-events: none !important;
+  will-change: transform, opacity, filter !important;
+}
+
+#screen-solo .carpet-flight-aura,
+body.local-telegram-frame #screen-solo .carpet-flight-aura,
+body.is-telegram-webapp #screen-solo .carpet-flight-aura {
+  left: 108px !important;
+  top: 58px !important;
+  width: 132px !important;
+  height: 82px !important;
+  border-radius: 58% 42% 55% 45% / 48% 58% 42% 52% !important;
+  background:
+    radial-gradient(ellipse at 50% 52%, rgba(255, 220, 124, 0.08), transparent 48%),
+    radial-gradient(ellipse at 50% 52%, transparent 49%, rgba(255, 214, 111, 0.94) 54%, rgba(255, 109, 207, 0.44) 62%, transparent 72%),
+    radial-gradient(ellipse at 48% 52%, rgba(255, 241, 176, 0.28), transparent 68%) !important;
+  filter: blur(0.2px) drop-shadow(0 0 8px rgba(255, 215, 114, 0.44)) drop-shadow(0 0 15px rgba(255, 77, 201, 0.22)) !important;
+  opacity: 0.32 !important;
+  transform: rotate(-10deg) scale(0.88) !important;
+  animation: carpetMagicAuraIdle 2300ms ease-in-out infinite !important;
+}
+
+#screen-solo .carpet-stage.flying .carpet-flight-aura,
+body.local-telegram-frame #screen-solo .carpet-stage.flying .carpet-flight-aura,
+body.is-telegram-webapp #screen-solo .carpet-stage.flying .carpet-flight-aura {
+  opacity: 0.96 !important;
+  animation: carpetMagicAuraFlight 980ms ease-in-out infinite !important;
+}
+
+#screen-solo .carpet-stage.cashed .carpet-flight-aura,
+body.local-telegram-frame #screen-solo .carpet-stage.cashed .carpet-flight-aura,
+body.is-telegram-webapp #screen-solo .carpet-stage.cashed .carpet-flight-aura {
+  opacity: 1 !important;
+  animation: carpetMagicAuraCashout 760ms ease-out forwards !important;
+}
+
+#screen-solo .carpet-flight-trail,
+body.local-telegram-frame #screen-solo .carpet-flight-trail,
+body.is-telegram-webapp #screen-solo .carpet-flight-trail {
+  left: -8px !important;
+  top: 98px !important;
+  width: 190px !important;
+  height: 56px !important;
+  border-radius: 100% 0 0 100% / 70% 0 0 70% !important;
+  background:
+    linear-gradient(90deg, rgba(69, 175, 255, 0), rgba(72, 180, 255, 0.32) 18%, rgba(255, 68, 210, 0.48) 50%, rgba(255, 226, 143, 0.5) 83%, rgba(255, 244, 180, 0.08)),
+    radial-gradient(ellipse at 90% 48%, rgba(255, 235, 157, 0.64), transparent 48%),
+    radial-gradient(ellipse at 46% 55%, rgba(255, 80, 214, 0.38), transparent 62%) !important;
+  clip-path: polygon(0 47%, 34% 20%, 78% 33%, 100% 50%, 78% 67%, 33% 80%, 0 53%) !important;
+  filter: blur(5px) saturate(1.38) !important;
+  opacity: 0.44 !important;
+  transform: rotate(2deg) scaleX(0.88) !important;
+  animation: carpetCometTrailIdle 1900ms ease-in-out infinite !important;
+}
+
+#screen-solo .carpet-stage.flying .carpet-flight-trail,
+body.local-telegram-frame #screen-solo .carpet-stage.flying .carpet-flight-trail,
+body.is-telegram-webapp #screen-solo .carpet-stage.flying .carpet-flight-trail {
+  opacity: 0.92 !important;
+  animation: carpetCometTrailFlight 820ms ease-in-out infinite !important;
+}
+
+#screen-solo .carpet-flight-goldline,
+body.local-telegram-frame #screen-solo .carpet-flight-goldline,
+body.is-telegram-webapp #screen-solo .carpet-flight-goldline {
+  left: 30px !important;
+  top: 116px !important;
+  width: 118px !important;
+  height: 3px !important;
+  border-radius: 999px !important;
+  background: linear-gradient(90deg, transparent, rgba(255, 225, 124, 0.55), rgba(255, 249, 193, 0.92), transparent) !important;
+  filter: blur(0.8px) drop-shadow(0 0 6px rgba(255, 208, 104, 0.55)) !important;
+  opacity: 0.28 !important;
+  transform: rotate(-7deg) !important;
+  animation: carpetGoldThread 980ms ease-in-out infinite !important;
+}
+
+#screen-solo .carpet-stage.flying .carpet-flight-goldline,
+body.local-telegram-frame #screen-solo .carpet-stage.flying .carpet-flight-goldline,
+body.is-telegram-webapp #screen-solo .carpet-stage.flying .carpet-flight-goldline {
+  opacity: 0.9 !important;
+}
+
+#screen-solo .carpet-flight-fx-wisp,
+body.local-telegram-frame #screen-solo .carpet-flight-fx-wisp,
+body.is-telegram-webapp #screen-solo .carpet-flight-fx-wisp {
+  left: 2px !important;
+  top: 90px !important;
+  width: 170px !important;
+  height: 56px !important;
+  opacity: 0.3 !important;
+  filter: blur(9px) saturate(1.28) !important;
+}
+
+#screen-solo .carpet-stage.flying .carpet-flight-fx-wisp,
+body.local-telegram-frame #screen-solo .carpet-stage.flying .carpet-flight-fx-wisp,
+body.is-telegram-webapp #screen-solo .carpet-stage.flying .carpet-flight-fx-wisp {
+  opacity: 0.62 !important;
+}
+
+#screen-solo .carpet-flight-fx-sparks,
+body.local-telegram-frame #screen-solo .carpet-flight-fx-sparks,
+body.is-telegram-webapp #screen-solo .carpet-flight-fx-sparks {
+  left: 32px !important;
+  top: 112px !important;
+  width: 116px !important;
+  height: 34px !important;
+  opacity: 0.18 !important;
+  background:
+    radial-gradient(circle at 88% 38%, rgba(255, 247, 190, 0.98), transparent 10%),
+    radial-gradient(circle at 70% 64%, rgba(255, 92, 211, 0.76), transparent 13%),
+    radial-gradient(circle at 47% 44%, rgba(113, 188, 255, 0.66), transparent 14%),
+    radial-gradient(circle at 23% 58%, rgba(255, 220, 126, 0.52), transparent 10%) !important;
+  animation: carpetSparkCluster 900ms ease-in-out infinite !important;
+}
+
+#screen-solo .carpet-stage.flying .carpet-flight-fx-sparks,
+body.local-telegram-frame #screen-solo .carpet-stage.flying .carpet-flight-fx-sparks,
+body.is-telegram-webapp #screen-solo .carpet-stage.flying .carpet-flight-fx-sparks {
+  opacity: 0.86 !important;
+}
+
+#screen-solo .carpet-flight-particles,
+body.local-telegram-frame #screen-solo .carpet-flight-particles,
+body.is-telegram-webapp #screen-solo .carpet-flight-particles {
+  left: 6px !important;
+  top: 88px !important;
+  width: 150px !important;
+  height: 62px !important;
+  opacity: 0.18 !important;
+  filter: blur(0.5px) drop-shadow(0 0 5px rgba(255, 106, 211, 0.42)) !important;
+}
+
+#screen-solo .carpet-flight-particles.particles-a,
+body.local-telegram-frame #screen-solo .carpet-flight-particles.particles-a,
+body.is-telegram-webapp #screen-solo .carpet-flight-particles.particles-a {
+  background:
+    radial-gradient(circle at 92% 45%, rgba(255, 232, 145, 0.88), transparent 3px),
+    radial-gradient(circle at 73% 28%, rgba(255, 92, 214, 0.7), transparent 2px),
+    radial-gradient(circle at 52% 63%, rgba(98, 184, 255, 0.66), transparent 2px),
+    radial-gradient(circle at 28% 42%, rgba(255, 230, 128, 0.52), transparent 2px) !important;
+  animation: carpetParticleDriftA 840ms linear infinite !important;
+}
+
+#screen-solo .carpet-flight-particles.particles-b,
+body.local-telegram-frame #screen-solo .carpet-flight-particles.particles-b,
+body.is-telegram-webapp #screen-solo .carpet-flight-particles.particles-b {
+  background:
+    radial-gradient(circle at 82% 68%, rgba(255, 244, 183, 0.82), transparent 2px),
+    radial-gradient(circle at 60% 34%, rgba(255, 95, 216, 0.64), transparent 2px),
+    radial-gradient(circle at 38% 58%, rgba(95, 172, 255, 0.58), transparent 2px),
+    radial-gradient(circle at 16% 28%, rgba(255, 220, 120, 0.42), transparent 2px) !important;
+  animation: carpetParticleDriftB 1120ms linear infinite !important;
+}
+
+#screen-solo .carpet-stage.flying .carpet-flight-particles,
+body.local-telegram-frame #screen-solo .carpet-stage.flying .carpet-flight-particles,
+body.is-telegram-webapp #screen-solo .carpet-stage.flying .carpet-flight-particles {
+  opacity: 0.9 !important;
+}
+
+/* Telegram 78 absolute final: clean Carpet edge glow, no halo and no dot particles. */
+#screen-solo .carpet-flight-aura,
+#screen-solo .carpet-flight-fx-sparks,
+#screen-solo .carpet-flight-particles,
+body.local-telegram-frame #screen-solo .carpet-flight-aura,
+body.local-telegram-frame #screen-solo .carpet-flight-fx-sparks,
+body.local-telegram-frame #screen-solo .carpet-flight-particles,
+body.is-telegram-webapp #screen-solo .carpet-flight-aura,
+body.is-telegram-webapp #screen-solo .carpet-flight-fx-sparks,
+body.is-telegram-webapp #screen-solo .carpet-flight-particles {
+  display: none !important;
+  opacity: 0 !important;
+}
+
+#screen-solo .carpet-flight-fx,
+body.local-telegram-frame #screen-solo .carpet-flight-fx,
+body.is-telegram-webapp #screen-solo .carpet-flight-fx {
+  left: -84px !important;
+  top: 250px !important;
+  width: 360px !important;
+  height: 172px !important;
+  opacity: 0.22 !important;
+  transform-origin: 158px 92px !important;
+  mix-blend-mode: screen !important;
+}
+
+#screen-solo .carpet-stage.flying .carpet-flight-fx,
+body.local-telegram-frame #screen-solo .carpet-stage.flying .carpet-flight-fx,
+body.is-telegram-webapp #screen-solo .carpet-stage.flying .carpet-flight-fx {
+  opacity: 0.84 !important;
+}
+
+#screen-solo .carpet-flight-trail,
+body.local-telegram-frame #screen-solo .carpet-flight-trail,
+body.is-telegram-webapp #screen-solo .carpet-flight-trail {
+  left: 4px !important;
+  top: 78px !important;
+  width: 182px !important;
+  height: 46px !important;
+  opacity: 0.22 !important;
+  border-radius: 999px !important;
+  clip-path: polygon(0 50%, 28% 18%, 72% 30%, 100% 49%, 72% 70%, 28% 82%, 0 54%) !important;
+  background:
+    linear-gradient(90deg, rgba(74, 168, 255, 0), rgba(92, 172, 255, 0.26) 22%, rgba(191, 94, 255, 0.22) 52%, rgba(255, 211, 125, 0.34) 82%, rgba(255, 239, 182, 0.12)),
+    radial-gradient(ellipse at 84% 48%, rgba(255, 227, 148, 0.38), transparent 52%) !important;
+  filter: blur(7px) saturate(1.15) !important;
+  transform: rotate(3deg) scaleX(0.78) !important;
+  animation: carpetCleanTrailIdle 2400ms ease-in-out infinite !important;
+}
+
+#screen-solo .carpet-stage.flying .carpet-flight-trail,
+body.local-telegram-frame #screen-solo .carpet-stage.flying .carpet-flight-trail,
+body.is-telegram-webapp #screen-solo .carpet-stage.flying .carpet-flight-trail {
+  opacity: 0.74 !important;
+  animation: carpetCleanTrailFlight 1100ms ease-in-out infinite !important;
+}
+
+#screen-solo .carpet-flight-fx-wisp,
+body.local-telegram-frame #screen-solo .carpet-flight-fx-wisp,
+body.is-telegram-webapp #screen-solo .carpet-flight-fx-wisp {
+  left: 42px !important;
+  top: 84px !important;
+  width: 124px !important;
+  height: 26px !important;
+  opacity: 0.18 !important;
+  border-radius: 999px !important;
+  background:
+    linear-gradient(90deg, rgba(71, 165, 255, 0), rgba(94, 177, 255, 0.24), rgba(255, 217, 132, 0.36), rgba(255, 242, 181, 0)) !important;
+  filter: blur(6px) saturate(1.12) !important;
+  transform: rotate(-6deg) !important;
+  animation: carpetCleanWisp 1800ms ease-in-out infinite !important;
+}
+
+#screen-solo .carpet-stage.flying .carpet-flight-fx-wisp,
+body.local-telegram-frame #screen-solo .carpet-stage.flying .carpet-flight-fx-wisp,
+body.is-telegram-webapp #screen-solo .carpet-stage.flying .carpet-flight-fx-wisp {
+  opacity: 0.58 !important;
+}
+
+#screen-solo .carpet-flight-goldline,
+body.local-telegram-frame #screen-solo .carpet-flight-goldline,
+body.is-telegram-webapp #screen-solo .carpet-flight-goldline {
+  left: 58px !important;
+  top: 93px !important;
+  width: 88px !important;
+  height: 2px !important;
+  opacity: 0.16 !important;
+  border-radius: 999px !important;
+  background: linear-gradient(90deg, transparent, rgba(255, 231, 147, 0.72), transparent) !important;
+  filter: blur(0.9px) drop-shadow(0 0 5px rgba(255, 215, 111, 0.28)) !important;
+  transform: rotate(-5deg) !important;
+  animation: carpetCleanGoldline 1400ms ease-in-out infinite !important;
+}
+
+#screen-solo .carpet-stage.flying .carpet-flight-goldline,
+body.local-telegram-frame #screen-solo .carpet-stage.flying .carpet-flight-goldline,
+body.is-telegram-webapp #screen-solo .carpet-stage.flying .carpet-flight-goldline {
+  opacity: 0.62 !important;
+}
+
+#screen-solo .carpet-hero,
+body.local-telegram-frame #screen-solo .carpet-hero,
+body.is-telegram-webapp #screen-solo .carpet-hero {
+  filter:
+    drop-shadow(0 7px 10px rgba(15, 8, 35, 0.28))
+    drop-shadow(0 0 2px rgba(255, 229, 150, 0.22)) !important;
+}
+
+#screen-solo .carpet-stage.flying .carpet-hero,
+body.local-telegram-frame #screen-solo .carpet-stage.flying .carpet-hero,
+body.is-telegram-webapp #screen-solo .carpet-stage.flying .carpet-hero {
+  filter:
+    drop-shadow(0 8px 12px rgba(15, 8, 35, 0.3))
+    drop-shadow(0 0 5px rgba(255, 219, 122, 0.38))
+    drop-shadow(0 0 8px rgba(92, 172, 255, 0.18)) !important;
+}
+
+#screen-solo .carpet-stage.cashed .carpet-hero,
+body.local-telegram-frame #screen-solo .carpet-stage.cashed .carpet-hero,
+body.is-telegram-webapp #screen-solo .carpet-stage.cashed .carpet-hero {
+  filter:
+    drop-shadow(0 8px 12px rgba(15, 8, 35, 0.26))
+    drop-shadow(0 0 8px rgba(255, 223, 130, 0.54)) !important;
+}
+
+/* Telegram 88: final cloud override after all legacy Carpet rules. */
+#screen-solo .carpet-cloud.cloud-a,
+body.local-telegram-frame #screen-solo .carpet-cloud.cloud-a,
+body.is-telegram-webapp #screen-solo .carpet-cloud.cloud-a,
+#screen-solo.carpet-ready .carpet-cloud.cloud-a,
+body.local-telegram-frame #screen-solo.carpet-ready .carpet-cloud.cloud-a,
+body.is-telegram-webapp #screen-solo.carpet-ready .carpet-cloud.cloud-a,
+#screen-solo.carpet-flying .carpet-cloud.cloud-a,
+body.local-telegram-frame #screen-solo.carpet-flying .carpet-cloud.cloud-a,
+body.is-telegram-webapp #screen-solo.carpet-flying .carpet-cloud.cloud-a,
+#screen-solo.carpet-cashed .carpet-cloud.cloud-a,
+body.local-telegram-frame #screen-solo.carpet-cashed .carpet-cloud.cloud-a,
+body.is-telegram-webapp #screen-solo.carpet-cashed .carpet-cloud.cloud-a,
+#screen-solo.carpet-crashed .carpet-cloud.cloud-a,
+body.local-telegram-frame #screen-solo.carpet-crashed .carpet-cloud.cloud-a,
+body.is-telegram-webapp #screen-solo.carpet-crashed .carpet-cloud.cloud-a {
+  animation: carpetCloudDriftA 29s linear infinite !important;
+}
+
+#screen-solo .carpet-cloud.cloud-b,
+body.local-telegram-frame #screen-solo .carpet-cloud.cloud-b,
+body.is-telegram-webapp #screen-solo .carpet-cloud.cloud-b,
+#screen-solo.carpet-ready .carpet-cloud.cloud-b,
+body.local-telegram-frame #screen-solo.carpet-ready .carpet-cloud.cloud-b,
+body.is-telegram-webapp #screen-solo.carpet-ready .carpet-cloud.cloud-b,
+#screen-solo.carpet-flying .carpet-cloud.cloud-b,
+body.local-telegram-frame #screen-solo.carpet-flying .carpet-cloud.cloud-b,
+body.is-telegram-webapp #screen-solo.carpet-flying .carpet-cloud.cloud-b,
+#screen-solo.carpet-cashed .carpet-cloud.cloud-b,
+body.local-telegram-frame #screen-solo.carpet-cashed .carpet-cloud.cloud-b,
+body.is-telegram-webapp #screen-solo.carpet-cashed .carpet-cloud.cloud-b,
+#screen-solo.carpet-crashed .carpet-cloud.cloud-b,
+body.local-telegram-frame #screen-solo.carpet-crashed .carpet-cloud.cloud-b,
+body.is-telegram-webapp #screen-solo.carpet-crashed .carpet-cloud.cloud-b {
+  animation: carpetCloudDriftB 36s linear infinite !important;
+}
+
+#screen-solo .carpet-cloud.cloud-c,
+body.local-telegram-frame #screen-solo .carpet-cloud.cloud-c,
+body.is-telegram-webapp #screen-solo .carpet-cloud.cloud-c,
+#screen-solo.carpet-ready .carpet-cloud.cloud-c,
+body.local-telegram-frame #screen-solo.carpet-ready .carpet-cloud.cloud-c,
+body.is-telegram-webapp #screen-solo.carpet-ready .carpet-cloud.cloud-c,
+#screen-solo.carpet-flying .carpet-cloud.cloud-c,
+body.local-telegram-frame #screen-solo.carpet-flying .carpet-cloud.cloud-c,
+body.is-telegram-webapp #screen-solo.carpet-flying .carpet-cloud.cloud-c,
+#screen-solo.carpet-cashed .carpet-cloud.cloud-c,
+body.local-telegram-frame #screen-solo.carpet-cashed .carpet-cloud.cloud-c,
+body.is-telegram-webapp #screen-solo.carpet-cashed .carpet-cloud.cloud-c,
+#screen-solo.carpet-crashed .carpet-cloud.cloud-c,
+body.local-telegram-frame #screen-solo.carpet-crashed .carpet-cloud.cloud-c,
+body.is-telegram-webapp #screen-solo.carpet-crashed .carpet-cloud.cloud-c {
+  animation: carpetCloudDriftC 33s linear infinite !important;
+}
+
+/* Telegram 87 final override: keep cloud drift independent from round state. */
+#screen-solo,
+body.local-telegram-frame #screen-solo,
+body.is-telegram-webapp #screen-solo,
+#screen-solo.carpet-ready,
+body.local-telegram-frame #screen-solo.carpet-ready,
+body.is-telegram-webapp #screen-solo.carpet-ready,
+#screen-solo.carpet-flying,
+body.local-telegram-frame #screen-solo.carpet-flying,
+body.is-telegram-webapp #screen-solo.carpet-flying,
+#screen-solo.carpet-cashed,
+body.local-telegram-frame #screen-solo.carpet-cashed,
+body.is-telegram-webapp #screen-solo.carpet-cashed,
+#screen-solo.carpet-crashed,
+body.local-telegram-frame #screen-solo.carpet-crashed,
+body.is-telegram-webapp #screen-solo.carpet-crashed {
+  --carpet-cloud-speed: 26000ms !important;
+}
+
+#screen-solo .carpet-cloud-layer,
+body.local-telegram-frame #screen-solo .carpet-cloud-layer,
+body.is-telegram-webapp #screen-solo .carpet-cloud-layer,
+#screen-solo.carpet-ready .carpet-cloud-layer,
+body.local-telegram-frame #screen-solo.carpet-ready .carpet-cloud-layer,
+body.is-telegram-webapp #screen-solo.carpet-ready .carpet-cloud-layer,
+#screen-solo.carpet-flying .carpet-cloud-layer,
+body.local-telegram-frame #screen-solo.carpet-flying .carpet-cloud-layer,
+body.is-telegram-webapp #screen-solo.carpet-flying .carpet-cloud-layer,
+#screen-solo.carpet-cashed .carpet-cloud-layer,
+body.local-telegram-frame #screen-solo.carpet-cashed .carpet-cloud-layer,
+body.is-telegram-webapp #screen-solo.carpet-cashed .carpet-cloud-layer,
+#screen-solo.carpet-crashed .carpet-cloud-layer,
+body.local-telegram-frame #screen-solo.carpet-crashed .carpet-cloud-layer,
+body.is-telegram-webapp #screen-solo.carpet-crashed .carpet-cloud-layer {
+  opacity: 0.74 !important;
+}
+
+#screen-solo .carpet-cloud.cloud-a,
+body.local-telegram-frame #screen-solo .carpet-cloud.cloud-a,
+body.is-telegram-webapp #screen-solo .carpet-cloud.cloud-a,
+#screen-solo.carpet-flying .carpet-cloud.cloud-a,
+body.local-telegram-frame #screen-solo.carpet-flying .carpet-cloud.cloud-a,
+body.is-telegram-webapp #screen-solo.carpet-flying .carpet-cloud.cloud-a {
+  animation: carpetCloudDriftA 29s linear infinite !important;
+}
+
+#screen-solo .carpet-cloud.cloud-b,
+body.local-telegram-frame #screen-solo .carpet-cloud.cloud-b,
+body.is-telegram-webapp #screen-solo .carpet-cloud.cloud-b,
+#screen-solo.carpet-flying .carpet-cloud.cloud-b,
+body.local-telegram-frame #screen-solo.carpet-flying .carpet-cloud.cloud-b,
+body.is-telegram-webapp #screen-solo.carpet-flying .carpet-cloud.cloud-b {
+  animation: carpetCloudDriftB 36s linear infinite !important;
+}
+
+#screen-solo .carpet-cloud.cloud-c,
+body.local-telegram-frame #screen-solo .carpet-cloud.cloud-c,
+body.is-telegram-webapp #screen-solo .carpet-cloud.cloud-c,
+#screen-solo.carpet-flying .carpet-cloud.cloud-c,
+body.local-telegram-frame #screen-solo.carpet-flying .carpet-cloud.cloud-c,
+body.is-telegram-webapp #screen-solo.carpet-flying .carpet-cloud.cloud-c {
+  animation: carpetCloudDriftC 33s linear infinite !important;
+}
+
+/* Telegram 87: clouds are room atmosphere, independent from Carpet flight state. */
+#screen-solo,
+body.local-telegram-frame #screen-solo,
+body.is-telegram-webapp #screen-solo,
+#screen-solo.carpet-flying,
+body.local-telegram-frame #screen-solo.carpet-flying,
+body.is-telegram-webapp #screen-solo.carpet-flying,
+#screen-solo.carpet-cashed,
+body.local-telegram-frame #screen-solo.carpet-cashed,
+body.is-telegram-webapp #screen-solo.carpet-cashed,
+#screen-solo.carpet-crashed,
+body.local-telegram-frame #screen-solo.carpet-crashed,
+body.is-telegram-webapp #screen-solo.carpet-crashed {
+  --carpet-cloud-speed: 26000ms !important;
+}
+
+#screen-solo .carpet-cloud-layer,
+body.local-telegram-frame #screen-solo .carpet-cloud-layer,
+body.is-telegram-webapp #screen-solo .carpet-cloud-layer,
+#screen-solo.carpet-flying .carpet-cloud-layer,
+body.local-telegram-frame #screen-solo.carpet-flying .carpet-cloud-layer,
+body.is-telegram-webapp #screen-solo.carpet-flying .carpet-cloud-layer,
+#screen-solo.carpet-cashed .carpet-cloud-layer,
+body.local-telegram-frame #screen-solo.carpet-cashed .carpet-cloud-layer,
+body.is-telegram-webapp #screen-solo.carpet-cashed .carpet-cloud-layer,
+#screen-solo.carpet-crashed .carpet-cloud-layer,
+body.local-telegram-frame #screen-solo.carpet-crashed .carpet-cloud-layer,
+body.is-telegram-webapp #screen-solo.carpet-crashed .carpet-cloud-layer {
+  opacity: 0.74 !important;
+}
+
+#screen-solo .carpet-cloud.cloud-a,
+body.local-telegram-frame #screen-solo .carpet-cloud.cloud-a,
+body.is-telegram-webapp #screen-solo .carpet-cloud.cloud-a {
+  animation: carpetCloudDriftA 29s linear infinite !important;
+}
+
+#screen-solo .carpet-cloud.cloud-b,
+body.local-telegram-frame #screen-solo .carpet-cloud.cloud-b,
+body.is-telegram-webapp #screen-solo .carpet-cloud.cloud-b {
+  animation: carpetCloudDriftB 36s linear infinite !important;
+}
+
+#screen-solo .carpet-cloud.cloud-c,
+body.local-telegram-frame #screen-solo .carpet-cloud.cloud-c,
+body.is-telegram-webapp #screen-solo .carpet-cloud.cloud-c {
+  animation: carpetCloudDriftC 33s linear infinite !important;
+}
+
+@keyframes carpetCloudDriftA {
+  0% { transform: translate3d(-170px, 0, 0) scale(0.98); opacity: 0; }
+  15% { opacity: 0.28; }
+  72% { opacity: 0.44; }
+  100% { transform: translate3d(560px, -22px, 0) scale(1.08); opacity: 0; }
+}
+
+@keyframes carpetCloudDriftB {
+  0% { transform: translate3d(210px, -6px, 0) scale(1.04); opacity: 0; }
+  18% { opacity: 0.24; }
+  76% { opacity: 0.42; }
+  100% { transform: translate3d(-620px, 18px, 0) scale(1.1); opacity: 0; }
+}
+
+@keyframes carpetCloudDriftC {
+  0% { transform: translate3d(-140px, 4px, 0) scale(0.9); opacity: 0; }
+  16% { opacity: 0.16; }
+  70% { opacity: 0.32; }
+  100% { transform: translate3d(500px, 12px, 0) scale(1.04); opacity: 0; }
+}
+
+/* Telegram 79: canvas Trail Renderer for Carpet, replacing decorative CSS blobs. */
+#screen-solo .carpet-trail-canvas,
+body.local-telegram-frame #screen-solo .carpet-trail-canvas,
+body.is-telegram-webapp #screen-solo .carpet-trail-canvas {
+  position: absolute !important;
+  inset: 0 !important;
+  width: 100% !important;
+  height: 100% !important;
+  pointer-events: none !important;
+  z-index: 12 !important;
+  mix-blend-mode: screen !important;
+  opacity: 0.95 !important;
+}
+
+#screen-solo .carpet-flight-fx,
+body.local-telegram-frame #screen-solo .carpet-flight-fx,
+body.is-telegram-webapp #screen-solo .carpet-flight-fx,
+#screen-solo .carpet-flight-aura,
+#screen-solo .carpet-flight-trail,
+#screen-solo .carpet-flight-goldline,
+#screen-solo .carpet-flight-fx-wisp,
+#screen-solo .carpet-flight-fx-sparks,
+#screen-solo .carpet-flight-particles,
+body.local-telegram-frame #screen-solo .carpet-flight-aura,
+body.local-telegram-frame #screen-solo .carpet-flight-trail,
+body.local-telegram-frame #screen-solo .carpet-flight-goldline,
+body.local-telegram-frame #screen-solo .carpet-flight-fx-wisp,
+body.local-telegram-frame #screen-solo .carpet-flight-fx-sparks,
+body.local-telegram-frame #screen-solo .carpet-flight-particles,
+body.is-telegram-webapp #screen-solo .carpet-flight-aura,
+body.is-telegram-webapp #screen-solo .carpet-flight-trail,
+body.is-telegram-webapp #screen-solo .carpet-flight-goldline,
+body.is-telegram-webapp #screen-solo .carpet-flight-fx-wisp,
+body.is-telegram-webapp #screen-solo .carpet-flight-fx-sparks,
+body.is-telegram-webapp #screen-solo .carpet-flight-particles {
+  display: none !important;
+  opacity: 0 !important;
+}
+
+#screen-solo .carpet-hero,
+body.local-telegram-frame #screen-solo .carpet-hero,
+body.is-telegram-webapp #screen-solo .carpet-hero {
+  filter:
+    drop-shadow(0 7px 10px rgba(15, 8, 35, 0.28))
+    drop-shadow(0 0 2px rgba(255, 229, 150, 0.2)) !important;
+}
+
+#screen-solo .carpet-stage.flying .carpet-hero,
+body.local-telegram-frame #screen-solo .carpet-stage.flying .carpet-hero,
+body.is-telegram-webapp #screen-solo .carpet-stage.flying .carpet-hero {
+  filter:
+    drop-shadow(0 8px 12px rgba(15, 8, 35, 0.3))
+    drop-shadow(0 0 5px rgba(255, 219, 122, 0.36))
+    drop-shadow(0 0 8px rgba(98, 180, 255, 0.2)) !important;
+}
+
+#screen-solo .carpet-stage.cashed .carpet-hero,
+body.local-telegram-frame #screen-solo .carpet-stage.cashed .carpet-hero,
+body.is-telegram-webapp #screen-solo .carpet-stage.cashed .carpet-hero {
+  filter:
+    drop-shadow(0 8px 12px rgba(15, 8, 35, 0.26))
+    drop-shadow(0 0 8px rgba(255, 223, 130, 0.52))
+    drop-shadow(0 0 10px rgba(226, 92, 255, 0.2)) !important;
+}
+
+/* Telegram 82: align Carpet trail to the real carpet DOM position. */
+#screen-solo .carpet-hero-wrap::before,
+#screen-solo .carpet-hero-wrap::after,
+body.local-telegram-frame #screen-solo .carpet-hero-wrap::before,
+body.local-telegram-frame #screen-solo .carpet-hero-wrap::after,
+body.is-telegram-webapp #screen-solo .carpet-hero-wrap::before,
+body.is-telegram-webapp #screen-solo .carpet-hero-wrap::after {
+  content: none !important;
+  display: none !important;
+  opacity: 0 !important;
+}
+
+/* Telegram 83: premium minimal Carpet motion, no detached trail. */
+#screen-solo .carpet-trail-canvas,
+body.local-telegram-frame #screen-solo .carpet-trail-canvas,
+body.is-telegram-webapp #screen-solo .carpet-trail-canvas {
+  display: none !important;
+  opacity: 0 !important;
+}
+
+#screen-solo .carpet-stage.flying .carpet-hero,
+body.local-telegram-frame #screen-solo .carpet-stage.flying .carpet-hero,
+body.is-telegram-webapp #screen-solo .carpet-stage.flying .carpet-hero {
+  filter:
+    drop-shadow(0 8px 12px rgba(15, 8, 35, 0.28))
+    drop-shadow(0 0 6px rgba(255, 220, 130, 0.45))
+    drop-shadow(0 0 10px rgba(123, 188, 255, 0.2)) !important;
+}
+
+#screen-solo .carpet-stage.cashed .carpet-hero,
+body.local-telegram-frame #screen-solo .carpet-stage.cashed .carpet-hero,
+body.is-telegram-webapp #screen-solo .carpet-stage.cashed .carpet-hero {
+  filter:
+    drop-shadow(0 8px 12px rgba(15, 8, 35, 0.24))
+    drop-shadow(0 0 8px rgba(255, 225, 132, 0.58))
+    drop-shadow(0 0 10px rgba(255, 113, 214, 0.2)) !important;
+}
+
+/* Telegram 86: magic spark emitter is attached to the Carpet sprite, not to the scene. */
+#screen-solo .carpet-magic-sparks,
+body.local-telegram-frame #screen-solo .carpet-magic-sparks,
+body.is-telegram-webapp #screen-solo .carpet-magic-sparks {
+  position: absolute !important;
+  inset: 0 !important;
+  pointer-events: none !important;
+  overflow: visible !important;
+  z-index: 2 !important;
+  mix-blend-mode: screen !important;
+  contain: none !important;
+}
+
+#screen-solo .carpet-magic-sparks::before,
+body.local-telegram-frame #screen-solo .carpet-magic-sparks::before,
+body.is-telegram-webapp #screen-solo .carpet-magic-sparks::before {
+  content: "" !important;
+  position: absolute !important;
+  left: var(--spark-x, -999px) !important;
+  top: var(--spark-y, -999px) !important;
+  width: 42px !important;
+  height: 14px !important;
+  border-radius: 999px !important;
+  pointer-events: none !important;
+  z-index: 1 !important;
+  opacity: 0 !important;
+  transform: translate(-58%, -50%) rotate(-13deg) scaleX(0.9) !important;
+  background:
+    radial-gradient(circle at 82% 48%, rgba(255, 235, 134, 0.96) 0 11%, transparent 22%),
+    radial-gradient(circle at 55% 54%, rgba(255, 86, 214, 0.62) 0 18%, transparent 44%),
+    linear-gradient(90deg, rgba(94, 203, 255, 0), rgba(109, 199, 255, 0.56), rgba(255, 207, 108, 0.64));
+  filter: blur(3.8px) saturate(1.35) !important;
+}
+
+#screen-solo.carpet-flying .carpet-magic-sparks::before,
+#screen-solo.carpet-cashed .carpet-magic-sparks::before,
+body.local-telegram-frame #screen-solo.carpet-flying .carpet-magic-sparks::before,
+body.local-telegram-frame #screen-solo.carpet-cashed .carpet-magic-sparks::before,
+body.is-telegram-webapp #screen-solo.carpet-flying .carpet-magic-sparks::before,
+body.is-telegram-webapp #screen-solo.carpet-cashed .carpet-magic-sparks::before {
+  opacity: 0.74 !important;
+  animation: carpetSparkEnginePulse 780ms ease-in-out infinite !important;
+}
+
+#screen-solo.carpet-ready .carpet-magic-sparks::before,
+body.local-telegram-frame #screen-solo.carpet-ready .carpet-magic-sparks::before,
+body.is-telegram-webapp #screen-solo.carpet-ready .carpet-magic-sparks::before {
+  opacity: 0.38 !important;
+  animation: carpetSparkIdlePulse 1260ms ease-in-out infinite !important;
+}
+
+#screen-solo .carpet-spark,
+body.local-telegram-frame #screen-solo .carpet-spark,
+body.is-telegram-webapp #screen-solo .carpet-spark {
+  position: absolute !important;
+  display: block !important;
+  border-radius: 50% !important;
+  z-index: 2 !important;
+  transform: translate3d(-50%, -50%, 0) rotate(0deg) scale(0.72);
+  opacity: 0;
+  animation-name: carpetMagicSparkFadeStrong !important;
+  animation-timing-function: cubic-bezier(0.18, 0.82, 0.34, 1) !important;
+  animation-fill-mode: forwards !important;
+  will-change: transform, opacity !important;
+}
+
+#screen-solo .carpet-spark.diamond,
+body.local-telegram-frame #screen-solo .carpet-spark.diamond,
+body.is-telegram-webapp #screen-solo .carpet-spark.diamond {
+  border-radius: 1px !important;
+}
+
+#screen-solo .carpet-spark.gold,
+body.local-telegram-frame #screen-solo .carpet-spark.gold,
+body.is-telegram-webapp #screen-solo .carpet-spark.gold {
+  background: #ffe28a !important;
+  box-shadow: 0 0 8px rgba(255, 222, 125, 0.88), 0 0 14px rgba(255, 178, 71, 0.32) !important;
+}
+
+#screen-solo .carpet-spark.rose,
+body.local-telegram-frame #screen-solo .carpet-spark.rose,
+body.is-telegram-webapp #screen-solo .carpet-spark.rose {
+  background: #ff73d6 !important;
+  box-shadow: 0 0 8px rgba(255, 103, 216, 0.84), 0 0 14px rgba(255, 75, 190, 0.28) !important;
+}
+
+#screen-solo .carpet-spark.blue,
+body.local-telegram-frame #screen-solo .carpet-spark.blue,
+body.is-telegram-webapp #screen-solo .carpet-spark.blue {
+  background: #86c8ff !important;
+  box-shadow: 0 0 8px rgba(117, 190, 255, 0.82), 0 0 14px rgba(92, 174, 255, 0.26) !important;
+}
+
+@keyframes carpetMagicSparkFadeStrong {
+  0% {
+    opacity: 0;
+    transform: translate3d(-50%, -50%, 0) rotate(0deg) scale(0.34);
+  }
+  12% {
+    opacity: 1;
+  }
+  62% {
+    opacity: 0.74;
+  }
+  100% {
+    opacity: 0;
+    transform:
+      translate3d(calc(-50% + var(--spark-dx)), calc(-50% + var(--spark-dy)), 0)
+      rotate(var(--spark-rot))
+      scale(0.08);
+  }
+}
+
+@keyframes carpetSparkEnginePulse {
+  0%,
+  100% {
+    opacity: 0.56;
+    transform: translate(-58%, -50%) rotate(-12deg) scaleX(0.86);
+  }
+  50% {
+    opacity: 0.84;
+    transform: translate(-58%, -50%) rotate(-12deg) scaleX(1.08);
+  }
+}
+
+@keyframes carpetSparkIdlePulse {
+  0%,
+  100% {
+    opacity: 0.26;
+    transform: translate(-58%, -50%) rotate(-12deg) scaleX(0.76);
+  }
+  50% {
+    opacity: 0.44;
+    transform: translate(-58%, -50%) rotate(-12deg) scaleX(0.92);
+  }
+}
+
+/* Telegram 78: remove cheap halo/particle look; use sprite edge glow and a clean magic trail. */
+#screen-solo .carpet-flight-aura,
+#screen-solo .carpet-flight-fx-sparks,
+#screen-solo .carpet-flight-particles,
+body.local-telegram-frame #screen-solo .carpet-flight-aura,
+body.local-telegram-frame #screen-solo .carpet-flight-fx-sparks,
+body.local-telegram-frame #screen-solo .carpet-flight-particles,
+body.is-telegram-webapp #screen-solo .carpet-flight-aura,
+body.is-telegram-webapp #screen-solo .carpet-flight-fx-sparks,
+body.is-telegram-webapp #screen-solo .carpet-flight-particles {
+  display: none !important;
+}
+
+#screen-solo .carpet-flight-fx,
+body.local-telegram-frame #screen-solo .carpet-flight-fx,
+body.is-telegram-webapp #screen-solo .carpet-flight-fx {
+  left: -84px !important;
+  top: 250px !important;
+  width: 360px !important;
+  height: 172px !important;
+  opacity: 0.22 !important;
+  transform-origin: 158px 92px !important;
+  mix-blend-mode: screen !important;
+}
+
+#screen-solo .carpet-stage.ready .carpet-flight-fx,
+body.local-telegram-frame #screen-solo .carpet-stage.ready .carpet-flight-fx,
+body.is-telegram-webapp #screen-solo .carpet-stage.ready .carpet-flight-fx {
+  opacity: 0.18 !important;
+}
+
+#screen-solo .carpet-stage.flying .carpet-flight-fx,
+body.local-telegram-frame #screen-solo .carpet-stage.flying .carpet-flight-fx,
+body.is-telegram-webapp #screen-solo .carpet-stage.flying .carpet-flight-fx {
+  opacity: 0.84 !important;
+}
+
+#screen-solo .carpet-flight-trail,
+body.local-telegram-frame #screen-solo .carpet-flight-trail,
+body.is-telegram-webapp #screen-solo .carpet-flight-trail {
+  left: 4px !important;
+  top: 78px !important;
+  width: 182px !important;
+  height: 46px !important;
+  opacity: 0.22 !important;
+  border-radius: 999px !important;
+  clip-path: polygon(0 50%, 28% 18%, 72% 30%, 100% 49%, 72% 70%, 28% 82%, 0 54%) !important;
+  background:
+    linear-gradient(90deg, rgba(74, 168, 255, 0), rgba(92, 172, 255, 0.26) 22%, rgba(191, 94, 255, 0.22) 52%, rgba(255, 211, 125, 0.34) 82%, rgba(255, 239, 182, 0.12)),
+    radial-gradient(ellipse at 84% 48%, rgba(255, 227, 148, 0.38), transparent 52%) !important;
+  filter: blur(7px) saturate(1.15) !important;
+  transform: rotate(3deg) scaleX(0.78) !important;
+  animation: carpetCleanTrailIdle 2400ms ease-in-out infinite !important;
+}
+
+#screen-solo .carpet-stage.flying .carpet-flight-trail,
+body.local-telegram-frame #screen-solo .carpet-stage.flying .carpet-flight-trail,
+body.is-telegram-webapp #screen-solo .carpet-stage.flying .carpet-flight-trail {
+  opacity: 0.74 !important;
+  animation: carpetCleanTrailFlight 1100ms ease-in-out infinite !important;
+}
+
+#screen-solo .carpet-flight-fx-wisp,
+body.local-telegram-frame #screen-solo .carpet-flight-fx-wisp,
+body.is-telegram-webapp #screen-solo .carpet-flight-fx-wisp {
+  left: 42px !important;
+  top: 84px !important;
+  width: 124px !important;
+  height: 26px !important;
+  opacity: 0.18 !important;
+  border-radius: 999px !important;
+  background:
+    linear-gradient(90deg, rgba(71, 165, 255, 0), rgba(94, 177, 255, 0.24), rgba(255, 217, 132, 0.36), rgba(255, 242, 181, 0)) !important;
+  filter: blur(6px) saturate(1.12) !important;
+  transform: rotate(-6deg) !important;
+  animation: carpetCleanWisp 1800ms ease-in-out infinite !important;
+}
+
+#screen-solo .carpet-stage.flying .carpet-flight-fx-wisp,
+body.local-telegram-frame #screen-solo .carpet-stage.flying .carpet-flight-fx-wisp,
+body.is-telegram-webapp #screen-solo .carpet-stage.flying .carpet-flight-fx-wisp {
+  opacity: 0.58 !important;
+}
+
+#screen-solo .carpet-flight-goldline,
+body.local-telegram-frame #screen-solo .carpet-flight-goldline,
+body.is-telegram-webapp #screen-solo .carpet-flight-goldline {
+  left: 58px !important;
+  top: 93px !important;
+  width: 88px !important;
+  height: 2px !important;
+  opacity: 0.16 !important;
+  border-radius: 999px !important;
+  background: linear-gradient(90deg, transparent, rgba(255, 231, 147, 0.72), transparent) !important;
+  filter: blur(0.9px) drop-shadow(0 0 5px rgba(255, 215, 111, 0.28)) !important;
+  transform: rotate(-5deg) !important;
+  animation: carpetCleanGoldline 1400ms ease-in-out infinite !important;
+}
+
+#screen-solo .carpet-stage.flying .carpet-flight-goldline,
+body.local-telegram-frame #screen-solo .carpet-stage.flying .carpet-flight-goldline,
+body.is-telegram-webapp #screen-solo .carpet-stage.flying .carpet-flight-goldline {
+  opacity: 0.62 !important;
+}
+
+#screen-solo .carpet-hero,
+body.local-telegram-frame #screen-solo .carpet-hero,
+body.is-telegram-webapp #screen-solo .carpet-hero {
+  filter:
+    drop-shadow(0 7px 10px rgba(15, 8, 35, 0.28))
+    drop-shadow(0 0 2px rgba(255, 229, 150, 0.22)) !important;
+}
+
+#screen-solo .carpet-stage.flying .carpet-hero,
+body.local-telegram-frame #screen-solo .carpet-stage.flying .carpet-hero,
+body.is-telegram-webapp #screen-solo .carpet-stage.flying .carpet-hero {
+  filter:
+    drop-shadow(0 8px 12px rgba(15, 8, 35, 0.3))
+    drop-shadow(0 0 5px rgba(255, 219, 122, 0.38))
+    drop-shadow(0 0 8px rgba(92, 172, 255, 0.18)) !important;
+}
+
+#screen-solo .carpet-stage.cashed .carpet-hero,
+body.local-telegram-frame #screen-solo .carpet-stage.cashed .carpet-hero,
+body.is-telegram-webapp #screen-solo .carpet-stage.cashed .carpet-hero {
+  filter:
+    drop-shadow(0 8px 12px rgba(15, 8, 35, 0.26))
+    drop-shadow(0 0 8px rgba(255, 223, 130, 0.54)) !important;
+}
+
+#screen-solo.carpet-flying .carpet-cloud,
+body.local-telegram-frame #screen-solo.carpet-flying .carpet-cloud,
+body.is-telegram-webapp #screen-solo.carpet-flying .carpet-cloud {
+  filter: blur(9px) saturate(1.28) !important;
+}
+
+@keyframes carpetCleanTrailIdle {
+  0%, 100% { transform: rotate(3deg) translate3d(0, 0, 0) scaleX(0.66); opacity: 0.18; }
+  50% { transform: rotate(3deg) translate3d(-8px, 1px, 0) scaleX(0.82); opacity: 0.28; }
+}
+
+@keyframes carpetCleanTrailFlight {
+  0%, 100% { transform: rotate(3deg) translate3d(0, 0, 0) scaleX(0.88); opacity: 0.56; }
+  50% { transform: rotate(3deg) translate3d(-18px, 2px, 0) scaleX(1.08); opacity: 0.78; }
+}
+
+@keyframes carpetCleanWisp {
+  0%, 100% { transform: rotate(-6deg) translate3d(0, 0, 0) scaleX(0.8); }
+  50% { transform: rotate(-6deg) translate3d(-10px, 1px, 0) scaleX(1.05); }
+}
+
+@keyframes carpetCleanGoldline {
+  0%, 100% { transform: rotate(-5deg) translate3d(0, 0, 0) scaleX(0.7); }
+  50% { transform: rotate(-5deg) translate3d(-8px, 0, 0) scaleX(1.04); }
+}
+
+/* Telegram 77: richer Carpet aura, comet trail, and livelier sky motion. */
+#screen-solo,
+body.local-telegram-frame #screen-solo,
+body.is-telegram-webapp #screen-solo {
+  --carpet-cloud-speed: 14500ms;
+}
+
+#screen-solo.carpet-flying,
+body.local-telegram-frame #screen-solo.carpet-flying,
+body.is-telegram-webapp #screen-solo.carpet-flying {
+  --carpet-cloud-speed: 6400ms;
+}
+
+#screen-solo .carpet-cloud-layer,
+body.local-telegram-frame #screen-solo .carpet-cloud-layer,
+body.is-telegram-webapp #screen-solo .carpet-cloud-layer {
+  opacity: 0.72 !important;
+}
+
+#screen-solo.carpet-flying .carpet-cloud-layer,
+body.local-telegram-frame #screen-solo.carpet-flying .carpet-cloud-layer,
+body.is-telegram-webapp #screen-solo.carpet-flying .carpet-cloud-layer {
+  opacity: 0.86 !important;
+}
+
+#screen-solo .carpet-cloud,
+body.local-telegram-frame #screen-solo .carpet-cloud,
+body.is-telegram-webapp #screen-solo .carpet-cloud {
+  filter: blur(10px) saturate(1.22) !important;
+}
+
+#screen-solo .carpet-flight-fx,
+body.local-telegram-frame #screen-solo .carpet-flight-fx,
+body.is-telegram-webapp #screen-solo .carpet-flight-fx {
+  left: -78px !important;
+  top: 238px !important;
+  width: 420px !important;
+  height: 245px !important;
+  transform-origin: 162px 112px !important;
+  opacity: 0.34 !important;
+  mix-blend-mode: screen !important;
+}
+
+#screen-solo .carpet-flight-aura,
+#screen-solo .carpet-flight-trail,
+#screen-solo .carpet-flight-goldline,
+#screen-solo .carpet-flight-particles,
+body.local-telegram-frame #screen-solo .carpet-flight-aura,
+body.local-telegram-frame #screen-solo .carpet-flight-trail,
+body.local-telegram-frame #screen-solo .carpet-flight-goldline,
+body.local-telegram-frame #screen-solo .carpet-flight-particles,
+body.is-telegram-webapp #screen-solo .carpet-flight-aura,
+body.is-telegram-webapp #screen-solo .carpet-flight-trail,
+body.is-telegram-webapp #screen-solo .carpet-flight-goldline,
+body.is-telegram-webapp #screen-solo .carpet-flight-particles {
+  position: absolute !important;
+  display: block !important;
+  pointer-events: none !important;
+  will-change: transform, opacity, filter !important;
+}
+
+#screen-solo .carpet-flight-aura,
+body.local-telegram-frame #screen-solo .carpet-flight-aura,
+body.is-telegram-webapp #screen-solo .carpet-flight-aura {
+  left: 108px !important;
+  top: 58px !important;
+  width: 132px !important;
+  height: 82px !important;
+  border-radius: 58% 42% 55% 45% / 48% 58% 42% 52% !important;
+  background:
+    radial-gradient(ellipse at 50% 52%, rgba(255, 220, 124, 0.08), transparent 48%),
+    radial-gradient(ellipse at 50% 52%, transparent 49%, rgba(255, 214, 111, 0.94) 54%, rgba(255, 109, 207, 0.44) 62%, transparent 72%),
+    radial-gradient(ellipse at 48% 52%, rgba(255, 241, 176, 0.28), transparent 68%) !important;
+  filter: blur(0.2px) drop-shadow(0 0 8px rgba(255, 215, 114, 0.44)) drop-shadow(0 0 15px rgba(255, 77, 201, 0.22)) !important;
+  opacity: 0.32 !important;
+  transform: rotate(-10deg) scale(0.88) !important;
+  animation: carpetMagicAuraIdle 2300ms ease-in-out infinite !important;
+}
+
+#screen-solo .carpet-stage.flying .carpet-flight-aura,
+body.local-telegram-frame #screen-solo .carpet-stage.flying .carpet-flight-aura,
+body.is-telegram-webapp #screen-solo .carpet-stage.flying .carpet-flight-aura {
+  opacity: 0.96 !important;
+  animation: carpetMagicAuraFlight 980ms ease-in-out infinite !important;
+}
+
+#screen-solo .carpet-stage.cashed .carpet-flight-aura,
+body.local-telegram-frame #screen-solo .carpet-stage.cashed .carpet-flight-aura,
+body.is-telegram-webapp #screen-solo .carpet-stage.cashed .carpet-flight-aura {
+  opacity: 1 !important;
+  animation: carpetMagicAuraCashout 760ms ease-out forwards !important;
+}
+
+#screen-solo .carpet-flight-trail,
+body.local-telegram-frame #screen-solo .carpet-flight-trail,
+body.is-telegram-webapp #screen-solo .carpet-flight-trail {
+  left: -8px !important;
+  top: 98px !important;
+  width: 190px !important;
+  height: 56px !important;
+  border-radius: 100% 0 0 100% / 70% 0 0 70% !important;
+  background:
+    linear-gradient(90deg, rgba(69, 175, 255, 0), rgba(72, 180, 255, 0.32) 18%, rgba(255, 68, 210, 0.48) 50%, rgba(255, 226, 143, 0.5) 83%, rgba(255, 244, 180, 0.08)),
+    radial-gradient(ellipse at 90% 48%, rgba(255, 235, 157, 0.64), transparent 48%),
+    radial-gradient(ellipse at 46% 55%, rgba(255, 80, 214, 0.38), transparent 62%) !important;
+  clip-path: polygon(0 47%, 34% 20%, 78% 33%, 100% 50%, 78% 67%, 33% 80%, 0 53%) !important;
+  filter: blur(5px) saturate(1.38) !important;
+  opacity: 0.44 !important;
+  transform: rotate(2deg) scaleX(0.88) !important;
+  animation: carpetCometTrailIdle 1900ms ease-in-out infinite !important;
+}
+
+#screen-solo .carpet-stage.flying .carpet-flight-trail,
+body.local-telegram-frame #screen-solo .carpet-stage.flying .carpet-flight-trail,
+body.is-telegram-webapp #screen-solo .carpet-stage.flying .carpet-flight-trail {
+  opacity: 0.92 !important;
+  animation: carpetCometTrailFlight 820ms ease-in-out infinite !important;
+}
+
+#screen-solo .carpet-flight-goldline,
+body.local-telegram-frame #screen-solo .carpet-flight-goldline,
+body.is-telegram-webapp #screen-solo .carpet-flight-goldline {
+  left: 30px !important;
+  top: 116px !important;
+  width: 118px !important;
+  height: 3px !important;
+  border-radius: 999px !important;
+  background: linear-gradient(90deg, transparent, rgba(255, 225, 124, 0.55), rgba(255, 249, 193, 0.92), transparent) !important;
+  filter: blur(0.8px) drop-shadow(0 0 6px rgba(255, 208, 104, 0.55)) !important;
+  opacity: 0.28 !important;
+  transform: rotate(-7deg) !important;
+  animation: carpetGoldThread 980ms ease-in-out infinite !important;
+}
+
+#screen-solo .carpet-stage.flying .carpet-flight-goldline,
+body.local-telegram-frame #screen-solo .carpet-stage.flying .carpet-flight-goldline,
+body.is-telegram-webapp #screen-solo .carpet-stage.flying .carpet-flight-goldline {
+  opacity: 0.9 !important;
+}
+
+#screen-solo .carpet-flight-fx-wisp,
+body.local-telegram-frame #screen-solo .carpet-flight-fx-wisp,
+body.is-telegram-webapp #screen-solo .carpet-flight-fx-wisp {
+  left: 2px !important;
+  top: 90px !important;
+  width: 170px !important;
+  height: 56px !important;
+  opacity: 0.3 !important;
+  filter: blur(9px) saturate(1.28) !important;
+}
+
+#screen-solo .carpet-stage.flying .carpet-flight-fx-wisp,
+body.local-telegram-frame #screen-solo .carpet-stage.flying .carpet-flight-fx-wisp,
+body.is-telegram-webapp #screen-solo .carpet-stage.flying .carpet-flight-fx-wisp {
+  opacity: 0.62 !important;
+}
+
+#screen-solo .carpet-flight-fx-sparks,
+body.local-telegram-frame #screen-solo .carpet-flight-fx-sparks,
+body.is-telegram-webapp #screen-solo .carpet-flight-fx-sparks {
+  left: 32px !important;
+  top: 112px !important;
+  width: 116px !important;
+  height: 34px !important;
+  opacity: 0.18 !important;
+  background:
+    radial-gradient(circle at 88% 38%, rgba(255, 247, 190, 0.98), transparent 10%),
+    radial-gradient(circle at 70% 64%, rgba(255, 92, 211, 0.76), transparent 13%),
+    radial-gradient(circle at 47% 44%, rgba(113, 188, 255, 0.66), transparent 14%),
+    radial-gradient(circle at 23% 58%, rgba(255, 220, 126, 0.52), transparent 10%) !important;
+  animation: carpetSparkCluster 900ms ease-in-out infinite !important;
+}
+
+#screen-solo .carpet-stage.flying .carpet-flight-fx-sparks,
+body.local-telegram-frame #screen-solo .carpet-stage.flying .carpet-flight-fx-sparks,
+body.is-telegram-webapp #screen-solo .carpet-stage.flying .carpet-flight-fx-sparks {
+  opacity: 0.86 !important;
+}
+
+#screen-solo .carpet-flight-particles,
+body.local-telegram-frame #screen-solo .carpet-flight-particles,
+body.is-telegram-webapp #screen-solo .carpet-flight-particles {
+  left: 6px !important;
+  top: 88px !important;
+  width: 150px !important;
+  height: 62px !important;
+  opacity: 0.18 !important;
+  filter: blur(0.5px) drop-shadow(0 0 5px rgba(255, 106, 211, 0.42)) !important;
+}
+
+#screen-solo .carpet-flight-particles.particles-a,
+body.local-telegram-frame #screen-solo .carpet-flight-particles.particles-a,
+body.is-telegram-webapp #screen-solo .carpet-flight-particles.particles-a {
+  background:
+    radial-gradient(circle at 92% 45%, rgba(255, 232, 145, 0.88), transparent 3px),
+    radial-gradient(circle at 73% 28%, rgba(255, 92, 214, 0.7), transparent 2px),
+    radial-gradient(circle at 52% 63%, rgba(98, 184, 255, 0.66), transparent 2px),
+    radial-gradient(circle at 28% 42%, rgba(255, 230, 128, 0.52), transparent 2px) !important;
+  animation: carpetParticleDriftA 840ms linear infinite !important;
+}
+
+#screen-solo .carpet-flight-particles.particles-b,
+body.local-telegram-frame #screen-solo .carpet-flight-particles.particles-b,
+body.is-telegram-webapp #screen-solo .carpet-flight-particles.particles-b {
+  background:
+    radial-gradient(circle at 82% 68%, rgba(255, 244, 183, 0.82), transparent 2px),
+    radial-gradient(circle at 60% 34%, rgba(255, 95, 216, 0.64), transparent 2px),
+    radial-gradient(circle at 38% 58%, rgba(95, 172, 255, 0.58), transparent 2px),
+    radial-gradient(circle at 16% 28%, rgba(255, 220, 120, 0.42), transparent 2px) !important;
+  animation: carpetParticleDriftB 1120ms linear infinite !important;
+}
+
+#screen-solo .carpet-stage.flying .carpet-flight-particles,
+body.local-telegram-frame #screen-solo .carpet-stage.flying .carpet-flight-particles,
+body.is-telegram-webapp #screen-solo .carpet-stage.flying .carpet-flight-particles {
+  opacity: 0.9 !important;
+}
+
+@keyframes carpetMagicAuraIdle {
+  0%, 100% { transform: rotate(-10deg) scale(0.84); filter: blur(0.4px) drop-shadow(0 0 5px rgba(255, 213, 110, 0.22)); }
+  50% { transform: rotate(-7deg) scale(0.94); filter: blur(0.2px) drop-shadow(0 0 11px rgba(255, 213, 110, 0.42)); }
+}
+
+@keyframes carpetMagicAuraFlight {
+  0%, 100% { transform: rotate(-12deg) scale(0.96); filter: blur(0.2px) drop-shadow(0 0 10px rgba(255, 221, 126, 0.5)) drop-shadow(0 0 16px rgba(255, 80, 210, 0.28)); }
+  50% { transform: rotate(-6deg) scale(1.1); filter: blur(0.2px) drop-shadow(0 0 16px rgba(255, 232, 146, 0.68)) drop-shadow(0 0 22px rgba(255, 80, 210, 0.36)); }
+}
+
+@keyframes carpetMagicAuraCashout {
+  0% { transform: rotate(-8deg) scale(1); opacity: 0.95; }
+  100% { transform: rotate(8deg) scale(1.5); opacity: 0; }
+}
+
+@keyframes carpetCometTrailIdle {
+  0%, 100% { transform: rotate(2deg) translate3d(0, 0, 0) scaleX(0.78); opacity: 0.28; }
+  50% { transform: rotate(2deg) translate3d(-10px, 2px, 0) scaleX(0.94); opacity: 0.52; }
+}
+
+@keyframes carpetCometTrailFlight {
+  0%, 100% { transform: rotate(2deg) translate3d(0, 0, 0) scaleX(0.92); filter: blur(5px) saturate(1.32); }
+  50% { transform: rotate(2deg) translate3d(-24px, 3px, 0) scaleX(1.18); filter: blur(7px) saturate(1.5); }
+}
+
+@keyframes carpetGoldThread {
+  0%, 100% { transform: rotate(-7deg) translate3d(0, 0, 0) scaleX(0.72); }
+  50% { transform: rotate(-7deg) translate3d(-12px, 1px, 0) scaleX(1.08); }
+}
+
+@keyframes carpetSparkCluster {
+  0%, 100% { transform: translate3d(0, 0, 0); filter: blur(1.1px) saturate(1.2); }
+  50% { transform: translate3d(-16px, 2px, 0); filter: blur(1.8px) saturate(1.42); }
+}
+
+@keyframes carpetParticleDriftA {
+  0% { transform: translate3d(12px, 0, 0) scale(0.9); opacity: 0.18; }
+  18% { opacity: 0.96; }
+  100% { transform: translate3d(-72px, 11px, 0) scale(0.55); opacity: 0; }
+}
+
+@keyframes carpetParticleDriftB {
+  0% { transform: translate3d(22px, 8px, 0) scale(0.8); opacity: 0.12; }
+  24% { opacity: 0.78; }
+  100% { transform: translate3d(-84px, -4px, 0) scale(0.48); opacity: 0; }
+}
+
+/* Telegram 76: product Carpet auto-flight UX and rebuilt ambient flight scene. */
+#screen-solo,
+body.local-telegram-frame #screen-solo,
+body.is-telegram-webapp #screen-solo {
+  --carpet-cloud-speed: 18000ms;
+}
+
+#screen-solo.carpet-flying,
+body.local-telegram-frame #screen-solo.carpet-flying,
+body.is-telegram-webapp #screen-solo.carpet-flying {
+  --carpet-cloud-speed: 8800ms;
+}
+
+#screen-solo .carpet-cloud-layer,
+body.local-telegram-frame #screen-solo .carpet-cloud-layer,
+body.is-telegram-webapp #screen-solo .carpet-cloud-layer {
+  position: absolute !important;
+  inset: 0 !important;
+  z-index: 5 !important;
+  pointer-events: none !important;
+  overflow: hidden !important;
+  opacity: 0.58 !important;
+  mix-blend-mode: screen !important;
+}
+
+#screen-solo .carpet-cloud,
+body.local-telegram-frame #screen-solo .carpet-cloud,
+body.is-telegram-webapp #screen-solo .carpet-cloud {
+  position: absolute !important;
+  display: block !important;
+  border-radius: 999px !important;
+  filter: blur(12px) saturate(1.08) !important;
+  will-change: transform, opacity !important;
+  background:
+    radial-gradient(ellipse at 20% 48%, rgba(114, 99, 204, 0.18), transparent 60%),
+    radial-gradient(ellipse at 56% 50%, rgba(255, 130, 214, 0.14), transparent 62%),
+    radial-gradient(ellipse at 84% 56%, rgba(255, 208, 126, 0.12), transparent 58%),
+    rgba(255, 255, 255, 0.035) !important;
+}
+
+#screen-solo .carpet-cloud.cloud-a,
+body.local-telegram-frame #screen-solo .carpet-cloud.cloud-a,
+body.is-telegram-webapp #screen-solo .carpet-cloud.cloud-a {
+  left: -132px !important;
+  top: 190px !important;
+  width: 260px !important;
+  height: 72px !important;
+  animation: carpetCloudDriftA 29s linear infinite !important;
+}
+
+#screen-solo .carpet-cloud.cloud-b,
+body.local-telegram-frame #screen-solo .carpet-cloud.cloud-b,
+body.is-telegram-webapp #screen-solo .carpet-cloud.cloud-b {
+  right: -150px !important;
+  top: 315px !important;
+  width: 300px !important;
+  height: 82px !important;
+  opacity: 0.72 !important;
+  animation: carpetCloudDriftB 36s linear infinite !important;
+}
+
+#screen-solo .carpet-cloud.cloud-c,
+body.local-telegram-frame #screen-solo .carpet-cloud.cloud-c,
+body.is-telegram-webapp #screen-solo .carpet-cloud.cloud-c {
+  left: -90px !important;
+  top: 420px !important;
+  width: 210px !important;
+  height: 58px !important;
+  opacity: 0.46 !important;
+  animation: carpetCloudDriftC 33s linear infinite !important;
+}
+
+#screen-solo .carpet-stage,
+body.local-telegram-frame #screen-solo .carpet-stage,
+body.is-telegram-webapp #screen-solo .carpet-stage,
+#screen-solo .carpet-hero-wrap,
+body.local-telegram-frame #screen-solo .carpet-hero-wrap,
+body.is-telegram-webapp #screen-solo .carpet-hero-wrap {
+  overflow: visible !important;
+}
+
+#screen-solo .carpet-flight-fx,
+body.local-telegram-frame #screen-solo .carpet-flight-fx,
+body.is-telegram-webapp #screen-solo .carpet-flight-fx {
+  left: -62px !important;
+  top: 252px !important;
+  z-index: 11 !important;
+  width: 370px !important;
+  height: 220px !important;
+  transform-origin: 148px 102px !important;
+  opacity: 0.22 !important;
+}
+
+#screen-solo .carpet-flight-fx-wisp,
+body.local-telegram-frame #screen-solo .carpet-flight-fx-wisp,
+body.is-telegram-webapp #screen-solo .carpet-flight-fx-wisp {
+  left: 16px !important;
+  top: 92px !important;
+  width: 150px !important;
+  height: 42px !important;
+  opacity: 0.58 !important;
+  background:
+    radial-gradient(ellipse at 90% 50%, rgba(255, 233, 154, 0.78), transparent 42%),
+    radial-gradient(ellipse at 58% 52%, rgba(255, 80, 210, 0.68), transparent 58%),
+    radial-gradient(ellipse at 18% 54%, rgba(86, 173, 255, 0.62), transparent 64%) !important;
+  filter: blur(6px) saturate(1.38) !important;
+}
+
+#screen-solo .carpet-flight-fx-sparks,
+body.local-telegram-frame #screen-solo .carpet-flight-fx-sparks,
+body.is-telegram-webapp #screen-solo .carpet-flight-fx-sparks {
+  left: 58px !important;
+  top: 113px !important;
+  width: 92px !important;
+  height: 30px !important;
+}
+
+#screen-solo .carpet-stage.ready .carpet-flight-fx,
+body.local-telegram-frame #screen-solo .carpet-stage.ready .carpet-flight-fx,
+body.is-telegram-webapp #screen-solo .carpet-stage.ready .carpet-flight-fx {
+  opacity: 0.2 !important;
+}
+
+#screen-solo .carpet-stage.flying .carpet-flight-fx,
+body.local-telegram-frame #screen-solo .carpet-stage.flying .carpet-flight-fx,
+body.is-telegram-webapp #screen-solo .carpet-stage.flying .carpet-flight-fx {
+  opacity: 0.98 !important;
+}
+
+#screen-solo .carpet-stage.cashed .carpet-flight-fx,
+body.local-telegram-frame #screen-solo .carpet-stage.cashed .carpet-flight-fx,
+body.is-telegram-webapp #screen-solo .carpet-stage.cashed .carpet-flight-fx {
+  opacity: 0.86 !important;
+}
+
+#screen-solo .carpet-hero,
+body.local-telegram-frame #screen-solo .carpet-hero,
+body.is-telegram-webapp #screen-solo .carpet-hero {
+  animation: carpetProductHover 2600ms ease-in-out infinite !important;
+}
+
+#screen-solo .carpet-stage.flying .carpet-hero,
+body.local-telegram-frame #screen-solo .carpet-stage.flying .carpet-hero,
+body.is-telegram-webapp #screen-solo .carpet-stage.flying .carpet-hero {
+  animation: carpetProductFlight 1450ms ease-in-out infinite !important;
+}
+
+#screen-solo .carpet-bet-block > .control-title,
+body.local-telegram-frame #screen-solo .carpet-bet-block > .control-title,
+body.is-telegram-webapp #screen-solo .carpet-bet-block > .control-title {
+  white-space: nowrap !important;
+}
+
+@keyframes carpetCloudFloatA {
+  0%, 100% { transform: translate3d(0, 0, 0) scale(1); opacity: 0.24; }
+  50% { transform: translate3d(72px, -12px, 0) scale(1.08); opacity: 0.58; }
+}
+
+@keyframes carpetCloudFloatB {
+  0%, 100% { transform: translate3d(0, 0, 0) scale(1); opacity: 0.22; }
+  50% { transform: translate3d(-92px, 14px, 0) scale(1.06); opacity: 0.54; }
+}
+
+@keyframes carpetCloudFloatC {
+  0%, 100% { transform: translate3d(0, 0, 0) scale(0.96); opacity: 0.16; }
+  50% { transform: translate3d(64px, 8px, 0) scale(1.1); opacity: 0.4; }
+}
+
+@keyframes carpetProductHover {
+  0%, 100% { transform: translate3d(0, 0, 0) rotate(-1.2deg); }
+  45% { transform: translate3d(0, -8px, 0) rotate(1.4deg); }
+  70% { transform: translate3d(2px, -3px, 0) rotate(0.4deg); }
+}
+
+@keyframes carpetProductFlight {
+  0%, 100% { transform: translate3d(0, 0, 0) rotate(-1.5deg); filter: drop-shadow(0 0 8px rgba(255, 104, 210, 0.22)); }
+  45% { transform: translate3d(0, -6px, 0) rotate(1.6deg); filter: drop-shadow(0 0 14px rgba(255, 202, 120, 0.34)); }
+  72% { transform: translate3d(2px, -2px, 0) rotate(0.5deg); filter: drop-shadow(0 0 10px rgba(92, 178, 255, 0.28)); }
+}
+
+/* Telegram 72: unified typography across Pyramid and Carpet. */
+#screen-home .limit-cluster > span,
+body.local-telegram-frame #screen-home .limit-cluster > span,
+body.is-telegram-webapp #screen-home .limit-cluster > span,
+#screen-home .control-title,
+body.local-telegram-frame #screen-home .control-title,
+body.is-telegram-webapp #screen-home .control-title,
+#screen-solo .control-title,
+body.local-telegram-frame #screen-solo .control-title,
+body.is-telegram-webapp #screen-solo .control-title,
+#screen-solo .carpet-history-title,
+body.local-telegram-frame #screen-solo .carpet-history-title,
+body.is-telegram-webapp #screen-solo .carpet-history-title {
+  font-family: "Playfair Display", Georgia, "Times New Roman", serif !important;
+  font-size: 9px !important;
+  font-weight: 700 !important;
+  line-height: 12px !important;
+  letter-spacing: 0 !important;
+  color: rgb(255, 243, 204) !important;
+  text-shadow:
+    0 1px 2px rgba(30, 10, 10, 0.78),
+    0 0 6px rgba(255, 210, 113, 0.14) !important;
+}
+
+#screen-home .mode-choice,
+body.local-telegram-frame #screen-home .mode-choice,
+body.is-telegram-webapp #screen-home .mode-choice,
+#screen-home .risk-choice,
+body.local-telegram-frame #screen-home .risk-choice,
+body.is-telegram-webapp #screen-home .risk-choice,
+#screen-solo .mode-choice,
+body.local-telegram-frame #screen-solo .mode-choice,
+body.is-telegram-webapp #screen-solo .mode-choice {
+  font-family: Inter, ui-sans-serif, system-ui, sans-serif !important;
+  font-size: 10px !important;
+  font-weight: 500 !important;
+  line-height: 10px !important;
+  letter-spacing: 0 !important;
+}
+
+#screen-home .gem-balance span,
+body.local-telegram-frame #screen-home .gem-balance span,
+body.is-telegram-webapp #screen-home .gem-balance span,
+#screen-solo .gem-balance span,
+body.local-telegram-frame #screen-solo .gem-balance span,
+body.is-telegram-webapp #screen-solo .gem-balance span {
+  font-family: Inter, ui-sans-serif, system-ui, sans-serif !important;
+  font-size: 11px !important;
+  font-weight: 700 !important;
+  line-height: 11px !important;
+  letter-spacing: 0 !important;
+}
+
+/* Telegram 74: Carpet atmosphere, stop state, and stage-level magic trail. */
+#screen-solo.carpet-screen::before,
+body.local-telegram-frame #screen-solo.carpet-screen::before,
+body.is-telegram-webapp #screen-solo.carpet-screen::before,
+#screen-solo.carpet-screen::after,
+body.local-telegram-frame #screen-solo.carpet-screen::after,
+body.is-telegram-webapp #screen-solo.carpet-screen::after {
+  content: "" !important;
+  position: absolute !important;
+  pointer-events: none !important;
+  z-index: 4 !important;
+  border-radius: 999px !important;
+  opacity: 0.36 !important;
+  filter: blur(10px) saturate(1.1) !important;
+  will-change: transform, opacity !important;
+}
+
+#screen-solo.carpet-screen::before,
+body.local-telegram-frame #screen-solo.carpet-screen::before,
+body.is-telegram-webapp #screen-solo.carpet-screen::before {
+  left: -56px !important;
+  top: 176px !important;
+  width: 210px !important;
+  height: 54px !important;
+  background:
+    radial-gradient(ellipse at 20% 52%, rgba(111, 85, 198, 0.18), transparent 62%),
+    radial-gradient(ellipse at 78% 48%, rgba(255, 112, 203, 0.18), transparent 58%),
+    rgba(255, 255, 255, 0.045) !important;
+  animation: carpetSkyDriftLeft 9200ms ease-in-out infinite !important;
+}
+
+#screen-solo.carpet-screen::after,
+body.local-telegram-frame #screen-solo.carpet-screen::after,
+body.is-telegram-webapp #screen-solo.carpet-screen::after {
+  right: -72px !important;
+  top: 324px !important;
+  width: 250px !important;
+  height: 62px !important;
+  background:
+    radial-gradient(ellipse at 28% 48%, rgba(255, 196, 104, 0.12), transparent 58%),
+    radial-gradient(ellipse at 72% 50%, rgba(102, 153, 255, 0.16), transparent 62%),
+    rgba(255, 255, 255, 0.04) !important;
+  animation: carpetSkyDriftRight 10400ms ease-in-out infinite !important;
+}
+
+#screen-solo .carpet-stage,
+body.local-telegram-frame #screen-solo .carpet-stage,
+body.is-telegram-webapp #screen-solo .carpet-stage {
+  overflow: visible !important;
+}
+
+#screen-solo .carpet-hero-wrap,
+body.local-telegram-frame #screen-solo .carpet-hero-wrap,
+body.is-telegram-webapp #screen-solo .carpet-hero-wrap {
+  overflow: visible !important;
+  isolation: isolate !important;
+  z-index: 12 !important;
+}
+
+#screen-solo .carpet-hero-wrap::before,
+body.local-telegram-frame #screen-solo .carpet-hero-wrap::before,
+body.is-telegram-webapp #screen-solo .carpet-hero-wrap::before {
+  left: -72px !important;
+  top: 62px !important;
+  width: 122px !important;
+  height: 38px !important;
+  opacity: 0.54 !important;
+  background:
+    radial-gradient(ellipse at 78% 50%, rgba(255, 230, 148, 0.72), transparent 50%),
+    radial-gradient(ellipse at 48% 52%, rgba(255, 88, 205, 0.58), transparent 58%),
+    radial-gradient(ellipse at 12% 56%, rgba(81, 168, 255, 0.52), transparent 62%) !important;
+  filter: blur(5px) saturate(1.35) !important;
+  display: none !important;
+}
+
+#screen-solo .carpet-hero-wrap::after,
+body.local-telegram-frame #screen-solo .carpet-hero-wrap::after,
+body.is-telegram-webapp #screen-solo .carpet-hero-wrap::after {
+  left: -48px !important;
+  top: 88px !important;
+  width: 76px !important;
+  height: 24px !important;
+  opacity: 0.72 !important;
+  background:
+    radial-gradient(circle at 78% 42%, rgba(255, 245, 182, 0.98), transparent 15%),
+    radial-gradient(circle at 48% 58%, rgba(255, 84, 205, 0.84), transparent 19%),
+    radial-gradient(circle at 20% 54%, rgba(110, 184, 255, 0.72), transparent 20%) !important;
+  filter: blur(1.8px) saturate(1.32) !important;
+  display: none !important;
+}
+
+#screen-solo .carpet-stage.ready .carpet-hero-wrap::before,
+body.local-telegram-frame #screen-solo .carpet-stage.ready .carpet-hero-wrap::before,
+body.is-telegram-webapp #screen-solo .carpet-stage.ready .carpet-hero-wrap::before,
+#screen-solo .carpet-stage.ready .carpet-hero-wrap::after,
+body.local-telegram-frame #screen-solo .carpet-stage.ready .carpet-hero-wrap::after,
+body.is-telegram-webapp #screen-solo .carpet-stage.ready .carpet-hero-wrap::after {
+  opacity: 0.28 !important;
+  animation: carpetIdleAura 2600ms ease-in-out infinite !important;
+}
+
+#screen-solo .carpet-flight-fx,
+body.local-telegram-frame #screen-solo .carpet-flight-fx,
+body.is-telegram-webapp #screen-solo .carpet-flight-fx {
+  position: absolute !important;
+  left: 28px !important;
+  top: 282px !important;
+  z-index: 11 !important;
+  width: 230px !important;
+  height: 150px !important;
+  pointer-events: none !important;
+  opacity: 0.38 !important;
+  overflow: visible !important;
+  transform-origin: 58px 72px !important;
+  will-change: transform, opacity !important;
+  transition: opacity 180ms ease !important;
+}
+
+#screen-solo .carpet-flight-fx-wisp,
+#screen-solo .carpet-flight-fx-sparks,
+body.local-telegram-frame #screen-solo .carpet-flight-fx-wisp,
+body.local-telegram-frame #screen-solo .carpet-flight-fx-sparks,
+body.is-telegram-webapp #screen-solo .carpet-flight-fx-wisp,
+body.is-telegram-webapp #screen-solo .carpet-flight-fx-sparks {
+  position: absolute !important;
+  display: block !important;
+  pointer-events: none !important;
+  border-radius: 999px !important;
+}
+
+#screen-solo .carpet-flight-fx-wisp,
+body.local-telegram-frame #screen-solo .carpet-flight-fx-wisp,
+body.is-telegram-webapp #screen-solo .carpet-flight-fx-wisp {
+  left: -112px !important;
+  top: 60px !important;
+  width: 168px !important;
+  height: 42px !important;
+  opacity: 0.74 !important;
+  background:
+    radial-gradient(ellipse at 84% 50%, rgba(255, 234, 157, 0.78), transparent 44%),
+    radial-gradient(ellipse at 54% 52%, rgba(255, 84, 207, 0.62), transparent 58%),
+    radial-gradient(ellipse at 16% 55%, rgba(91, 178, 255, 0.55), transparent 64%) !important;
+  filter: blur(5px) saturate(1.35) !important;
+  transform: rotate(2deg) !important;
+  animation: carpetTrailBreathe 1800ms ease-in-out infinite !important;
+}
+
+#screen-solo .carpet-flight-fx-sparks,
+body.local-telegram-frame #screen-solo .carpet-flight-fx-sparks,
+body.is-telegram-webapp #screen-solo .carpet-flight-fx-sparks {
+  left: -66px !important;
+  top: 85px !important;
+  width: 88px !important;
+  height: 26px !important;
+  opacity: 0.9 !important;
+  background:
+    radial-gradient(circle at 85% 40%, rgba(255, 247, 190, 0.98), transparent 13%),
+    radial-gradient(circle at 62% 60%, rgba(255, 92, 211, 0.86), transparent 17%),
+    radial-gradient(circle at 34% 47%, rgba(113, 188, 255, 0.76), transparent 18%),
+    radial-gradient(circle at 12% 56%, rgba(255, 220, 126, 0.66), transparent 14%) !important;
+  filter: blur(1.4px) saturate(1.35) !important;
+  animation: carpetTrailSparks 1180ms ease-in-out infinite !important;
+}
+
+#screen-solo .carpet-stage.ready .carpet-flight-fx,
+body.local-telegram-frame #screen-solo .carpet-stage.ready .carpet-flight-fx,
+body.is-telegram-webapp #screen-solo .carpet-stage.ready .carpet-flight-fx {
+  opacity: 0.24 !important;
+  animation: carpetIdleAura 2600ms ease-in-out infinite !important;
+}
+
+#screen-solo .carpet-stage.flying .carpet-flight-fx,
+body.local-telegram-frame #screen-solo .carpet-stage.flying .carpet-flight-fx,
+body.is-telegram-webapp #screen-solo .carpet-stage.flying .carpet-flight-fx,
+#screen-solo .carpet-stage.cashed .carpet-flight-fx,
+body.local-telegram-frame #screen-solo .carpet-stage.cashed .carpet-flight-fx,
+body.is-telegram-webapp #screen-solo .carpet-stage.cashed .carpet-flight-fx {
+  opacity: 0.9 !important;
+}
+
+#screen-solo .carpet-stage.crashed .carpet-flight-fx,
+body.local-telegram-frame #screen-solo .carpet-stage.crashed .carpet-flight-fx,
+body.is-telegram-webapp #screen-solo .carpet-stage.crashed .carpet-flight-fx {
+  opacity: 0 !important;
+}
+
+#screen-solo .carpet-action.flying #carpet-action-label,
+body.local-telegram-frame #screen-solo .carpet-action.flying #carpet-action-label,
+body.is-telegram-webapp #screen-solo .carpet-action.flying #carpet-action-label {
+  letter-spacing: 0 !important;
+}
+
+@keyframes carpetTrailBreathe {
+  0%, 100% { transform: rotate(2deg) translate3d(0, 0, 0) scaleX(0.96); opacity: 0.6; }
+  50% { transform: rotate(2deg) translate3d(-10px, 2px, 0) scaleX(1.08); opacity: 0.88; }
+}
+
+@keyframes carpetTrailSparks {
+  0%, 100% { transform: translate3d(0, 0, 0); opacity: 0.68; }
+  45% { transform: translate3d(-8px, 1px, 0); opacity: 1; }
+  70% { transform: translate3d(-14px, -1px, 0); opacity: 0.72; }
+}
+
+@keyframes carpetSkyDriftLeft {
+  0%, 100% { transform: translate3d(0, 0, 0) scale(1); opacity: 0.24; }
+  50% { transform: translate3d(32px, -8px, 0) scale(1.04); opacity: 0.42; }
+}
+
+@keyframes carpetSkyDriftRight {
+  0%, 100% { transform: translate3d(0, 0, 0) scale(1); opacity: 0.2; }
+  50% { transform: translate3d(-34px, 9px, 0) scale(1.05); opacity: 0.38; }
+}
+
+@keyframes carpetIdleAura {
+  0%, 100% { transform: rotate(18deg) translate3d(0, 0, 0) scale(0.94); }
+  50% { transform: rotate(18deg) translate3d(-6px, 2px, 0) scale(1.04); }
+}
+
+#screen-solo .carpet-stake-strip,
+body.local-telegram-frame #screen-solo .carpet-stake-strip,
+body.is-telegram-webapp #screen-solo .carpet-stake-strip {
+  width: 260px !important;
+  height: 64px !important;
+  display: grid !important;
+  grid-template-columns: 30px 169px 30px !important;
+  grid-template-rows: 35px 27px !important;
+  column-gap: 6px !important;
+  row-gap: 2px !important;
+  align-items: center !important;
+  justify-content: center !important;
+  color: #3b1633 !important;
+}
+
+#screen-solo .carpet-stake-strip > .stake-step,
+body.local-telegram-frame #screen-solo .carpet-stake-strip > .stake-step,
+body.is-telegram-webapp #screen-solo .carpet-stake-strip > .stake-step {
+  width: 30px !important;
+  height: 27px !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  color: transparent !important;
+  font-size: 0 !important;
+  background-color: transparent !important;
+  background-position: center !important;
+  background-size: 100% 100% !important;
+  background-repeat: no-repeat !important;
+  transform: translateY(-4px) !important;
+}
+
+#screen-solo #carpet-stake-minus,
+body.local-telegram-frame #screen-solo #carpet-stake-minus,
+body.is-telegram-webapp #screen-solo #carpet-stake-minus {
+  background-image: url("./assets/stake-minus.svg") !important;
+}
+
+#screen-solo #carpet-stake-plus,
+body.local-telegram-frame #screen-solo #carpet-stake-plus,
+body.is-telegram-webapp #screen-solo #carpet-stake-plus {
+  background-image: url("./assets/stake-plus.svg") !important;
+}
+
+#screen-solo .carpet-stake-strip .stake-value,
+body.local-telegram-frame #screen-solo .carpet-stake-strip .stake-value,
+body.is-telegram-webapp #screen-solo .carpet-stake-strip .stake-value {
+  position: relative !important;
+  width: 169px !important;
+  height: 35px !important;
+  display: block !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  overflow: visible !important;
+  background: url("./assets/stake-panel-live.svg") center / 100% 100% no-repeat !important;
+  box-shadow: none !important;
+}
+
+#screen-solo .carpet-stake-strip .stake-value::after,
+body.local-telegram-frame #screen-solo .carpet-stake-strip .stake-value::after,
+body.is-telegram-webapp #screen-solo .carpet-stake-strip .stake-value::after {
+  content: "" !important;
+  position: absolute !important;
+  left: 104px !important;
+  top: 5px !important;
+  z-index: 2 !important;
+  width: 1px !important;
+  height: 18px !important;
+  border-radius: 999px !important;
+  background: rgba(28, 28, 28, 0.72) !important;
+}
+
+#screen-solo .carpet-stake-strip .stake-value strong,
+body.local-telegram-frame #screen-solo .carpet-stake-strip .stake-value strong,
+body.is-telegram-webapp #screen-solo .carpet-stake-strip .stake-value strong {
+  position: absolute !important;
+  left: 17px !important;
+  top: 5px !important;
+  z-index: 3 !important;
+  display: flex !important;
+  width: 84px !important;
+  height: 18px !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 4px !important;
+  font-family: Inter, ui-sans-serif, system-ui, sans-serif !important;
+  font-size: 15px !important;
+  font-weight: 500 !important;
+  line-height: 1 !important;
+  color: rgba(28, 28, 28, 0.94) !important;
+  white-space: nowrap !important;
+}
+
+#screen-solo .carpet-stake-strip .stake-value > span,
+body.local-telegram-frame #screen-solo .carpet-stake-strip .stake-value > span,
+body.is-telegram-webapp #screen-solo .carpet-stake-strip .stake-value > span {
+  position: absolute !important;
+  left: 109px !important;
+  top: 5px !important;
+  z-index: 3 !important;
+  display: flex !important;
+  width: 45px !important;
+  height: 18px !important;
+  align-items: center !important;
+  justify-content: flex-end !important;
+  gap: 4px !important;
+  font-family: Inter, ui-sans-serif, system-ui, sans-serif !important;
+  font-size: 15px !important;
+  font-weight: 500 !important;
+  line-height: 1 !important;
+  color: rgba(51, 46, 38, 0.75) !important;
+}
+
+#screen-solo #carpet-stake,
+body.local-telegram-frame #screen-solo #carpet-stake,
+body.is-telegram-webapp #screen-solo #carpet-stake {
+  display: block !important;
+  width: auto !important;
+  min-width: 0 !important;
+  max-width: 34px !important;
+  overflow: hidden !important;
+  text-align: right !important;
+  font-size: 15px !important;
+  font-weight: 500 !important;
+  line-height: 1 !important;
+}
+
+#screen-solo #carpet-stake[data-digits="medium"],
+body.local-telegram-frame #screen-solo #carpet-stake[data-digits="medium"],
+body.is-telegram-webapp #screen-solo #carpet-stake[data-digits="medium"] {
+  font-size: 12px !important;
+}
+
+#screen-solo #carpet-stake[data-digits="long"],
+body.local-telegram-frame #screen-solo #carpet-stake[data-digits="long"],
+body.is-telegram-webapp #screen-solo #carpet-stake[data-digits="long"] {
+  font-size: 9px !important;
+}
+
+#screen-solo .carpet-stake-strip .stake-ruby,
+body.local-telegram-frame #screen-solo .carpet-stake-strip .stake-ruby,
+body.is-telegram-webapp #screen-solo .carpet-stake-strip .stake-ruby {
+  width: 9px !important;
+  height: 9px !important;
+  flex: 0 0 9px !important;
+}
+
+#screen-solo .carpet-stake-strip .stake-shortcuts,
+body.local-telegram-frame #screen-solo .carpet-stake-strip .stake-shortcuts,
+body.is-telegram-webapp #screen-solo .carpet-stake-strip .stake-shortcuts {
+  position: static !important;
+  grid-column: 2 / 3 !important;
+  grid-row: 2 !important;
+  display: flex !important;
+  justify-content: center !important;
+  gap: 7px !important;
+  margin-top: -2px !important;
+  transform: none !important;
+}
+
+#screen-solo .carpet-stake-strip .stake-shortcuts button,
+body.local-telegram-frame #screen-solo .carpet-stake-strip .stake-shortcuts button,
+body.is-telegram-webapp #screen-solo .carpet-stake-strip .stake-shortcuts button {
+  height: 27px !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  color: transparent !important;
+  font-size: 0 !important;
+  background-color: transparent !important;
+  background-position: center !important;
+  background-size: 100% 100% !important;
+  background-repeat: no-repeat !important;
+}
+
+#screen-solo #carpet-stake-double,
+body.local-telegram-frame #screen-solo #carpet-stake-double,
+body.is-telegram-webapp #screen-solo #carpet-stake-double {
+  width: 30px !important;
+  background-image: url("./assets/stake-2x.svg") !important;
+}
+
+#screen-solo #carpet-stake-max,
+body.local-telegram-frame #screen-solo #carpet-stake-max,
+body.is-telegram-webapp #screen-solo #carpet-stake-max {
+  width: 44px !important;
+  background-image: url("./assets/stake-max.svg") !important;
+}
+
+/* Telegram 70: align the Carpet console to the Pyramid control grid. */
+#screen-solo,
+body.local-telegram-frame #screen-solo,
+body.is-telegram-webapp #screen-solo {
+  --carpet-console-top: 535px;
+  --carpet-stake-top: 672px;
+}
+
+#screen-solo .carpet-controls,
+body.local-telegram-frame #screen-solo .carpet-controls,
+body.is-telegram-webapp #screen-solo .carpet-controls {
+  left: 12px !important;
+  width: 369px !important;
+  grid-template-columns: 132px 96px 132px !important;
+  column-gap: 4px !important;
+}
+
+#screen-solo .carpet-action,
+body.local-telegram-frame #screen-solo .carpet-action,
+body.is-telegram-webapp #screen-solo .carpet-action {
+  position: relative !important;
+  width: 96px !important;
+  height: 96px !important;
+  top: 0 !important;
+  left: auto !important;
+  grid-column: 2 !important;
+  align-self: start !important;
+  margin-top: 11px !important;
+  transform: none !important;
+}
+
+#screen-solo .carpet-action-icon,
+body.local-telegram-frame #screen-solo .carpet-action-icon,
+body.is-telegram-webapp #screen-solo .carpet-action-icon {
+  width: 31px !important;
+  height: 31px !important;
+}
+
+#screen-solo .carpet-action strong,
+body.local-telegram-frame #screen-solo .carpet-action strong,
+body.is-telegram-webapp #screen-solo .carpet-action strong {
+  font-size: 13px !important;
+  font-weight: 500 !important;
+}
+
+/* Telegram 77 final overrides: this block intentionally stays at EOF. */
+#screen-solo,
+body.local-telegram-frame #screen-solo,
+body.is-telegram-webapp #screen-solo {
+  --carpet-cloud-speed: 14500ms;
+}
+
+#screen-solo.carpet-flying,
+body.local-telegram-frame #screen-solo.carpet-flying,
+body.is-telegram-webapp #screen-solo.carpet-flying {
+  --carpet-cloud-speed: 6400ms;
+}
+
+#screen-solo .carpet-cloud-layer,
+body.local-telegram-frame #screen-solo .carpet-cloud-layer,
+body.is-telegram-webapp #screen-solo .carpet-cloud-layer {
+  opacity: 0.72 !important;
+}
+
+#screen-solo.carpet-flying .carpet-cloud-layer,
+body.local-telegram-frame #screen-solo.carpet-flying .carpet-cloud-layer,
+body.is-telegram-webapp #screen-solo.carpet-flying .carpet-cloud-layer {
+  opacity: 0.86 !important;
+}
+
+#screen-solo .carpet-cloud,
+body.local-telegram-frame #screen-solo .carpet-cloud,
+body.is-telegram-webapp #screen-solo .carpet-cloud {
+  filter: blur(10px) saturate(1.22) !important;
+}
+
+#screen-solo .carpet-flight-fx,
+body.local-telegram-frame #screen-solo .carpet-flight-fx,
+body.is-telegram-webapp #screen-solo .carpet-flight-fx {
+  left: -78px !important;
+  top: 238px !important;
+  width: 420px !important;
+  height: 245px !important;
+  transform-origin: 162px 112px !important;
+  opacity: 0.34 !important;
+  mix-blend-mode: screen !important;
+}
+
+#screen-solo .carpet-flight-aura,
+#screen-solo .carpet-flight-trail,
+#screen-solo .carpet-flight-goldline,
+#screen-solo .carpet-flight-particles,
+body.local-telegram-frame #screen-solo .carpet-flight-aura,
+body.local-telegram-frame #screen-solo .carpet-flight-trail,
+body.local-telegram-frame #screen-solo .carpet-flight-goldline,
+body.local-telegram-frame #screen-solo .carpet-flight-particles,
+body.is-telegram-webapp #screen-solo .carpet-flight-aura,
+body.is-telegram-webapp #screen-solo .carpet-flight-trail,
+body.is-telegram-webapp #screen-solo .carpet-flight-goldline,
+body.is-telegram-webapp #screen-solo .carpet-flight-particles {
+  position: absolute !important;
+  display: block !important;
+  pointer-events: none !important;
+  will-change: transform, opacity, filter !important;
+}
+
+#screen-solo .carpet-flight-aura,
+body.local-telegram-frame #screen-solo .carpet-flight-aura,
+body.is-telegram-webapp #screen-solo .carpet-flight-aura {
+  left: 108px !important;
+  top: 58px !important;
+  width: 132px !important;
+  height: 82px !important;
+  border-radius: 58% 42% 55% 45% / 48% 58% 42% 52% !important;
+  background:
+    radial-gradient(ellipse at 50% 52%, rgba(255, 220, 124, 0.08), transparent 48%),
+    radial-gradient(ellipse at 50% 52%, transparent 49%, rgba(255, 214, 111, 0.94) 54%, rgba(255, 109, 207, 0.44) 62%, transparent 72%),
+    radial-gradient(ellipse at 48% 52%, rgba(255, 241, 176, 0.28), transparent 68%) !important;
+  filter: blur(0.2px) drop-shadow(0 0 8px rgba(255, 215, 114, 0.44)) drop-shadow(0 0 15px rgba(255, 77, 201, 0.22)) !important;
+  opacity: 0.32 !important;
+  transform: rotate(-10deg) scale(0.88) !important;
+  animation: carpetMagicAuraIdle 2300ms ease-in-out infinite !important;
+}
+
+#screen-solo .carpet-stage.flying .carpet-flight-aura,
+body.local-telegram-frame #screen-solo .carpet-stage.flying .carpet-flight-aura,
+body.is-telegram-webapp #screen-solo .carpet-stage.flying .carpet-flight-aura {
+  opacity: 0.96 !important;
+  animation: carpetMagicAuraFlight 980ms ease-in-out infinite !important;
+}
+
+#screen-solo .carpet-stage.cashed .carpet-flight-aura,
+body.local-telegram-frame #screen-solo .carpet-stage.cashed .carpet-flight-aura,
+body.is-telegram-webapp #screen-solo .carpet-stage.cashed .carpet-flight-aura {
+  opacity: 1 !important;
+  animation: carpetMagicAuraCashout 760ms ease-out forwards !important;
+}
+
+#screen-solo .carpet-flight-trail,
+body.local-telegram-frame #screen-solo .carpet-flight-trail,
+body.is-telegram-webapp #screen-solo .carpet-flight-trail {
+  left: -8px !important;
+  top: 98px !important;
+  width: 190px !important;
+  height: 56px !important;
+  border-radius: 100% 0 0 100% / 70% 0 0 70% !important;
+  background:
+    linear-gradient(90deg, rgba(69, 175, 255, 0), rgba(72, 180, 255, 0.32) 18%, rgba(255, 68, 210, 0.48) 50%, rgba(255, 226, 143, 0.5) 83%, rgba(255, 244, 180, 0.08)),
+    radial-gradient(ellipse at 90% 48%, rgba(255, 235, 157, 0.64), transparent 48%),
+    radial-gradient(ellipse at 46% 55%, rgba(255, 80, 214, 0.38), transparent 62%) !important;
+  clip-path: polygon(0 47%, 34% 20%, 78% 33%, 100% 50%, 78% 67%, 33% 80%, 0 53%) !important;
+  filter: blur(5px) saturate(1.38) !important;
+  opacity: 0.44 !important;
+  transform: rotate(2deg) scaleX(0.88) !important;
+  animation: carpetCometTrailIdle 1900ms ease-in-out infinite !important;
+}
+
+#screen-solo .carpet-stage.flying .carpet-flight-trail,
+body.local-telegram-frame #screen-solo .carpet-stage.flying .carpet-flight-trail,
+body.is-telegram-webapp #screen-solo .carpet-stage.flying .carpet-flight-trail {
+  opacity: 0.92 !important;
+  animation: carpetCometTrailFlight 820ms ease-in-out infinite !important;
+}
+
+#screen-solo .carpet-flight-goldline,
+body.local-telegram-frame #screen-solo .carpet-flight-goldline,
+body.is-telegram-webapp #screen-solo .carpet-flight-goldline {
+  left: 30px !important;
+  top: 116px !important;
+  width: 118px !important;
+  height: 3px !important;
+  border-radius: 999px !important;
+  background: linear-gradient(90deg, transparent, rgba(255, 225, 124, 0.55), rgba(255, 249, 193, 0.92), transparent) !important;
+  filter: blur(0.8px) drop-shadow(0 0 6px rgba(255, 208, 104, 0.55)) !important;
+  opacity: 0.28 !important;
+  transform: rotate(-7deg) !important;
+  animation: carpetGoldThread 980ms ease-in-out infinite !important;
+}
+
+#screen-solo .carpet-stage.flying .carpet-flight-goldline,
+body.local-telegram-frame #screen-solo .carpet-stage.flying .carpet-flight-goldline,
+body.is-telegram-webapp #screen-solo .carpet-stage.flying .carpet-flight-goldline {
+  opacity: 0.9 !important;
+}
+
+#screen-solo .carpet-flight-fx-wisp,
+body.local-telegram-frame #screen-solo .carpet-flight-fx-wisp,
+body.is-telegram-webapp #screen-solo .carpet-flight-fx-wisp {
+  left: 2px !important;
+  top: 90px !important;
+  width: 170px !important;
+  height: 56px !important;
+  opacity: 0.3 !important;
+  filter: blur(9px) saturate(1.28) !important;
+}
+
+#screen-solo .carpet-stage.flying .carpet-flight-fx-wisp,
+body.local-telegram-frame #screen-solo .carpet-stage.flying .carpet-flight-fx-wisp,
+body.is-telegram-webapp #screen-solo .carpet-stage.flying .carpet-flight-fx-wisp {
+  opacity: 0.62 !important;
+}
+
+#screen-solo .carpet-flight-fx-sparks,
+body.local-telegram-frame #screen-solo .carpet-flight-fx-sparks,
+body.is-telegram-webapp #screen-solo .carpet-flight-fx-sparks {
+  left: 32px !important;
+  top: 112px !important;
+  width: 116px !important;
+  height: 34px !important;
+  opacity: 0.18 !important;
+  background:
+    radial-gradient(circle at 88% 38%, rgba(255, 247, 190, 0.98), transparent 10%),
+    radial-gradient(circle at 70% 64%, rgba(255, 92, 211, 0.76), transparent 13%),
+    radial-gradient(circle at 47% 44%, rgba(113, 188, 255, 0.66), transparent 14%),
+    radial-gradient(circle at 23% 58%, rgba(255, 220, 126, 0.52), transparent 10%) !important;
+  animation: carpetSparkCluster 900ms ease-in-out infinite !important;
+}
+
+#screen-solo .carpet-stage.flying .carpet-flight-fx-sparks,
+body.local-telegram-frame #screen-solo .carpet-stage.flying .carpet-flight-fx-sparks,
+body.is-telegram-webapp #screen-solo .carpet-stage.flying .carpet-flight-fx-sparks {
+  opacity: 0.86 !important;
+}
+
+#screen-solo .carpet-flight-particles,
+body.local-telegram-frame #screen-solo .carpet-flight-particles,
+body.is-telegram-webapp #screen-solo .carpet-flight-particles {
+  left: 6px !important;
+  top: 88px !important;
+  width: 150px !important;
+  height: 62px !important;
+  opacity: 0.18 !important;
+  filter: blur(0.5px) drop-shadow(0 0 5px rgba(255, 106, 211, 0.42)) !important;
+}
+
+#screen-solo .carpet-flight-particles.particles-a,
+body.local-telegram-frame #screen-solo .carpet-flight-particles.particles-a,
+body.is-telegram-webapp #screen-solo .carpet-flight-particles.particles-a {
+  background:
+    radial-gradient(circle at 92% 45%, rgba(255, 232, 145, 0.88), transparent 3px),
+    radial-gradient(circle at 73% 28%, rgba(255, 92, 214, 0.7), transparent 2px),
+    radial-gradient(circle at 52% 63%, rgba(98, 184, 255, 0.66), transparent 2px),
+    radial-gradient(circle at 28% 42%, rgba(255, 230, 128, 0.52), transparent 2px) !important;
+  animation: carpetParticleDriftA 840ms linear infinite !important;
+}
+
+#screen-solo .carpet-flight-particles.particles-b,
+body.local-telegram-frame #screen-solo .carpet-flight-particles.particles-b,
+body.is-telegram-webapp #screen-solo .carpet-flight-particles.particles-b {
+  background:
+    radial-gradient(circle at 82% 68%, rgba(255, 244, 183, 0.82), transparent 2px),
+    radial-gradient(circle at 60% 34%, rgba(255, 95, 216, 0.64), transparent 2px),
+    radial-gradient(circle at 38% 58%, rgba(95, 172, 255, 0.58), transparent 2px),
+    radial-gradient(circle at 16% 28%, rgba(255, 220, 120, 0.42), transparent 2px) !important;
+  animation: carpetParticleDriftB 1120ms linear infinite !important;
+}
+
+#screen-solo .carpet-stage.flying .carpet-flight-particles,
+body.local-telegram-frame #screen-solo .carpet-stage.flying .carpet-flight-particles,
+body.is-telegram-webapp #screen-solo .carpet-stage.flying .carpet-flight-particles {
+  opacity: 0.9 !important;
+}
+
+
+/* Telegram 78 absolute EOF: clean Carpet edge glow, no halo and no dot particles. */
+#screen-solo .carpet-flight-aura,
+#screen-solo .carpet-flight-fx-sparks,
+#screen-solo .carpet-flight-particles,
+body.local-telegram-frame #screen-solo .carpet-flight-aura,
+body.local-telegram-frame #screen-solo .carpet-flight-fx-sparks,
+body.local-telegram-frame #screen-solo .carpet-flight-particles,
+body.is-telegram-webapp #screen-solo .carpet-flight-aura,
+body.is-telegram-webapp #screen-solo .carpet-flight-fx-sparks,
+body.is-telegram-webapp #screen-solo .carpet-flight-particles {
+  display: none !important;
+  opacity: 0 !important;
+}
+
+#screen-solo .carpet-flight-fx,
+body.local-telegram-frame #screen-solo .carpet-flight-fx,
+body.is-telegram-webapp #screen-solo .carpet-flight-fx {
+  left: -84px !important;
+  top: 250px !important;
+  width: 360px !important;
+  height: 172px !important;
+  opacity: 0.22 !important;
+  transform-origin: 158px 92px !important;
+  mix-blend-mode: screen !important;
+}
+
+#screen-solo .carpet-stage.flying .carpet-flight-fx,
+body.local-telegram-frame #screen-solo .carpet-stage.flying .carpet-flight-fx,
+body.is-telegram-webapp #screen-solo .carpet-stage.flying .carpet-flight-fx {
+  opacity: 0.84 !important;
+}
+
+#screen-solo .carpet-flight-trail,
+body.local-telegram-frame #screen-solo .carpet-flight-trail,
+body.is-telegram-webapp #screen-solo .carpet-flight-trail {
+  left: 4px !important;
+  top: 78px !important;
+  width: 182px !important;
+  height: 46px !important;
+  opacity: 0.22 !important;
+  border-radius: 999px !important;
+  clip-path: polygon(0 50%, 28% 18%, 72% 30%, 100% 49%, 72% 70%, 28% 82%, 0 54%) !important;
+  background:
+    linear-gradient(90deg, rgba(74, 168, 255, 0), rgba(92, 172, 255, 0.26) 22%, rgba(191, 94, 255, 0.22) 52%, rgba(255, 211, 125, 0.34) 82%, rgba(255, 239, 182, 0.12)),
+    radial-gradient(ellipse at 84% 48%, rgba(255, 227, 148, 0.38), transparent 52%) !important;
+  filter: blur(7px) saturate(1.15) !important;
+  transform: rotate(3deg) scaleX(0.78) !important;
+  animation: carpetCleanTrailIdle 2400ms ease-in-out infinite !important;
+}
+
+#screen-solo .carpet-stage.flying .carpet-flight-trail,
+body.local-telegram-frame #screen-solo .carpet-stage.flying .carpet-flight-trail,
+body.is-telegram-webapp #screen-solo .carpet-stage.flying .carpet-flight-trail {
+  opacity: 0.74 !important;
+  animation: carpetCleanTrailFlight 1100ms ease-in-out infinite !important;
+}
+
+#screen-solo .carpet-flight-fx-wisp,
+body.local-telegram-frame #screen-solo .carpet-flight-fx-wisp,
+body.is-telegram-webapp #screen-solo .carpet-flight-fx-wisp {
+  left: 42px !important;
+  top: 84px !important;
+  width: 124px !important;
+  height: 26px !important;
+  opacity: 0.18 !important;
+  border-radius: 999px !important;
+  background:
+    linear-gradient(90deg, rgba(71, 165, 255, 0), rgba(94, 177, 255, 0.24), rgba(255, 217, 132, 0.36), rgba(255, 242, 181, 0)) !important;
+  filter: blur(6px) saturate(1.12) !important;
+  transform: rotate(-6deg) !important;
+  animation: carpetCleanWisp 1800ms ease-in-out infinite !important;
+}
+
+#screen-solo .carpet-stage.flying .carpet-flight-fx-wisp,
+body.local-telegram-frame #screen-solo .carpet-stage.flying .carpet-flight-fx-wisp,
+body.is-telegram-webapp #screen-solo .carpet-stage.flying .carpet-flight-fx-wisp {
+  opacity: 0.58 !important;
+}
+
+#screen-solo .carpet-flight-goldline,
+body.local-telegram-frame #screen-solo .carpet-flight-goldline,
+body.is-telegram-webapp #screen-solo .carpet-flight-goldline {
+  left: 58px !important;
+  top: 93px !important;
+  width: 88px !important;
+  height: 2px !important;
+  opacity: 0.16 !important;
+  border-radius: 999px !important;
+  background: linear-gradient(90deg, transparent, rgba(255, 231, 147, 0.72), transparent) !important;
+  filter: blur(0.9px) drop-shadow(0 0 5px rgba(255, 215, 111, 0.28)) !important;
+  transform: rotate(-5deg) !important;
+  animation: carpetCleanGoldline 1400ms ease-in-out infinite !important;
+}
+
+#screen-solo .carpet-stage.flying .carpet-flight-goldline,
+body.local-telegram-frame #screen-solo .carpet-stage.flying .carpet-flight-goldline,
+body.is-telegram-webapp #screen-solo .carpet-stage.flying .carpet-flight-goldline {
+  opacity: 0.62 !important;
+}
+
+#screen-solo .carpet-hero,
+body.local-telegram-frame #screen-solo .carpet-hero,
+body.is-telegram-webapp #screen-solo .carpet-hero {
+  filter:
+    drop-shadow(0 7px 10px rgba(15, 8, 35, 0.28))
+    drop-shadow(0 0 2px rgba(255, 229, 150, 0.22)) !important;
+}
+
+#screen-solo .carpet-stage.flying .carpet-hero,
+body.local-telegram-frame #screen-solo .carpet-stage.flying .carpet-hero,
+body.is-telegram-webapp #screen-solo .carpet-stage.flying .carpet-hero {
+  filter:
+    drop-shadow(0 8px 12px rgba(15, 8, 35, 0.3))
+    drop-shadow(0 0 5px rgba(255, 219, 122, 0.38))
+    drop-shadow(0 0 8px rgba(92, 172, 255, 0.18)) !important;
+}
+
+#screen-solo .carpet-stage.cashed .carpet-hero,
+body.local-telegram-frame #screen-solo .carpet-stage.cashed .carpet-hero,
+body.is-telegram-webapp #screen-solo .carpet-stage.cashed .carpet-hero {
+  filter:
+    drop-shadow(0 8px 12px rgba(15, 8, 35, 0.26))
+    drop-shadow(0 0 8px rgba(255, 223, 130, 0.54)) !important;
+}

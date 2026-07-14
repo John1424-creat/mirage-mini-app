@@ -4,7 +4,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
     <title>Mirage Mini App Prototype</title>
-    <link rel="stylesheet" href="./styles.css?v=telegram62" />
+    <link rel="stylesheet" href="./styles.css?v=telegram88" />
   </head>
   <body>
     <main class="app-shell">
@@ -112,11 +112,28 @@
           </div>
         </section>
 
+        <div class="carpet-cloud-layer" aria-hidden="true">
+          <span class="carpet-cloud cloud-a"></span>
+          <span class="carpet-cloud cloud-b"></span>
+          <span class="carpet-cloud cloud-c"></span>
+        </div>
+        <canvas class="carpet-trail-canvas" id="carpet-trail-canvas" aria-hidden="true"></canvas>
+
         <section class="carpet-stage" id="carpet-stage" aria-label="Комната Ковер">
           <div class="carpet-multiplier" id="carpet-multiplier">1.00</div>
           <div class="auto-run-counter carpet-run-counter" id="carpet-auto-counter">ОСТАЛОСЬ 0</div>
           <div class="carpet-status" id="carpet-status">ГОТОВ К ПОЛЕТУ</div>
+          <div class="carpet-flight-fx" id="carpet-flight-fx" aria-hidden="true">
+            <span class="carpet-flight-aura"></span>
+            <span class="carpet-flight-trail"></span>
+            <span class="carpet-flight-goldline"></span>
+            <span class="carpet-flight-fx-wisp"></span>
+            <span class="carpet-flight-fx-sparks"></span>
+            <span class="carpet-flight-particles particles-a"></span>
+            <span class="carpet-flight-particles particles-b"></span>
+          </div>
           <div class="carpet-hero-wrap" id="carpet-hero-wrap" aria-hidden="true">
+            <div class="carpet-magic-sparks" id="carpet-magic-sparks" aria-hidden="true"></div>
             <img class="carpet-hero" src="./assets/carpet-hero-clean.svg" alt="" />
           </div>
         </section>
@@ -145,11 +162,11 @@
             </span>
           </button>
           <div class="mode-block carpet-bet-block">
-            <span class="control-title">РЕЖИМ СТАВКИ</span>
-            <button class="mode-choice manual selected" data-carpet-bet-mode="manual" type="button">Ручной</button>
-            <button class="mode-choice auto" data-carpet-bet-mode="auto" type="button">Автоматический</button>
+            <span class="control-title">АВТОПОЛЕТЫ</span>
+            <button class="mode-choice manual selected" data-carpet-bet-mode="manual" type="button">Выкл</button>
+            <button class="mode-choice auto" data-carpet-bet-mode="auto" type="button">Вкл</button>
             <div class="carpet-autostarts" id="carpet-autostarts">
-              <span class="control-title">ЗАПУСКИ</span>
+              <span class="control-title">ПОЛЕТОВ</span>
               <div class="carpet-cashout-strip">
                 <button class="stake-step" id="carpet-runs-minus" type="button">−</button>
                 <div class="carpet-cashout-value"><span id="carpet-runs-value">10</span></div>
@@ -291,8 +308,8 @@
     </main>
 
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
-    <script src="./assets/matter.min.js?v=telegram62"></script>
-    <script src="./app.js?v=telegram62"></script>
+    <script src="./assets/matter.min.js?v=telegram88"></script>
+    <script src="./app.js?v=telegram88"></script>
   </body>
 </html>
 
