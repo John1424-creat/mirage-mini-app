@@ -6829,6 +6829,77 @@ body.is-telegram-webapp .app-bg {
   transition: opacity 90ms linear !important;
 }
 
+/* Telegram 95 final layout-safe room persistence. */
+.screen,
+body.local-telegram-frame .screen,
+body.is-telegram-webapp .screen {
+  display: block !important;
+  position: absolute !important;
+  inset: 0 !important;
+  z-index: 2 !important;
+  width: min(100%, var(--app-max-width)) !important;
+  height: 100% !important;
+  margin: 0 auto !important;
+  padding: 0 var(--screen-pad-x) var(--nav-space) !important;
+  padding-top: 0 !important;
+  overflow: hidden !important;
+  opacity: 0 !important;
+  visibility: hidden !important;
+  pointer-events: none !important;
+  transform: translate3d(0, 0, 0) !important;
+  transition: opacity 70ms linear, visibility 70ms linear !important;
+  animation: none !important;
+  contain: layout paint style !important;
+}
+
+.screen.active,
+body.local-telegram-frame .screen.active,
+body.is-telegram-webapp .screen.active {
+  position: relative !important;
+  inset: auto !important;
+  opacity: 1 !important;
+  visibility: visible !important;
+  pointer-events: auto !important;
+  animation: none !important;
+  contain: none !important;
+}
+
+/* Telegram 95 layout-safe room persistence.
+   Active rooms keep the old relative geometry; inactive rooms stay warm off the flow. */
+.screen,
+body.local-telegram-frame .screen,
+body.is-telegram-webapp .screen {
+  display: block !important;
+  position: absolute !important;
+  inset: 0 !important;
+  z-index: 2 !important;
+  width: min(100%, var(--app-max-width)) !important;
+  height: 100% !important;
+  margin: 0 auto !important;
+  padding: 0 var(--screen-pad-x) var(--nav-space) !important;
+  padding-top: 0 !important;
+  overflow: hidden !important;
+  opacity: 0 !important;
+  visibility: hidden !important;
+  pointer-events: none !important;
+  transform: translate3d(0, 0, 0) !important;
+  transition: opacity 70ms linear, visibility 70ms linear !important;
+  animation: none !important;
+  contain: layout paint style !important;
+}
+
+.screen.active,
+body.local-telegram-frame .screen.active,
+body.is-telegram-webapp .screen.active {
+  position: relative !important;
+  inset: auto !important;
+  opacity: 1 !important;
+  visibility: visible !important;
+  pointer-events: auto !important;
+  animation: none !important;
+  contain: none !important;
+}
+
 /* Telegram 94 persistent room layers: keep rooms measurable and stop page-like redraws. */
 .app-shell,
 body.local-telegram-frame .app-shell,
@@ -9039,3 +9110,56 @@ body.is-telegram-webapp .app-bg {
   transition: opacity 90ms linear !important;
 }
 
+
+/* Telegram 95 EOF layout-safe room persistence. */
+.screen,
+body.local-telegram-frame .screen,
+body.is-telegram-webapp .screen {
+  display: block !important;
+  position: absolute !important;
+  inset: 0 !important;
+  z-index: 2 !important;
+  width: min(100%, var(--app-max-width)) !important;
+  height: 100% !important;
+  margin: 0 auto !important;
+  padding: 0 var(--screen-pad-x) var(--nav-space) !important;
+  padding-top: 0 !important;
+  overflow: hidden !important;
+  opacity: 0 !important;
+  visibility: hidden !important;
+  pointer-events: none !important;
+  transform: translate3d(0, 0, 0) !important;
+  transition: opacity 70ms linear, visibility 70ms linear !important;
+  animation: none !important;
+  contain: layout paint style !important;
+}
+
+.screen.active,
+body.local-telegram-frame .screen.active,
+body.is-telegram-webapp .screen.active {
+  position: relative !important;
+  inset: auto !important;
+  opacity: 1 !important;
+  visibility: visible !important;
+  pointer-events: auto !important;
+  animation: none !important;
+  contain: none !important;
+}
+
+/* Telegram 95 carpet safe bottom zone. */
+#screen-solo,
+body.local-telegram-frame #screen-solo,
+body.is-telegram-webapp #screen-solo {
+  --carpet-console-top: 500px !important;
+  --carpet-stake-top: 570px !important;
+}
+
+/* Telegram 95 pyramid safe bottom zone.
+   Keeps the first room on the same active-screen geometry as before the
+   persistence optimization, while reserving room above the bottom nav. */
+#screen-home,
+body.local-telegram-frame #screen-home,
+body.is-telegram-webapp #screen-home {
+  --controls-top: 500px !important;
+  --stake-top: 570px !important;
+}
