@@ -9163,3 +9163,54 @@ body.is-telegram-webapp #screen-home {
   --controls-top: 500px !important;
   --stake-top: 570px !important;
 }
+
+/* Telegram 97 layout rollback.
+   Reverts the room geometry back to the stable flow model. The speed work
+   remains in asset preload/background decode, not in absolute room layers. */
+.screen,
+body.local-telegram-frame .screen,
+body.is-telegram-webapp .screen {
+  display: none !important;
+  position: relative !important;
+  inset: auto !important;
+  width: min(100%, var(--app-max-width)) !important;
+  height: 100% !important;
+  margin: 0 auto !important;
+  padding: 0 var(--screen-pad-x) var(--nav-space) !important;
+  padding-top: 0 !important;
+  overflow: hidden !important;
+  opacity: 1 !important;
+  visibility: visible !important;
+  pointer-events: auto !important;
+  transform: none !important;
+  transition: none !important;
+  animation: none !important;
+  contain: none !important;
+}
+
+.screen.active,
+body.local-telegram-frame .screen.active,
+body.is-telegram-webapp .screen.active {
+  display: block !important;
+  position: relative !important;
+  inset: auto !important;
+  opacity: 1 !important;
+  visibility: visible !important;
+  pointer-events: auto !important;
+  transform: none !important;
+  contain: none !important;
+}
+
+#screen-home,
+body.local-telegram-frame #screen-home,
+body.is-telegram-webapp #screen-home {
+  --controls-top: 535px !important;
+  --stake-top: 672px !important;
+}
+
+#screen-solo,
+body.local-telegram-frame #screen-solo,
+body.is-telegram-webapp #screen-solo {
+  --carpet-console-top: 532px !important;
+  --carpet-stake-top: 681px !important;
+}
