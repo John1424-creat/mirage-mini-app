@@ -6791,6 +6791,82 @@ body.is-telegram-webapp .bottom-nav {
   z-index: 100 !important;
 }
 
+/* Telegram 94 final room persistence override. */
+.app-shell,
+body.local-telegram-frame .app-shell,
+body.is-telegram-webapp .app-shell {
+  isolation: isolate !important;
+}
+
+.screen,
+body.local-telegram-frame .screen,
+body.is-telegram-webapp .screen {
+  display: block !important;
+  position: absolute !important;
+  inset: 0 !important;
+  z-index: 2 !important;
+  opacity: 0 !important;
+  visibility: hidden !important;
+  pointer-events: none !important;
+  transform: translate3d(0, 0, 0) !important;
+  transition: opacity 80ms linear, visibility 80ms linear !important;
+  animation: none !important;
+  contain: layout paint style !important;
+}
+
+.screen.active,
+body.local-telegram-frame .screen.active,
+body.is-telegram-webapp .screen.active {
+  opacity: 1 !important;
+  visibility: visible !important;
+  pointer-events: auto !important;
+  animation: none !important;
+}
+
+.app-bg,
+body.local-telegram-frame .app-bg,
+body.is-telegram-webapp .app-bg {
+  transition: opacity 90ms linear !important;
+}
+
+/* Telegram 94 persistent room layers: keep rooms measurable and stop page-like redraws. */
+.app-shell,
+body.local-telegram-frame .app-shell,
+body.is-telegram-webapp .app-shell {
+  isolation: isolate !important;
+}
+
+.screen,
+body.local-telegram-frame .screen,
+body.is-telegram-webapp .screen {
+  display: block !important;
+  position: absolute !important;
+  inset: 0 !important;
+  z-index: 2 !important;
+  opacity: 0 !important;
+  visibility: hidden !important;
+  pointer-events: none !important;
+  transform: translate3d(0, 0, 0) !important;
+  transition: opacity 80ms linear, visibility 80ms linear !important;
+  animation: none !important;
+  contain: layout paint style !important;
+}
+
+.screen.active,
+body.local-telegram-frame .screen.active,
+body.is-telegram-webapp .screen.active {
+  opacity: 1 !important;
+  visibility: visible !important;
+  pointer-events: auto !important;
+  animation: none !important;
+}
+
+.app-bg,
+body.local-telegram-frame .app-bg,
+body.is-telegram-webapp .app-bg {
+  transition: opacity 90ms linear !important;
+}
+
 /* Telegram 91: performance layer.
    Keep both room backgrounds decoded and switch only opacity; avoid WebView background repaints. */
 .app-shell,
@@ -8923,5 +8999,43 @@ body.is-telegram-webapp .screen {
 body.local-telegram-frame .bottom-nav,
 body.is-telegram-webapp .bottom-nav {
   z-index: 100 !important;
+}
+
+/* Telegram 94 final room persistence override. */
+.app-shell,
+body.local-telegram-frame .app-shell,
+body.is-telegram-webapp .app-shell {
+  isolation: isolate !important;
+}
+
+.screen,
+body.local-telegram-frame .screen,
+body.is-telegram-webapp .screen {
+  display: block !important;
+  position: absolute !important;
+  inset: 0 !important;
+  z-index: 2 !important;
+  opacity: 0 !important;
+  visibility: hidden !important;
+  pointer-events: none !important;
+  transform: translate3d(0, 0, 0) !important;
+  transition: opacity 80ms linear, visibility 80ms linear !important;
+  animation: none !important;
+  contain: layout paint style !important;
+}
+
+.screen.active,
+body.local-telegram-frame .screen.active,
+body.is-telegram-webapp .screen.active {
+  opacity: 1 !important;
+  visibility: visible !important;
+  pointer-events: auto !important;
+  animation: none !important;
+}
+
+.app-bg,
+body.local-telegram-frame .app-bg,
+body.is-telegram-webapp .app-bg {
+  transition: opacity 90ms linear !important;
 }
 

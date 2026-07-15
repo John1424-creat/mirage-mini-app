@@ -936,13 +936,24 @@ function updateLimits() {
   if (Number(stake.value) > limit) stake.value = limit;
 }
 function switchTab(tab) {
+  if (!tab || document.body.dataset.activeTab === tab) return;
   document.body.dataset.activeTab = tab;
   $$(".screen").forEach((screen) => screen.classList.remove("active"));
   $(`#screen-${tab}`).classList.add("active");
   $$(".bottom-nav button").forEach((button) => {
     button.classList.toggle("active", button.dataset.tab === tab);
   });
-  if (tab === "solo") renderCarpet();
+  if (tab === "home") {
+    requestAnimationFrame(() => drawHomeBoard());
+  }
+  if (tab === "solo") {
+    renderCarpet();
+    requestAnimationFrame(() => {
+      renderCarpet();
+      const canvas = getCarpetTrailCanvas();
+      if (canvas) resizeCarpetTrailCanvas(canvas);
+    });
+  }
 }
 
 function weightedSlotFromFairWalk(rows = state.homeRows) {
@@ -980,8 +991,8 @@ const coefficientSlotPath = new Path2D(
 function setupCanvasForDisplay(canvas, ctx) {
   const rect = canvas.getBoundingClientRect();
   const dpr = window.devicePixelRatio || 1;
-  const width = Math.round(rect.width);
-  const height = Math.round(rect.height);
+  const width = Math.max(1, Math.round(rect.width || canvas.clientWidth || canvas.width / dpr || 356));
+  const height = Math.max(1, Math.round(rect.height || canvas.clientHeight || canvas.height / dpr || 360));
   const pixelWidth = Math.round(width * dpr);
   const pixelHeight = Math.round(height * dpr);
 
@@ -3159,11 +3170,11 @@ function initEvents() {
 
 initTelegramViewport();
 initMobileGestureGuards();
+document.body.dataset.activeTab = "home";
 drawPlinko();
 drawRace();
 drawHomeBoard();
 initEvents();
-document.body.dataset.activeTab = "home";
 render();
 prepareInitialAppPaint();
 window.addEventListener("resize", () => {
