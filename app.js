@@ -218,11 +218,11 @@ const $ = (selector) => document.querySelector(selector);
 const $$ = (selector) => [...document.querySelectorAll(selector)];
 
 const STARTUP_ASSETS = [
-  "./assets/loader-bg.png",
+  "./assets/loader-bg.webp",
   "./assets/loader-logo.png",
-  "./assets/mirage-wallpaper-v3.png",
-  "./assets/pyramid-bg-clean.png",
-  "./assets/carpet-room-bg-night.png",
+  "./assets/mirage-wallpaper-v3.webp",
+  "./assets/pyramid-bg-clean.webp",
+  "./assets/carpet-room-bg-night.webp",
   "./assets/balance-frame.svg",
   "./assets/balance-ruby.svg",
   "./assets/lines-switcher.svg",
@@ -232,9 +232,9 @@ const STARTUP_ASSETS = [
   "./assets/stake-2x.svg",
   "./assets/stake-max.svg",
   "./assets/control-lamp-icon.png",
-  "./assets/risk-high.svg",
-  "./assets/risk-medium.svg",
-  "./assets/risk-low.svg",
+  "./assets/risk-high-icon.png",
+  "./assets/risk-medium-icon.png",
+  "./assets/risk-low-icon.png",
   "./assets/carpet-hero-clean.svg",
   "./assets/monkey-left.png",
   "./assets/monkey-right.png",
