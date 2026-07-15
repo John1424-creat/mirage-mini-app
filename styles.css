@@ -47,6 +47,188 @@ body::before {
   display: none;
 }
 
+.app-loader {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+  background:
+    linear-gradient(180deg, rgba(3, 4, 19, 0.04), rgba(7, 2, 19, 0.22)),
+    url("./assets/loader-bg.png") center / cover no-repeat,
+    #08031b;
+  opacity: 1;
+  visibility: visible;
+  transition: opacity 520ms ease, visibility 520ms ease;
+  pointer-events: auto;
+}
+
+.app-loader::before,
+.app-loader::after {
+  content: "";
+  position: absolute;
+  inset: -18%;
+  pointer-events: none;
+}
+
+.app-loader::before {
+  background:
+    radial-gradient(circle at 50% 54%, rgba(255, 214, 129, 0.18), transparent 18%),
+    radial-gradient(circle at 50% 50%, rgba(219, 82, 255, 0.14), transparent 32%);
+  animation: loaderBreath 2600ms ease-in-out infinite;
+}
+
+.app-loader::after {
+  background:
+    linear-gradient(110deg, transparent 18%, rgba(255, 220, 137, 0.2) 48%, transparent 72%);
+  transform: translateX(-72%) rotate(8deg);
+  animation: loaderSweep 2400ms ease-in-out infinite;
+  mix-blend-mode: screen;
+  opacity: 0.55;
+}
+
+.app-loader__inner {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  justify-items: center;
+  gap: 20px;
+  transform: translateY(-10px);
+}
+
+.app-loader__logo {
+  width: min(260px, 68vw);
+  height: auto;
+  filter:
+    drop-shadow(0 2px 8px rgba(9, 2, 18, 0.75))
+    drop-shadow(0 0 18px rgba(255, 128, 74, 0.42));
+  animation: loaderLogoAppear 1100ms ease-out both, loaderLogoPulse 2300ms ease-in-out 1100ms infinite;
+}
+
+.app-loader__flare {
+  width: 148px;
+  height: 2px;
+  border-radius: 999px;
+  background: linear-gradient(90deg, transparent, rgba(255, 227, 150, 0.92), transparent);
+  filter: blur(0.7px) drop-shadow(0 0 10px rgba(255, 186, 102, 0.72));
+  opacity: 0.78;
+  animation: loaderFlare 1800ms ease-in-out infinite;
+}
+
+.app-loader__bar {
+  width: min(212px, 58vw);
+  height: 6px;
+  overflow: hidden;
+  border: 1px solid rgba(255, 211, 126, 0.46);
+  border-radius: 999px;
+  background: rgba(11, 7, 35, 0.56);
+  box-shadow:
+    inset 0 0 12px rgba(255, 82, 207, 0.16),
+    0 0 16px rgba(255, 211, 126, 0.12);
+}
+
+.app-loader__bar span {
+  display: block;
+  width: 46%;
+  height: 100%;
+  border-radius: inherit;
+  background: linear-gradient(90deg, rgba(255, 91, 206, 0.72), rgba(255, 214, 126, 0.95), rgba(128, 183, 255, 0.72));
+  box-shadow: 0 0 12px rgba(255, 191, 106, 0.58);
+  animation: loaderBar 1250ms ease-in-out infinite;
+}
+
+body.app-ready .app-loader {
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+}
+
+@keyframes loaderLogoAppear {
+  0% {
+    opacity: 0;
+    transform: scale(0.86);
+    filter: blur(8px) drop-shadow(0 0 18px rgba(255, 128, 74, 0.1));
+  }
+  58% {
+    opacity: 1;
+    transform: scale(1.04);
+    filter: blur(0) drop-shadow(0 0 28px rgba(255, 188, 112, 0.62));
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes loaderLogoPulse {
+  0%, 100% {
+    transform: translateY(0) scale(1);
+  }
+  50% {
+    transform: translateY(-1px) scale(1.018);
+  }
+}
+
+@keyframes loaderBreath {
+  0%, 100% {
+    opacity: 0.52;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.86;
+    transform: scale(1.04);
+  }
+}
+
+@keyframes loaderSweep {
+  0% {
+    transform: translateX(-74%) rotate(8deg);
+    opacity: 0;
+  }
+  28%, 62% {
+    opacity: 0.55;
+  }
+  100% {
+    transform: translateX(74%) rotate(8deg);
+    opacity: 0;
+  }
+}
+
+@keyframes loaderFlare {
+  0%, 100% {
+    transform: scaleX(0.72);
+    opacity: 0.42;
+  }
+  50% {
+    transform: scaleX(1.08);
+    opacity: 0.88;
+  }
+}
+
+@keyframes loaderBar {
+  0% {
+    transform: translateX(-105%);
+  }
+  55% {
+    transform: translateX(72%);
+  }
+  100% {
+    transform: translateX(224%);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .app-loader,
+  .app-loader::before,
+  .app-loader::after,
+  .app-loader__logo,
+  .app-loader__flare,
+  .app-loader__bar span {
+    animation: none !important;
+  }
+}
+
 body.local-telegram-frame {
   display: grid;
   place-items: center;
@@ -6499,6 +6681,110 @@ body.is-telegram-webapp #screen-solo .carpet-stage.cashed .carpet-hero {
   filter:
     drop-shadow(0 8px 12px rgba(15, 8, 35, 0.26))
     drop-shadow(0 0 8px rgba(255, 223, 130, 0.54)) !important;
+}
+
+/* Telegram 89: unified top HUD wallet placement for Pyramid and Carpet. */
+#screen-home .player-row,
+#screen-solo .player-row,
+body.local-telegram-frame #screen-home .player-row,
+body.local-telegram-frame #screen-solo .player-row,
+body.is-telegram-webapp #screen-home .player-row,
+body.is-telegram-webapp #screen-solo .player-row {
+  left: 8px !important;
+  right: 8px !important;
+  top: 58px !important;
+  height: 48px !important;
+  align-items: center !important;
+}
+
+#screen-home .player,
+#screen-solo .player,
+body.local-telegram-frame #screen-home .player,
+body.local-telegram-frame #screen-solo .player,
+body.is-telegram-webapp #screen-home .player,
+body.is-telegram-webapp #screen-solo .player {
+  max-width: 252px !important;
+  min-width: 0 !important;
+}
+
+#screen-home .player strong,
+#screen-solo .player strong,
+body.local-telegram-frame #screen-home .player strong,
+body.local-telegram-frame #screen-solo .player strong,
+body.is-telegram-webapp #screen-home .player strong,
+body.is-telegram-webapp #screen-solo .player strong {
+  max-width: 198px !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+  white-space: nowrap !important;
+}
+
+#screen-home .gem-balance,
+#screen-solo .gem-balance,
+body.local-telegram-frame #screen-home .gem-balance,
+body.local-telegram-frame #screen-solo .gem-balance,
+body.is-telegram-webapp #screen-home .gem-balance,
+body.is-telegram-webapp #screen-solo .gem-balance {
+  position: absolute !important;
+  right: 0 !important;
+  top: 8px !important;
+  width: 108px !important;
+  min-width: 108px !important;
+  max-width: 108px !important;
+  height: 32px !important;
+  display: grid !important;
+  grid-template-columns: minmax(52px, 1fr) 13px 17px !important;
+  column-gap: 1px !important;
+  align-items: center !important;
+  justify-items: center !important;
+  box-sizing: border-box !important;
+  padding: 0 5px 0 14px !important;
+  overflow: hidden !important;
+  background: url("./assets/balance-frame.svg") center / 100% 100% no-repeat !important;
+  border-radius: 0 !important;
+}
+
+#screen-home #balance-value,
+#screen-solo #carpet-balance,
+body.local-telegram-frame #screen-home #balance-value,
+body.local-telegram-frame #screen-solo #carpet-balance,
+body.is-telegram-webapp #screen-home #balance-value,
+body.is-telegram-webapp #screen-solo #carpet-balance {
+  display: block !important;
+  min-width: 0 !important;
+  max-width: 58px !important;
+  overflow: hidden !important;
+  text-align: center !important;
+  white-space: nowrap !important;
+  font-family: Inter, ui-sans-serif, system-ui, sans-serif !important;
+  font-size: 10.5px !important;
+  font-weight: 700 !important;
+  line-height: 11px !important;
+  letter-spacing: 0 !important;
+  font-variant-numeric: tabular-nums !important;
+}
+
+#screen-home .gem-balance .balance-ruby,
+#screen-solo .gem-balance .balance-ruby,
+body.local-telegram-frame #screen-home .gem-balance .balance-ruby,
+body.local-telegram-frame #screen-solo .gem-balance .balance-ruby,
+body.is-telegram-webapp #screen-home .gem-balance .balance-ruby,
+body.is-telegram-webapp #screen-solo .gem-balance .balance-ruby {
+  width: 11px !important;
+  height: 11px !important;
+  justify-self: center !important;
+}
+
+#screen-home .gem-balance .balance-add,
+#screen-solo .gem-balance .balance-add,
+body.local-telegram-frame #screen-home .gem-balance .balance-add,
+body.local-telegram-frame #screen-solo .gem-balance .balance-add,
+body.is-telegram-webapp #screen-home .gem-balance .balance-add,
+body.is-telegram-webapp #screen-solo .gem-balance .balance-add {
+  width: 17px !important;
+  height: 17px !important;
+  justify-self: center !important;
+  font-size: 13px !important;
 }
 
 /* Telegram 88: final cloud override after all legacy Carpet rules. */

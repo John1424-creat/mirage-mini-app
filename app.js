@@ -217,6 +217,97 @@ const tiers = {
 const $ = (selector) => document.querySelector(selector);
 const $$ = (selector) => [...document.querySelectorAll(selector)];
 
+const STARTUP_ASSETS = [
+  "./assets/loader-bg.png",
+  "./assets/loader-logo.png",
+  "./assets/mirage-wallpaper-v3.png",
+  "./assets/pyramid-bg-clean.png",
+  "./assets/carpet-room-bg-night.png",
+  "./assets/balance-frame.svg",
+  "./assets/balance-ruby.svg",
+  "./assets/lines-switcher.svg",
+  "./assets/stake-panel-live.svg",
+  "./assets/stake-minus.svg",
+  "./assets/stake-plus.svg",
+  "./assets/stake-2x.svg",
+  "./assets/stake-max.svg",
+  "./assets/control-lamp-icon.png",
+  "./assets/risk-high.svg",
+  "./assets/risk-medium.svg",
+  "./assets/risk-low.svg",
+  "./assets/carpet-hero-clean.svg",
+  "./assets/monkey-left.png",
+  "./assets/monkey-right.png",
+];
+const STARTUP_MIN_VISIBLE_MS = 900;
+const STARTUP_MAX_WAIT_MS = 5200;
+
+function versionedAssetUrl(src) {
+  return src;
+}
+
+function waitForAnimationFrame() {
+  return new Promise((resolve) => requestAnimationFrame(() => resolve()));
+}
+
+function wait(ms) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+function preloadImage(src) {
+  return new Promise((resolve) => {
+    const image = new Image();
+    const done = (ok) => resolve({ src, ok });
+    image.onload = async () => {
+      try {
+        if (image.decode) await image.decode();
+      } catch (error) {
+        // Some WebViews report SVG decode inconsistently after load; the asset is still usable.
+      }
+      done(true);
+    };
+    image.onerror = () => done(false);
+    image.src = versionedAssetUrl(src);
+  });
+}
+
+async function preloadStartupAssets() {
+  const imagePreload = Promise.all(STARTUP_ASSETS.map(preloadImage));
+  const fontPreload = document.fonts?.ready ? document.fonts.ready.catch(() => null) : Promise.resolve(null);
+  await Promise.race([
+    Promise.all([imagePreload, fontPreload]),
+    wait(STARTUP_MAX_WAIT_MS),
+  ]);
+}
+
+async function settleInitialPaint() {
+  render();
+  drawHomeBoard();
+  renderCarpet();
+  startCarpetTrailRenderer();
+  await waitForAnimationFrame();
+  drawHomeBoard();
+  renderCarpet();
+  await waitForAnimationFrame();
+}
+
+async function prepareInitialAppPaint() {
+  const startedAt = performance.now();
+  try {
+    await preloadStartupAssets();
+    await settleInitialPaint();
+  } finally {
+    const elapsed = performance.now() - startedAt;
+    if (elapsed < STARTUP_MIN_VISIBLE_MS) await wait(STARTUP_MIN_VISIBLE_MS - elapsed);
+    document.body.classList.add("app-ready");
+    window.setTimeout(() => {
+      document.body.classList.remove("app-loading");
+      const loader = $("#app-loader");
+      if (loader) loader.setAttribute("aria-hidden", "true");
+    }, 620);
+  }
+}
+
 function format(value) {
   return Math.round(value).toLocaleString("ru-RU");
 }
@@ -3074,6 +3165,7 @@ drawHomeBoard();
 initEvents();
 document.body.dataset.activeTab = "home";
 render();
+prepareInitialAppPaint();
 window.addEventListener("resize", () => {
   drawHomeBoard();
   const canvas = getCarpetTrailCanvas();
