@@ -8,7 +8,7 @@
     <link rel="preload" as="image" href="./assets/loader-logo.png" />
     <link rel="preload" as="image" href="./assets/mirage-wallpaper-v3.webp" />
     <link rel="preload" as="image" href="./assets/carpet-room-bg-night.webp" />
-    <link rel="stylesheet" href="./styles.telegram110.css" />
+    <link rel="stylesheet" href="./styles.telegram111.css" />
   </head>
   <body class="app-loading">
     <div class="app-loader" id="app-loader" aria-live="polite" aria-label="Загрузка Mirage">
@@ -77,18 +77,15 @@
         </section>
 
         <section class="auto-scale" id="home-auto-scale" aria-label="Auto balls">
-          <div class="auto-scale-labels">
-            <button type="button" data-auto-balls="10">10</button>
-            <button type="button" data-auto-balls="20">20</button>
-            <button type="button" data-auto-balls="50">50</button>
-            <button type="button" data-auto-balls="100">100</button>
-            <button type="button" data-auto-balls="1000">1000</button>
+          <div class="auto-scale-stepper">
+            <button class="auto-scale-step" id="home-auto-minus" type="button" aria-label="Уменьшить количество шариков">−</button>
+            <output class="auto-scale-value" id="home-auto-value">10 шариков</output>
+            <button class="auto-scale-step" id="home-auto-plus" type="button" aria-label="Увеличить количество шариков">+</button>
           </div>
           <div class="auto-scale-track">
             <span class="auto-scale-knob" aria-hidden="true"></span>
-            <input id="home-auto-range" type="range" min="0" max="1000" step="1" value="0" aria-label="Auto balls count" />
+            <input id="home-auto-range" type="range" min="10" max="1000" step="1" value="10" aria-label="Auto balls count" />
           </div>
-          <output class="auto-scale-value" id="home-auto-value">10 шариков</output>
         </section>
 
         <section class="stake-strip">
@@ -321,8 +318,8 @@
     </main>
 
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
-    <script src="./assets/matter.min.js?v=telegram110"></script>
-    <script src="./app.telegram110.js"></script>
+    <script src="./assets/matter.min.js?v=telegram111"></script>
+    <script src="./app.telegram111.js"></script>
   </body>
 </html>
 
