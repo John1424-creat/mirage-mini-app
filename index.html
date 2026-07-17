@@ -8,7 +8,7 @@
     <link rel="preload" as="image" href="./assets/loader-logo.png" />
     <link rel="preload" as="image" href="./assets/mirage-wallpaper-v3.webp" />
     <link rel="preload" as="image" href="./assets/carpet-room-bg-night.webp" />
-    <link rel="stylesheet" href="./styles.telegram111.css" />
+    <link rel="stylesheet" href="./styles.telegram112.css" />
   </head>
   <body class="app-loading">
     <div class="app-loader" id="app-loader" aria-live="polite" aria-label="Загрузка Mirage">
@@ -21,6 +21,7 @@
     <main class="app-shell">
       <div class="app-bg app-bg-home" aria-hidden="true"></div>
       <div class="app-bg app-bg-solo" aria-hidden="true"></div>
+      <canvas class="carpet-cloud-canvas" id="carpet-cloud-canvas" aria-hidden="true"></canvas>
       <section class="screen active" id="screen-home">
         <header class="figma-topbar">
           <div class="mini-logo">
@@ -82,9 +83,12 @@
             <output class="auto-scale-value" id="home-auto-value">10 шариков</output>
             <button class="auto-scale-step" id="home-auto-plus" type="button" aria-label="Увеличить количество шариков">+</button>
           </div>
-          <div class="auto-scale-track">
-            <span class="auto-scale-knob" aria-hidden="true"></span>
-            <input id="home-auto-range" type="range" min="10" max="1000" step="1" value="10" aria-label="Auto balls count" />
+          <div class="auto-scale-quick" aria-label="Быстрый выбор шариков">
+            <button class="auto-scale-chip" data-auto-delta="-10" type="button">−10</button>
+            <button class="auto-scale-chip" data-auto-balls="10" type="button">10</button>
+            <button class="auto-scale-chip" data-auto-balls="50" type="button">50</button>
+            <button class="auto-scale-chip" data-auto-balls="100" type="button">100</button>
+            <button class="auto-scale-chip" data-auto-delta="10" type="button">+10</button>
           </div>
         </section>
 
@@ -318,8 +322,8 @@
     </main>
 
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
-    <script src="./assets/matter.min.js?v=telegram111"></script>
-    <script src="./app.telegram111.js"></script>
+    <script src="./assets/matter.min.js?v=telegram112"></script>
+    <script src="./app.telegram112.js"></script>
   </body>
 </html>
 
