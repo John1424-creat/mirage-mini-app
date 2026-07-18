@@ -8,7 +8,7 @@
     <link rel="preload" as="image" href="./assets/loader-logo.png" />
     <link rel="preload" as="image" href="./assets/mirage-wallpaper-v3.webp" />
     <link rel="preload" as="image" href="./assets/carpet-room-bg-night.webp" />
-    <link rel="stylesheet" href="./styles.telegram114.css" />
+    <link rel="stylesheet" href="./styles.telegram115.css" />
   </head>
   <body class="app-loading">
     <div class="app-loader" id="app-loader" aria-live="polite" aria-label="Загрузка Mirage">
@@ -207,36 +207,77 @@
           </div>
         </section>
       </section>
-      <section class="screen" id="screen-pvp">
-        <header class="topbar">
-          <div class="brand-lockup">
-            <p class="eyebrow">PVP ARENA</p>
-            <h1>Гонка шариков</h1>
-          </div>
-          <div class="mini-balance"><span id="pvp-balance">12 500</span> ✦</div>
+      <section class="screen pharaoh-screen" id="screen-pvp">
+        <header class="slot-topbar">
+          <button class="player-link" id="pharaoh-profile-link" type="button" aria-label="Открыть профиль">
+            <span class="avatar">F</span>
+            <strong>Friedrich Kapitonovich</strong>
+          </button>
+          <div class="balance-chip"><span id="slot-balance">12 500</span><i class="balance-ruby" aria-hidden="true"></i><span>+</span></div>
         </header>
 
-        <section class="race-stage">
-          <canvas id="race-canvas" width="330" height="380"></canvas>
-          <div class="race-hud">
-            <span id="room-bank">Банк: 0</span>
-            <span id="room-timer">15 сек</span>
-          </div>
-        </section>
+        <section class="pharaoh-stage" aria-label="Фараон слот">
+          <div class="pharaoh-title">ФАРАОН</div>
+            <div class="slot-status" id="slot-status">Готово к спину</div>
+            <div class="slot-winbar" id="slot-winbar">+0</div>
+            <div class="slot-grid" id="slot-grid" aria-live="polite"></div>
+            <div class="slot-stage-footer">
+              <div class="slot-free-spins" id="slot-free-spins">FREE SPINS 0</div>
+              <button class="slot-rules-button" id="slot-rules-open" type="button">i</button>
+            </div>
+            <div class="slot-history" id="slot-history" aria-label="История спинов"></div>
+            <div class="slot-genie-reaction" id="slot-genie-reaction" data-reaction="idle" aria-live="polite">
+              <span class="slot-genie-glow" aria-hidden="true"></span>
+              <span class="slot-genie-lamp" aria-hidden="true"></span>
+              <span class="slot-genie-copy" id="slot-genie-text">ДЖИН ГОТОВ</span>
+            </div>
+            <div class="slot-rules-panel" id="slot-rules-panel" aria-hidden="true">
+              <button class="slot-rules-close" id="slot-rules-close" type="button">×</button>
+              <h3>Правила</h3>
+              <p>Сетка 6×5. Выигрыш от 8 одинаковых символов в любом месте поля.</p>
+              <p>Выигрышные символы исчезают, сверху падают новые. Free spins запускаются от scatter.</p>
+              <p>RTP цели: 95%. Bonus buy подготовлен, но выключен до отдельной проверки экономики.</p>
+              <div class="slot-paytable" id="slot-paytable"></div>
+            </div>
+          </section>
 
-        <section class="panel controls-panel">
-          <div class="tier-grid" id="tier-grid">
-            <button class="selected" data-tier="cheap">10 ✦</button>
-            <button data-tier="medium">50 ✦</button>
-            <button data-tier="expensive">250 ✦</button>
+        <section class="pharaoh-controls" aria-label="Управление слотом">
+          <div class="pharaoh-side left">
+            <h3>СТАВКА</h3>
+            <div class="slot-choice-row">
+              <button class="slot-step" id="slot-stake-minus" type="button">−</button>
+              <div class="slot-stake-panel">
+                <strong>1 СПИН</strong>
+                <span><span id="slot-stake">10</span><i class="stake-ruby" aria-hidden="true"></i></span>
+              </div>
+              <button class="slot-step" id="slot-stake-plus" type="button">+</button>
+            </div>
+            <div class="slot-shortcuts">
+              <button id="slot-stake-double" type="button">2X</button>
+              <button id="slot-stake-max" type="button">MAX</button>
+            </div>
           </div>
-          <div class="ball-counter">
-            <button id="balls-minus">−</button>
-            <strong id="balls-count">10</strong>
-            <button id="balls-plus">+</button>
-          </div>
-          <button class="primary-action" id="start-pvp">Купить шарики и старт</button>
-          <div class="result-line" id="pvp-result">Симуляция комнаты на 2 игроков.</div>
+
+          <button class="slot-spin-button" id="slot-spin" type="button">
+            <span class="slot-spin-icon">♛</span>
+            <strong>СПИН</strong>
+          </button>
+
+          <div class="pharaoh-side right">
+            <h3>РЕЖИМ</h3>
+              <div class="slot-mode-row">
+                <button class="slot-mode selected" data-slot-mode="manual" type="button">Ручной</button>
+                <button class="slot-mode" data-slot-mode="auto" type="button">Авто</button>
+              </div>
+              <div class="slot-auto-row">
+                <button class="slot-step" id="slot-auto-minus" type="button">−</button>
+                <div class="slot-auto-panel"><span id="slot-auto-runs">10</span></div>
+                <button class="slot-step" id="slot-auto-plus" type="button">+</button>
+              </div>
+              <div class="slot-bonus-row">
+                <button id="slot-bonus-buy" type="button">БОНУС x100</button>
+              </div>
+            </div>
         </section>
       </section>
 
@@ -311,7 +352,7 @@
         </button>
         <button data-tab="pvp">
           <span class="nav-icon nav-karma" aria-hidden="true"></span>
-          <span>КАРМА</span>
+          <span>ФАРАОН</span>
         </button>
         <button data-tab="wallet">
           <span class="nav-icon nav-shop" aria-hidden="true"></span>
@@ -326,8 +367,8 @@
     </main>
 
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
-    <script src="./assets/matter.min.js?v=telegram114"></script>
-    <script src="./app.telegram114.js"></script>
+    <script src="./assets/matter.min.js?v=telegram115"></script>
+    <script src="./app.telegram115.js"></script>
   </body>
 </html>
 
