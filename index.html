@@ -8,7 +8,7 @@
     <link rel="preload" as="image" href="./assets/loader-logo.png" />
     <link rel="preload" as="image" href="./assets/mirage-wallpaper-v3.webp" />
     <link rel="preload" as="image" href="./assets/carpet-room-bg-night.webp" />
-    <link rel="stylesheet" href="./styles.telegram120.css" />
+    <link rel="stylesheet" href="./styles.telegram121.css" />
   </head>
   <body class="app-loading">
     <div class="app-loader" id="app-loader" aria-live="polite" aria-label="Загрузка Mirage">
@@ -233,12 +233,21 @@
               </span>
               <span class="slot-genie-copy" id="slot-genie-text">ДЖИН ГОТОВ</span>
             </div>
-            <div class="slot-rules-panel" id="slot-rules-panel" aria-hidden="true">
+            <button class="slot-rules-backdrop" id="slot-rules-backdrop" type="button" aria-label="Закрыть правила"></button>
+            <div class="slot-rules-panel" id="slot-rules-panel" aria-hidden="true" role="dialog" aria-modal="true" aria-labelledby="slot-rules-title">
               <button class="slot-rules-close" id="slot-rules-close" type="button">×</button>
-              <h3>Правила</h3>
-              <p>Сетка 6×5. Выигрыш от 8 одинаковых символов в любом месте поля.</p>
-              <p>Выигрышные символы исчезают, сверху падают новые. Free spins запускаются от scatter.</p>
-              <p>RTP цели: 95%. Bonus buy стоит x100 от ставки и запускает 15 free spins.</p>
+              <h3 id="slot-rules-title">Фараон</h3>
+              <div class="slot-rules-summary" aria-label="Ключевые параметры">
+                <span><b>6×5</b> сетка</span>
+                <span><b>95%</b> RTP</span>
+                <span><b>10 000x</b> max</span>
+                <span><b>x100</b> bonus</span>
+              </div>
+              <div class="slot-rules-copy">
+                <p>Выигрыш считается от 8 одинаковых символов в любом месте поля.</p>
+                <p>Выигрышные символы исчезают, сверху падают новые, каскады суммируются в один спин.</p>
+                <p>Scatter открывает free spins, а множители усиливают выигрышные каскады.</p>
+              </div>
               <div class="slot-paytable" id="slot-paytable"></div>
             </div>
           </section>
@@ -369,8 +378,8 @@
     </main>
 
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
-    <script src="./assets/matter.min.js?v=telegram120"></script>
-    <script src="./app.telegram120.js"></script>
+    <script src="./assets/matter.min.js?v=telegram121"></script>
+    <script src="./app.telegram121.js"></script>
   </body>
 </html>
 
