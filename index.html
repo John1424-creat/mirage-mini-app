@@ -8,7 +8,7 @@
     <link rel="preload" as="image" href="./assets/loader-logo.png" />
     <link rel="preload" as="image" href="./assets/mirage-wallpaper-v3.webp" />
     <link rel="preload" as="image" href="./assets/carpet-room-bg-night.webp" />
-    <link rel="stylesheet" href="./styles.telegram139.css?v=telegram139" />
+    <link rel="stylesheet" href="./styles.telegram140.css?v=telegram140" />
   </head>
   <body class="app-loading">
     <div class="app-loader" id="app-loader" aria-live="polite" aria-label="Загрузка Mirage">
@@ -254,6 +254,24 @@
               <div class="slot-paytable-title">Таблица выплат</div>
               <div class="slot-paytable" id="slot-paytable"></div>
             </div>
+            <button class="slot-bonus-backdrop" id="slot-bonus-backdrop" type="button" aria-label="Закрыть покупку бонуса"></button>
+            <div class="slot-bonus-panel" id="slot-bonus-panel" aria-hidden="true" role="dialog" aria-modal="true" aria-labelledby="slot-bonus-title">
+              <button class="slot-bonus-close" id="slot-bonus-close" type="button">×</button>
+              <div class="slot-bonus-heading">
+                <h3 id="slot-bonus-title">Bonus Buy</h3>
+                <p>Открывает серию free spins без обычного спина.</p>
+              </div>
+              <div class="slot-bonus-stats">
+                <span><b id="slot-bonus-cost">1 000</b><em>стоимость</em></span>
+                <span><b>15</b><em>free spins</em></span>
+                <span><b>x100</b><em>от ставки</em></span>
+              </div>
+              <p class="slot-bonus-note" id="slot-bonus-note">Ставка 10 ✦. Бонус запускается сразу после подтверждения.</p>
+              <div class="slot-bonus-actions">
+                <button id="slot-bonus-cancel" type="button">Отмена</button>
+                <button id="slot-bonus-confirm" type="button">Запустить</button>
+              </div>
+            </div>
           </section>
 
         <section class="pharaoh-controls" aria-label="Управление слотом">
@@ -385,7 +403,7 @@
 
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <script src="./assets/matter.min.js?v=telegram133"></script>
-    <script src="./app.telegram139.js?v=telegram139"></script>
+    <script src="./app.telegram140.js?v=telegram140"></script>
   </body>
 </html>
 
