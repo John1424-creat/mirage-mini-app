@@ -8,7 +8,7 @@
     <link rel="preload" as="image" href="./assets/loader-logo.png" />
     <link rel="preload" as="image" href="./assets/mirage-wallpaper-v3.webp" />
     <link rel="preload" as="image" href="./assets/carpet-room-bg-night.webp" />
-    <link rel="stylesheet" href="./styles.telegram138.css?v=telegram138" />
+    <link rel="stylesheet" href="./styles.telegram139.css?v=telegram139" />
   </head>
   <body class="app-loading">
     <div class="app-loader" id="app-loader" aria-live="polite" aria-label="Загрузка Mirage">
@@ -236,18 +236,22 @@
             <button class="slot-rules-backdrop" id="slot-rules-backdrop" type="button" aria-label="Закрыть правила"></button>
             <div class="slot-rules-panel" id="slot-rules-panel" aria-hidden="true" role="dialog" aria-modal="true" aria-labelledby="slot-rules-title">
               <button class="slot-rules-close" id="slot-rules-close" type="button">×</button>
-              <h3 id="slot-rules-title">Фараон</h3>
+              <div class="slot-rules-heading">
+                <h3 id="slot-rules-title">Фараон</h3>
+                <p>Каскадные слоты 6×5 с free spins, множителями и bonus buy.</p>
+              </div>
               <div class="slot-rules-summary" aria-label="Ключевые параметры">
-                <span><b>6×5</b> сетка</span>
-                <span><b>95%</b> RTP</span>
-                <span><b>10 000x</b> max</span>
-                <span><b>x100</b> bonus</span>
+                <span><b>6×5</b><em>поле</em></span>
+                <span><b>95%</b><em>RTP</em></span>
+                <span><b>10 000x</b><em>max win</em></span>
+                <span><b>x100</b><em>bonus buy</em></span>
               </div>
-              <div class="slot-rules-copy">
-                <p>Выигрыш считается от 8 одинаковых символов в любом месте поля.</p>
-                <p>Выигрышные символы исчезают, сверху падают новые, каскады суммируются в один спин.</p>
-                <p>Scatter открывает free spins, а множители усиливают выигрышные каскады.</p>
+              <div class="slot-rules-copy" aria-label="Механика">
+                <p><b>Anyway pays.</b> Выигрыш считается от 8 одинаковых символов в любом месте поля.</p>
+                <p><b>Каскады.</b> Выигрышные символы исчезают, сверху падают новые, все каскады суммируются в один спин.</p>
+                <p><b>Фриспины.</b> Scatter открывает серию, а множители усиливают выигрышные каскады.</p>
               </div>
+              <div class="slot-paytable-title">Таблица выплат</div>
               <div class="slot-paytable" id="slot-paytable"></div>
             </div>
           </section>
@@ -381,7 +385,7 @@
 
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <script src="./assets/matter.min.js?v=telegram133"></script>
-    <script src="./app.telegram138.js?v=telegram138"></script>
+    <script src="./app.telegram139.js?v=telegram139"></script>
   </body>
 </html>
 
