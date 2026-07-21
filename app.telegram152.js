@@ -1,0 +1,5014 @@
+﻿const state = {
+  balance: 12500,
+  games: 0,
+  net: 0,
+  dailyClaimed: false,
+  risk: "low",
+  homeRisk: "medium",
+  homeRows: 13,
+  homeStake: 10,
+  homeRuns: 1,
+  homeAutoBalls: 10,
+  homeMode: "manual",
+  carpet: {
+    status: "READY",
+    mode: "manual",
+    betMode: "manual",
+    autoCashout: 1.2,
+    autoRuns: 10,
+    autoRunsRemaining: 0,
+    autoRunning: false,
+    stake: 10,
+    minStake: 5,
+    maxStake: 10000,
+    stakeStep: 5,
+    round: null,
+    multiplier: 1,
+    crashPoint: null,
+    roundStartedAt: null,
+    animationFrameId: null,
+    cashedOutMultiplier: null,
+    pendingCashout: false,
+    payout: 0,
+    protectedRoundsPlayed: 0,
+    history: [],
+  },
+  slot: {
+    status: "READY",
+    mode: "manual",
+    stake: 10,
+    minStake: 5,
+    maxStake: 500,
+    stakeStep: 5,
+    autoRuns: 10,
+    autoRunsRemaining: 0,
+    autoRunning: false,
+    freeSpins: 0,
+    totalWin: 0,
+    message: "Готово к спину",
+    reaction: "idle",
+    grid: [],
+    spinPreviewGrid: null,
+    spinVisualMode: "idle",
+    spinRunId: 0,
+    winningKeys: new Set(),
+    history: [],
+    presentation: { type: "idle", title: "", value: "", note: "" },
+    presentationTimer: null,
+    bonusBuyEnabled: false,
+    rulesOpen: false,
+    bonusConfirmOpen: false,
+  },
+  tier: "cheap",
+  balls: 10,
+  ledger: [
+    { label: "Стартовый тестовый баланс", amount: 12500 },
+    { label: "Daily streak: день 3", amount: 25 },
+    { label: "Тестовый PvP entry", amount: -100 },
+  ],
+};
+
+const RTP = 0.95;
+const HOME_ROWS_MIN = 8;
+const HOME_ROWS_MAX = 16;
+const HOME_STAKE_MIN = 5;
+const HOME_STAKE_STEP = 5;
+const HOME_STAKE_MAX = 10000;
+const HOME_AUTO_BALL_MIN = 10;
+const HOME_AUTO_BALL_MAX = 1000;
+const HOME_AUTO_BALL_OPTIONS = [10, 20, 50, 100, 1000];
+const HOME_AUTO_MAX_ACTIVE_BALLS = 34;
+const HOME_MANUAL_MAX_ACTIVE_BALLS = 40;
+const HOME_AUTO_BALL_DURATION = 5400;
+const HOME_EFFECT_GOOD_MULTIPLIER = 2;
+const HOME_EFFECT_COIN_COUNT = 16;
+const HOME_MONKEY_INNER_COIN_COUNT = 10;
+const HOME_MONKEY_EDGE_COIN_COUNT = 18;
+const HOME_BALL_RADIUS = 4.4;
+const HOME_PEG_RADIUS = 3.6;
+const HOME_PHYSICS_GRAVITY = 158;
+const HOME_PHYSICS_RESTITUTION = 0.62;
+const HOME_PHYSICS_WALL_RESTITUTION = 0.46;
+const HOME_MATTER_STEP_MS = 1000 / 60;
+const HOME_MATTER_MAX_STEPS = 620;
+const HOME_MATTER_REPLAY_SLOWDOWN = 1.2;
+const CARPET_RTP = 0.95;
+const CARPET_PROTECTED_ROUNDS = 3;
+const CARPET_MIN_PROTECTED_CRASH = 1.1;
+const CARPET_DOUBLE_TIME_MS = 6000;
+const CARPET_GROWTH_RATE = Math.log(2) / CARPET_DOUBLE_TIME_MS;
+const CARPET_MAX_CRASH_DISPLAY = 100;
+const CARPET_HISTORY_LIMIT = 7;
+const CARPET_AUTO_CASHOUT_MIN = 1.01;
+const CARPET_AUTO_CASHOUT_MAX = 20;
+const CARPET_AUTO_CASHOUT_STEP = 0.05;
+const CARPET_AUTO_RUNS_MIN = 1;
+const CARPET_AUTO_RUNS_MAX = 1000;
+const CARPET_AUTO_RUNS_STEP = 1;
+const CARPET_ENTROPY_MAX = 0x100000000;
+const CARPET_TRAIL_ENABLED = false;
+const CARPET_TRAIL_MAX_PARTICLES = 24;
+const CARPET_TRAIL_IDLE_PARTICLES = 8;
+const multiplierCache = new Map();
+const carpetTrail = {
+  particles: [],
+  points: [],
+  frameId: null,
+  lastTime: 0,
+  lastEmit: 0,
+  lastX: 0,
+  lastY: 0,
+  lastStatus: "READY",
+};
+const carpetSparks = {
+  frameId: null,
+  lastEmit: 0,
+};
+const carpetClouds = {
+  frameId: null,
+  lastTime: 0,
+  width: 0,
+  height: 0,
+  items: [],
+};
+
+function getHomeStakeDecreaseStep(value) {
+  if (value > 5000) return 1000;
+  if (value > 1000) return 500;
+  if (value > 100) return 50;
+  return HOME_STAKE_STEP;
+}
+
+function getHomeAutoProgress(value) {
+  const marks = HOME_AUTO_BALL_OPTIONS;
+  if (value <= marks[0]) return 0;
+  if (value >= marks[marks.length - 1]) return 1;
+
+  for (let index = 0; index < marks.length - 1; index += 1) {
+    const from = marks[index];
+    const to = marks[index + 1];
+    if (value <= to) {
+      const localProgress = (value - from) / (to - from);
+      return (index + localProgress) / (marks.length - 1);
+    }
+  }
+
+  return 1;
+}
+
+function getHomeAutoBallsFromProgress(progress) {
+  const marks = HOME_AUTO_BALL_OPTIONS;
+  const clampedProgress = Math.max(0, Math.min(1, progress));
+  const segment = clampedProgress * (marks.length - 1);
+  const index = Math.min(marks.length - 2, Math.floor(segment));
+  const localProgress = segment - index;
+  const value = marks[index] + (marks[index + 1] - marks[index]) * localProgress;
+  return Math.max(HOME_AUTO_BALL_MIN, Math.min(HOME_AUTO_BALL_MAX, Math.round(value)));
+}
+
+function getHomeAutoSpawnInterval(total) {
+  if (total <= 20) return 430;
+  if (total <= 50) return 315;
+  if (total <= 100) return 235;
+  if (total <= 250) return 190;
+  return 160;
+}
+
+const riskProfiles = {
+  low: { base: 0.72, edge: 2.4, power: 1.7 },
+  medium: { base: 0.22, edge: 12, power: 3 },
+  high: { base: 0, edge: 130, power: 5.5 },
+};
+
+function combination(n, k) {
+  let result = 1;
+  const limit = Math.min(k, n - k);
+  for (let i = 1; i <= limit; i += 1) {
+    result = (result * (n - limit + i)) / i;
+  }
+  return result;
+}
+
+function slotProbability(rows, slot) {
+  return combination(rows, slot) / 2 ** rows;
+}
+
+const homeMatterSlotProbabilities = {
+  8: [0.138667, 0.060333, 0.093667, 0.129334, 0.156, 0.129334, 0.093667, 0.060333, 0.138667],
+  9: [0.116334, 0.059, 0.096, 0.113667, 0.115, 0.115, 0.113667, 0.096, 0.059, 0.116334],
+  10: [0.076333, 0.059333, 0.083666, 0.105, 0.116333, 0.118667, 0.116333, 0.105, 0.083666, 0.059333, 0.076333],
+  11: [0.078333, 0.063334, 0.067667, 0.080667, 0.098, 0.112, 0.112, 0.098, 0.080667, 0.067667, 0.063334, 0.078333],
+  12: [0.087667, 0.065333, 0.072334, 0.072, 0.080334, 0.081, 0.082667, 0.081, 0.080334, 0.072, 0.072334, 0.065333, 0.087667],
+  13: [0.052, 0.063333, 0.063666, 0.071667, 0.083333, 0.081, 0.085, 0.085, 0.081, 0.083333, 0.071667, 0.063666, 0.063333, 0.052],
+  14: [0.043667, 0.043667, 0.054667, 0.070667, 0.077667, 0.078, 0.088667, 0.086, 0.088667, 0.078, 0.077667, 0.070667, 0.054667, 0.043667, 0.043667],
+  15: [0.033333, 0.035, 0.048, 0.061667, 0.076, 0.082667, 0.082667, 0.080667, 0.080667, 0.082667, 0.082667, 0.076, 0.061667, 0.048, 0.035, 0.033333],
+  16: [0.039333, 0.039333, 0.043667, 0.055333, 0.058, 0.067667, 0.085666, 0.08, 0.062, 0.08, 0.085666, 0.067667, 0.058, 0.055333, 0.043667, 0.039333, 0.039333],
+};
+
+function getHomeSlotProbabilities(rows) {
+  const calibrated = homeMatterSlotProbabilities[rows];
+  if (calibrated && calibrated.length === rows + 1) return calibrated;
+  return Array.from({ length: rows + 1 }, (_, slot) => slotProbability(rows, slot));
+}
+
+function getMultipliers(rows, risk) {
+  const key = `${rows}:${risk}`;
+  if (multiplierCache.has(key)) return multiplierCache.get(key);
+
+  const profile = riskProfiles[risk] || riskProfiles.medium;
+  const center = rows / 2;
+  const probabilities = getHomeSlotProbabilities(rows);
+  const raw = Array.from({ length: rows + 1 }, (_, slot) => {
+    const distance = Math.abs(slot - center) / center;
+    return profile.base + profile.edge * distance ** profile.power;
+  });
+  const expected = raw.reduce((sum, value, slot) => sum + value * (probabilities[slot] || 0), 0);
+  const scaled = raw.map((value) => value * (RTP / expected));
+  multiplierCache.set(key, scaled);
+  return scaled;
+}
+
+function formatMultiplier(value) {
+  if (value >= 100) return value.toFixed(0);
+  if (value >= 10) return value.toFixed(1);
+  if (value >= 1) return value.toFixed(2).replace(/0$/, "");
+  return value.toFixed(2);
+}
+
+const riskLimits = {
+  low: 10000,
+  medium: 5064,
+  high: 998,
+};
+
+const tiers = {
+  cheap: 10,
+  medium: 50,
+  expensive: 250,
+};
+
+const SLOT_CONFIG = {
+  name: "ФАРАОН",
+  targetRtp: 0.95,
+  payoutScale: 7.9,
+  roomPoolUsd: 5000,
+  gridColumns: 6,
+  gridRows: 5,
+  minWinCount: 8,
+  maxWinMultiplier: 10000,
+  bonusBuy: {
+    enabled: true,
+    costMultiplier: 100,
+    freeSpins: 15,
+  },
+  symbols: [
+    { id: "pharaoh", label: "♛", name: "Фараон", tier: "high", weight: 4.4, color: "#ffd97a", icon: "./assets/pharaoh-icons-lite/pharaoh-mask.webp" },
+    { id: "lamp", label: "✦", name: "Лампа", tier: "high", weight: 5.2, color: "#ffb44d", icon: "./assets/pharaoh-icons-lite/genie-lamp.webp" },
+    { id: "ruby", label: "◆", name: "Рубин", tier: "high", weight: 6.4, color: "#ff4fb3", icon: "./assets/pharaoh-icons-lite/ruby.webp" },
+    { id: "scarab", label: "✹", name: "Скарабей", tier: "mid", weight: 8.2, color: "#62dfb4", icon: "./assets/pharaoh-icons-lite/scarab.webp" },
+    { id: "scroll", label: "▰", name: "Свиток", tier: "mid", weight: 9.4, color: "#f7cf72", icon: "./assets/pharaoh-icons-lite/scroll.webp" },
+    { id: "ankh", label: "☥", name: "Анкх", tier: "mid", weight: 10.2, color: "#d7a8ff", icon: "./assets/pharaoh-icons-lite/ankh.webp" },
+    { id: "coin", label: "●", name: "Монета", tier: "low", weight: 12.5, color: "#ffdc75", icon: "./assets/pharaoh-icons-lite/coin.webp" },
+    { id: "blue", label: "◆", name: "Синий камень", tier: "low", weight: 12.8, color: "#66b8ff", icon: "./assets/pharaoh-icons-lite/blue-gem.webp" },
+    { id: "green", label: "◆", name: "Зеленый камень", tier: "low", weight: 13.2, color: "#8dff9d", icon: "./assets/pharaoh-icons-lite/green-gem.webp" },
+    { id: "scatter", label: "☀", name: "Scatter", tier: "scatter", weight: 1.05, color: "#fff0a6", icon: "./assets/pharaoh-icons-lite/sun-scatter.webp" },
+    { id: "multi", label: "×", name: "Множитель", tier: "multi", weight: 0.55, color: "#ff73d5", icon: "./assets/pharaoh-icons-lite/multiplier-orb.webp" },
+  ],
+  payouts: {
+    pharaoh: { 8: 0.5, 10: 1.2, 12: 2.5, 15: 8, 20: 28 },
+    lamp: { 8: 0.45, 10: 1.0, 12: 2.2, 15: 7, 20: 22 },
+    ruby: { 8: 0.4, 10: 0.9, 12: 1.8, 15: 5.5, 20: 18 },
+    scarab: { 8: 0.32, 10: 0.7, 12: 1.4, 15: 4.2, 20: 12 },
+    scroll: { 8: 0.26, 10: 0.55, 12: 1.1, 15: 3.2, 20: 9 },
+    ankh: { 8: 0.22, 10: 0.5, 12: 1.0, 15: 2.8, 20: 7.5 },
+    coin: { 8: 0.18, 10: 0.38, 12: 0.75, 15: 2.2, 20: 5.5 },
+    blue: { 8: 0.16, 10: 0.34, 12: 0.68, 15: 2.0, 20: 5.0 },
+    green: { 8: 0.15, 10: 0.3, 12: 0.62, 15: 1.8, 20: 4.5 },
+  },
+};
+
+const $ = (selector) => document.querySelector(selector);
+const $$ = (selector) => [...document.querySelectorAll(selector)];
+
+const STARTUP_ASSETS = [
+  "./assets/loader-bg.webp",
+  "./assets/loader-logo.png",
+  "./assets/mirage-wallpaper-v3.webp",
+  "./assets/pyramid-bg-clean.webp",
+  "./assets/carpet-room-bg-night.webp",
+  "./assets/pharaoh-room-bg-v2.webp",
+  "./assets/balance-frame.svg",
+  "./assets/balance-ruby.svg",
+  "./assets/lines-switcher.svg",
+  "./assets/stake-panel-live.svg",
+  "./assets/stake-minus.svg",
+  "./assets/stake-plus.svg",
+  "./assets/stake-2x.svg",
+  "./assets/stake-max.svg",
+  "./assets/control-lamp-icon.png",
+  "./assets/risk-high-icon.png",
+  "./assets/risk-medium-icon.png",
+  "./assets/risk-low-icon.png",
+  "./assets/carpet-hero-clean.svg",
+  "./assets/monkey-left.png",
+  "./assets/monkey-right.png",
+  "./assets/pharaoh-icons-lite/pharaoh-mask.webp",
+  "./assets/pharaoh-icons-lite/genie-lamp.webp",
+  "./assets/pharaoh-icons-lite/ruby.webp",
+  "./assets/pharaoh-icons-lite/scarab.webp",
+  "./assets/pharaoh-icons-lite/scroll.webp",
+  "./assets/pharaoh-icons-lite/ankh.webp",
+  "./assets/pharaoh-icons-lite/coin.webp",
+  "./assets/pharaoh-icons-lite/blue-gem.webp",
+  "./assets/pharaoh-icons-lite/green-gem.webp",
+  "./assets/pharaoh-icons-lite/sun-scatter.webp",
+  "./assets/pharaoh-icons-lite/multiplier-orb.webp",
+  "./assets/pharaoh-icons/genie-reaction.png",
+];
+const STARTUP_MIN_VISIBLE_MS = 900;
+const STARTUP_MAX_WAIT_MS = 5200;
+
+function versionedAssetUrl(src) {
+  return src;
+}
+
+function waitForAnimationFrame() {
+  return new Promise((resolve) => requestAnimationFrame(() => resolve()));
+}
+
+function wait(ms) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+function preloadImage(src) {
+  return new Promise((resolve) => {
+    const image = new Image();
+    const done = (ok) => resolve({ src, ok });
+    image.onload = async () => {
+      try {
+        if (image.decode) await image.decode();
+      } catch (error) {
+        // Some WebViews report SVG decode inconsistently after load; the asset is still usable.
+      }
+      done(true);
+    };
+    image.onerror = () => done(false);
+    image.src = versionedAssetUrl(src);
+  });
+}
+
+async function preloadStartupAssets() {
+  const imagePreload = Promise.all(STARTUP_ASSETS.map(preloadImage));
+  const fontPreload = document.fonts?.ready ? document.fonts.ready.catch(() => null) : Promise.resolve(null);
+  await Promise.race([
+    Promise.all([imagePreload, fontPreload]),
+    wait(STARTUP_MAX_WAIT_MS),
+  ]);
+}
+
+async function settleInitialPaint() {
+  render();
+  drawHomeBoard();
+  renderCarpet();
+  startCarpetTrailRenderer();
+  await waitForAnimationFrame();
+  drawHomeBoard();
+  renderCarpet();
+  await waitForAnimationFrame();
+}
+
+async function prepareInitialAppPaint() {
+  const startedAt = performance.now();
+  try {
+    await preloadStartupAssets();
+    if (window.HTMLCanvasElement) {
+      await Promise.race([
+        pharaohCanvasRenderer.preload().catch(() => null),
+        wait(900),
+      ]);
+    }
+    await settleInitialPaint();
+  } finally {
+    const elapsed = performance.now() - startedAt;
+    if (elapsed < STARTUP_MIN_VISIBLE_MS) await wait(STARTUP_MIN_VISIBLE_MS - elapsed);
+    document.body.classList.add("app-ready");
+    window.setTimeout(() => {
+      document.body.classList.remove("app-loading");
+      const loader = $("#app-loader");
+      if (loader) loader.setAttribute("aria-hidden", "true");
+    }, 620);
+  }
+}
+
+function format(value) {
+  return Math.round(value).toLocaleString("ru-RU");
+}
+
+function floorMultiplier(value) {
+  return Math.floor(value * 100) / 100;
+}
+
+function formatCarpetMultiplier(value) {
+  return floorMultiplier(value).toFixed(2);
+}
+
+function getSlotWeightedSymbol(context = "base") {
+  const multiplierBoost = context === "free" ? 1.7 : 1;
+  const symbols = SLOT_CONFIG.symbols.map((symbol) => {
+    if (symbol.id === "multi") return { ...symbol, weight: symbol.weight * multiplierBoost };
+    return symbol;
+  });
+  const total = symbols.reduce((sum, symbol) => sum + symbol.weight, 0);
+  let roll = Math.random() * total;
+  for (const symbol of symbols) {
+    roll -= symbol.weight;
+    if (roll <= 0) return symbol;
+  }
+  return symbols[symbols.length - 1];
+}
+
+function getSlotSymbol(id) {
+  return SLOT_CONFIG.symbols.find((symbol) => symbol.id === id) || SLOT_CONFIG.symbols[0];
+}
+
+function createSlotGrid(context = "base") {
+  return Array.from({ length: SLOT_CONFIG.gridRows }, () =>
+    Array.from({ length: SLOT_CONFIG.gridColumns }, () => getSlotWeightedSymbol(context).id)
+  );
+}
+
+function createSlotPreviewGrid(context = "base") {
+  return createSlotGrid(context);
+}
+
+function getSlotPayoutMultiplier(symbolId, count) {
+  const table = SLOT_CONFIG.payouts[symbolId];
+  if (!table) return 0;
+  const thresholds = Object.keys(table).map(Number).sort((a, b) => a - b);
+  let multiplier = 0;
+  thresholds.forEach((threshold) => {
+    if (count >= threshold) multiplier = table[threshold];
+  });
+  return multiplier * SLOT_CONFIG.payoutScale;
+}
+
+function evaluateSlotGrid(grid) {
+  const counts = new Map();
+  const positions = new Map();
+  let scatterCount = 0;
+  let multiplierCount = 0;
+
+  grid.forEach((row, rowIndex) => {
+    row.forEach((symbolId, colIndex) => {
+      if (symbolId === "scatter") {
+        scatterCount += 1;
+        return;
+      }
+      if (symbolId === "multi") {
+        multiplierCount += 1;
+        return;
+      }
+      counts.set(symbolId, (counts.get(symbolId) || 0) + 1);
+      if (!positions.has(symbolId)) positions.set(symbolId, []);
+      positions.get(symbolId).push(`${rowIndex}-${colIndex}`);
+    });
+  });
+
+  const wins = [];
+  counts.forEach((count, symbolId) => {
+    if (count < SLOT_CONFIG.minWinCount) return;
+    const multiplier = getSlotPayoutMultiplier(symbolId, count);
+    if (multiplier <= 0) return;
+    wins.push({
+      symbolId,
+      count,
+      multiplier,
+      keys: positions.get(symbolId) || [],
+    });
+  });
+
+  return { wins, scatterCount, multiplierCount };
+}
+
+function cascadeSlotGrid(grid, winningKeys, context = "base") {
+  const next = grid.map((row) => row.slice());
+  const columns = SLOT_CONFIG.gridColumns;
+  const rows = SLOT_CONFIG.gridRows;
+
+  for (let col = 0; col < columns; col += 1) {
+    const remaining = [];
+    for (let row = rows - 1; row >= 0; row -= 1) {
+      if (!winningKeys.has(`${row}-${col}`)) remaining.push(next[row][col]);
+    }
+    for (let row = rows - 1; row >= 0; row -= 1) {
+      next[row][col] = remaining.length > 0 ? remaining.shift() : getSlotWeightedSymbol(context).id;
+    }
+  }
+
+  return next;
+}
+
+function createSlotSpinResult(stake, context = "base") {
+  let grid = createSlotGrid(context);
+  const steps = [];
+  let totalMultiplier = 0;
+  let totalWin = 0;
+  let freeSpinsAwarded = 0;
+  let cascadeIndex = 0;
+
+  while (cascadeIndex < 10) {
+    const evaluation = evaluateSlotGrid(grid);
+    const winningKeys = new Set(evaluation.wins.flatMap((win) => win.keys));
+    const cascadeMultiplier = evaluation.wins.reduce((sum, win) => sum + win.multiplier, 0);
+    const randomMultiplier = evaluation.wins.length > 0 && evaluation.multiplierCount > 0
+      ? evaluation.multiplierCount * (2 + Math.floor(Math.random() * (context === "free" ? 10 : 4)))
+      : 0;
+    const appliedMultiplier = randomMultiplier > 0 ? randomMultiplier : 1;
+    const cascadeWin = Math.round(stake * cascadeMultiplier * appliedMultiplier);
+
+    if (cascadeIndex === 0 && evaluation.scatterCount >= 4) {
+      freeSpinsAwarded = evaluation.scatterCount >= 6 ? 15 : evaluation.scatterCount === 5 ? 12 : 10;
+    }
+
+    steps.push({
+      grid: grid.map((row) => row.slice()),
+      wins: evaluation.wins,
+      winningKeys,
+      multiplier: appliedMultiplier,
+      win: cascadeWin,
+    });
+
+    if (evaluation.wins.length === 0) break;
+    totalMultiplier += cascadeMultiplier * appliedMultiplier;
+    totalWin += cascadeWin;
+    grid = cascadeSlotGrid(grid, winningKeys, context);
+    cascadeIndex += 1;
+  }
+
+  const maxWin = stake * SLOT_CONFIG.maxWinMultiplier;
+  if (totalWin > maxWin) totalWin = maxWin;
+  return { steps, totalWin, totalMultiplier, freeSpinsAwarded };
+}
+
+function createSlotRoundResult(stake, { bonusBuy = false, freeSpinOnly = false } = {}) {
+  const steps = [];
+  let totalWin = 0;
+  let freeSpinsAwarded = bonusBuy ? SLOT_CONFIG.bonusBuy.freeSpins : 0;
+  let freeSpinsPlayed = 0;
+  let retriggers = 0;
+  const maxWin = stake * SLOT_CONFIG.maxWinMultiplier;
+
+  const addSpin = (result, phase, freeSpinIndex = 0) => {
+    result.steps.forEach((step) => {
+      steps.push({ ...step, phase, freeSpinIndex });
+    });
+    totalWin = Math.min(maxWin, totalWin + result.totalWin);
+  };
+
+  if (!bonusBuy && !freeSpinOnly) {
+    const base = createSlotSpinResult(stake, "base");
+    addSpin(base, "base");
+    freeSpinsAwarded += base.freeSpinsAwarded;
+  }
+
+  let remainingFreeSpins = freeSpinOnly ? 1 : freeSpinsAwarded;
+  while (remainingFreeSpins > 0 && freeSpinsPlayed < 100 && totalWin < maxWin) {
+    remainingFreeSpins -= 1;
+    freeSpinsPlayed += 1;
+    const freeSpin = createSlotSpinResult(stake, "free");
+    addSpin(freeSpin, "free", freeSpinsPlayed);
+    if (freeSpin.freeSpinsAwarded > 0) {
+      retriggers += 1;
+      remainingFreeSpins += freeSpin.freeSpinsAwarded;
+    }
+  }
+
+  return {
+    steps,
+    totalWin,
+    freeSpinsAwarded,
+    freeSpinsPlayed,
+    retriggers,
+  };
+}
+
+function createSlotSymbolIcon(symbol, className = "slot-symbol-orb") {
+  const orb = document.createElement("span");
+  orb.className = `${className}${symbol.icon ? " with-image" : ""}`;
+  orb.style.setProperty("--symbol-color", symbol.color);
+  orb.dataset.symbol = symbol.id;
+
+  if (symbol.icon) {
+    const image = document.createElement("img");
+    image.className = "slot-symbol-image";
+    image.src = versionedAssetUrl(symbol.icon);
+    image.alt = "";
+    image.decoding = "async";
+    image.loading = "eager";
+    image.setAttribute("aria-hidden", "true");
+    orb.appendChild(image);
+  } else {
+    const mark = document.createElement("span");
+    mark.className = "slot-symbol-mark";
+    mark.textContent = symbol.label;
+    orb.appendChild(mark);
+  }
+
+  return orb;
+}
+
+class PharaohCanvasRenderer {
+  constructor() {
+    this.root = null;
+    this.canvas = null;
+    this.ctx = null;
+    this.images = new Map();
+    this.imagePromises = new Map();
+    this.frameId = 0;
+    this.ready = false;
+    this.lastGrid = null;
+    this.lastWinningKeys = new Set();
+    this.dpr = 1;
+    this.width = 0;
+    this.height = 0;
+    this.resizeObserver = null;
+    this.resizeHandler = () => this.scheduleRedraw();
+    this.redrawFrame = 0;
+    this.lastWins = [];
+  }
+
+  init(root) {
+    if (!root || this.root === root) {
+      this.resize();
+      return;
+    }
+    this.cancel();
+    this.detachObservers();
+    this.root = root;
+    root.classList.add("slot-grid-canvas-mode");
+    root.innerHTML = "";
+    this.canvas = document.createElement("canvas");
+    this.canvas.className = "slot-grid-canvas";
+    this.canvas.setAttribute("aria-hidden", "true");
+    root.appendChild(this.canvas);
+    this.ctx = this.canvas.getContext("2d", { alpha: true });
+    this.ready = Boolean(this.ctx);
+    this.resize();
+    this.attachObservers();
+  }
+
+  cancel() {
+    if (this.frameId) cancelAnimationFrame(this.frameId);
+    this.frameId = 0;
+    if (this.redrawFrame) cancelAnimationFrame(this.redrawFrame);
+    this.redrawFrame = 0;
+  }
+
+  attachObservers() {
+    if (!this.root) return;
+    if (window.ResizeObserver && !this.resizeObserver) {
+      this.resizeObserver = new ResizeObserver(() => this.scheduleRedraw());
+      this.resizeObserver.observe(this.root);
+    }
+    window.addEventListener("resize", this.resizeHandler, { passive: true });
+    window.visualViewport?.addEventListener("resize", this.resizeHandler, { passive: true });
+  }
+
+  detachObservers() {
+    this.resizeObserver?.disconnect();
+    this.resizeObserver = null;
+    window.removeEventListener("resize", this.resizeHandler);
+    window.visualViewport?.removeEventListener("resize", this.resizeHandler);
+  }
+
+  scheduleRedraw() {
+    if (!this.lastGrid || this.redrawFrame) return;
+    this.redrawFrame = requestAnimationFrame(() => {
+      this.redrawFrame = 0;
+      this.resize();
+      if (this.lastGrid) this.drawGrid(this.lastGrid, { winningKeys: this.lastWinningKeys, wins: this.lastWins });
+    });
+  }
+
+  resize() {
+    if (!this.root || !this.canvas || !this.ctx) return;
+    const dpr = Math.min(2, window.devicePixelRatio || 1);
+    const width = Math.max(1, Math.round(this.root.offsetWidth || this.root.clientWidth || this.root.getBoundingClientRect().width));
+    const height = Math.max(1, Math.round(this.root.offsetHeight || this.root.clientHeight || this.root.getBoundingClientRect().height));
+    if (width === this.width && height === this.height && dpr === this.dpr) return;
+    this.width = width;
+    this.height = height;
+    this.dpr = dpr;
+    this.canvas.width = Math.round(width * dpr);
+    this.canvas.height = Math.round(height * dpr);
+    this.canvas.style.width = `${width}px`;
+    this.canvas.style.height = `${height}px`;
+    this.ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    if (this.lastGrid) this.drawGrid(this.lastGrid, { winningKeys: this.lastWinningKeys, wins: this.lastWins });
+  }
+
+  getSymbol(symbolId) {
+    return SLOT_CONFIG.symbols.find((symbol) => symbol.id === symbolId) || SLOT_CONFIG.symbols[0];
+  }
+
+  loadImage(symbol) {
+    if (!symbol?.icon) return Promise.resolve(null);
+    if (this.images.has(symbol.id)) return Promise.resolve(this.images.get(symbol.id));
+    if (this.imagePromises.has(symbol.id)) return this.imagePromises.get(symbol.id);
+    const promise = new Promise((resolve) => {
+      const img = new Image();
+      img.decoding = "async";
+      img.onload = () => {
+        this.images.set(symbol.id, img);
+        this.scheduleRedraw();
+        resolve(img);
+      };
+      img.onerror = () => {
+        this.scheduleRedraw();
+        resolve(null);
+      };
+      img.src = versionedAssetUrl(symbol.icon);
+    });
+    this.imagePromises.set(symbol.id, promise);
+    return promise;
+  }
+
+  async preload() {
+    await Promise.all(SLOT_CONFIG.symbols.map((symbol) => this.loadImage(symbol)));
+    this.scheduleRedraw();
+  }
+
+  getLayout() {
+    this.resize();
+    const cols = SLOT_CONFIG.gridColumns;
+    const rows = SLOT_CONFIG.gridRows;
+    const pad = Math.max(8, Math.min(12, this.width * 0.032));
+    const gap = Math.max(4, Math.min(7, this.width * 0.018));
+    const cellW = (this.width - pad * 2 - gap * (cols - 1)) / cols;
+    const cellH = (this.height - pad * 2 - gap * (rows - 1)) / rows;
+    return { cols, rows, pad, gap, cellW, cellH };
+  }
+
+  clear() {
+    if (!this.ctx) return;
+    this.ctx.clearRect(0, 0, this.width, this.height);
+  }
+
+  roundRect(x, y, w, h, r) {
+    const ctx = this.ctx;
+    const radius = Math.max(0, Math.min(r, w / 2, h / 2));
+    ctx.beginPath();
+    ctx.moveTo(x + radius, y);
+    ctx.arcTo(x + w, y, x + w, y + h, radius);
+    ctx.arcTo(x + w, y + h, x, y + h, radius);
+    ctx.arcTo(x, y + h, x, y, radius);
+    ctx.arcTo(x, y, x + w, y, radius);
+    ctx.closePath();
+  }
+
+  drawBackground() {
+    if (!this.ctx) return;
+    const ctx = this.ctx;
+    this.clear();
+    const bg = ctx.createRadialGradient(this.width * 0.5, this.height * 0.32, 6, this.width * 0.5, this.height * 0.48, this.width * 0.74);
+    bg.addColorStop(0, "rgba(255, 214, 126, 0.18)");
+    bg.addColorStop(0.5, "rgba(77, 31, 88, 0.5)");
+    bg.addColorStop(1, "rgba(10, 8, 24, 0.84)");
+    ctx.fillStyle = bg;
+    ctx.fillRect(0, 0, this.width, this.height);
+
+    const topGlow = ctx.createLinearGradient(0, 0, 0, this.height);
+    topGlow.addColorStop(0, "rgba(255, 213, 122, 0.1)");
+    topGlow.addColorStop(0.28, "rgba(255, 93, 193, 0.05)");
+    topGlow.addColorStop(1, "rgba(0, 0, 0, 0.2)");
+    ctx.fillStyle = topGlow;
+    ctx.fillRect(0, 0, this.width, this.height);
+  }
+
+  drawCellFrame(x, y, w, h, symbol, options = {}) {
+    const ctx = this.ctx;
+    const { winning = false, alpha = 1, scale = 1, shimmer = 0 } = options;
+    const cx = x + w / 2;
+    const cy = y + h / 2;
+    const sw = w * scale;
+    const sh = h * scale;
+    const sx = cx - sw / 2;
+    const sy = cy - sh / 2;
+    const radius = Math.max(7, Math.min(11, sw * 0.16));
+    const isFeature = symbol.tier === "scatter" || symbol.tier === "multi";
+    const isPremium = symbol.tier === "high" || isFeature;
+    const outer = ctx.createLinearGradient(sx, sy, sx + sw, sy + sh);
+    outer.addColorStop(0, isPremium ? "rgba(255, 232, 158, 0.94)" : "rgba(255, 211, 134, 0.72)");
+    outer.addColorStop(0.46, isFeature ? "rgba(255, 103, 207, 0.78)" : "rgba(178, 83, 153, 0.5)");
+    outer.addColorStop(1, "rgba(58, 42, 103, 0.56)");
+    const fill = ctx.createRadialGradient(cx, cy - sh * 0.16, sw * 0.08, cx, cy + sh * 0.2, sw * 0.72);
+    fill.addColorStop(0, isFeature ? "rgba(255, 214, 134, 0.3)" : "rgba(255, 225, 154, 0.16)");
+    fill.addColorStop(0.42, isPremium ? "rgba(54, 27, 77, 0.8)" : "rgba(38, 27, 72, 0.78)");
+    fill.addColorStop(1, "rgba(10, 8, 27, 0.92)");
+
+    ctx.save();
+    ctx.globalAlpha = alpha;
+    if (winning) {
+      ctx.globalCompositeOperation = "lighter";
+      ctx.shadowColor = "rgba(255, 224, 142, 0.86)";
+      ctx.shadowBlur = 16 + shimmer * 8;
+      ctx.fillStyle = "rgba(255, 218, 132, 0.22)";
+      this.roundRect(sx - 1.5, sy - 1.5, sw + 3, sh + 3, radius + 2);
+      ctx.fill();
+      ctx.globalCompositeOperation = "source-over";
+    }
+
+    ctx.shadowColor = "rgba(0, 0, 0, 0.42)";
+    ctx.shadowBlur = 8;
+    ctx.fillStyle = "rgba(6, 4, 18, 0.72)";
+    this.roundRect(sx - 1, sy + 1.5, sw + 2, sh + 1, radius + 1);
+    ctx.fill();
+
+    ctx.fillStyle = outer;
+    this.roundRect(sx, sy, sw, sh, radius);
+    ctx.fill();
+    ctx.shadowBlur = 0;
+    ctx.fillStyle = fill;
+    this.roundRect(sx + 1.2, sy + 1.2, sw - 2.4, sh - 2.4, radius - 1.2);
+    ctx.fill();
+
+    const gloss = ctx.createLinearGradient(sx, sy, sx, sy + sh);
+    gloss.addColorStop(0, "rgba(255, 255, 255, 0.16)");
+    gloss.addColorStop(0.2, "rgba(255, 255, 255, 0.035)");
+    gloss.addColorStop(1, "rgba(0, 0, 0, 0.24)");
+    ctx.fillStyle = gloss;
+    this.roundRect(sx + 2, sy + 2, sw - 4, sh - 4, radius - 2);
+    ctx.fill();
+
+    ctx.strokeStyle = winning ? "rgba(255, 238, 172, 0.98)" : isPremium ? "rgba(255, 218, 134, 0.7)" : "rgba(255, 204, 126, 0.44)";
+    ctx.lineWidth = winning ? 2 : 1;
+    this.roundRect(sx + 0.5, sy + 0.5, sw - 1, sh - 1, radius);
+    ctx.stroke();
+
+    ctx.strokeStyle = "rgba(255, 255, 255, 0.12)";
+    ctx.lineWidth = 0.7;
+    this.roundRect(sx + 3, sy + 3, sw - 6, sh - 6, radius - 3);
+    ctx.stroke();
+    ctx.restore();
+  }
+
+  drawSymbol(symbolId, x, y, w, h, options = {}) {
+    if (!this.ctx) return;
+    const symbol = this.getSymbol(symbolId);
+    const ctx = this.ctx;
+    const { winning = false, alpha = 1, scale = 1, offsetY = 0, shimmer = 0 } = options;
+    this.drawCellFrame(x, y + offsetY, w, h, symbol, { winning, alpha, scale, shimmer });
+
+    const cx = x + w / 2;
+    const cy = y + offsetY + h / 2;
+    const img = this.images.get(symbol.id);
+    const isFeature = symbol.tier === "scatter" || symbol.tier === "multi";
+    const iconRatio = symbol.tier === "scatter" ? 0.88 : symbol.tier === "multi" ? 0.9 : symbol.tier === "high" ? 0.84 : 0.82;
+    const iconSize = Math.min(w, h) * iconRatio * scale;
+    ctx.save();
+    ctx.globalAlpha = alpha;
+    ctx.fillStyle = "rgba(0, 0, 0, 0.24)";
+    ctx.beginPath();
+    ctx.ellipse(cx, cy + iconSize * 0.36, iconSize * 0.32, iconSize * 0.08, 0, 0, Math.PI * 2);
+    ctx.fill();
+
+    ctx.shadowColor = winning ? "rgba(255, 239, 169, 0.96)" : symbol.color;
+    ctx.shadowBlur = winning ? 16 : isFeature ? 7 : 4;
+    if (img) {
+      ctx.drawImage(img, cx - iconSize / 2, cy - iconSize / 2, iconSize, iconSize);
+    } else {
+      ctx.fillStyle = symbol.color;
+      ctx.font = `800 ${Math.round(iconSize * 0.72)}px Inter, sans-serif`;
+      ctx.textAlign = "center";
+      ctx.textBaseline = "middle";
+      ctx.fillText(symbol.label, cx, cy);
+    }
+    ctx.restore();
+  }
+
+  getWinPoints(winningKeys, limit = 14) {
+    if (!this.ctx || winningKeys.size < 2) return;
+    const { pad, gap, cellW, cellH } = this.getLayout();
+    return [...winningKeys].slice(0, limit).map((key) => {
+      const [row, col] = key.split("-").map(Number);
+      return {
+        row,
+        col,
+        x: pad + col * (cellW + gap) + cellW / 2,
+        y: pad + row * (cellH + gap) + cellH / 2,
+      };
+    }).sort((a, b) => a.y - b.y || a.x - b.x);
+  }
+
+  drawWinGroupNetwork(wins = [], progress = 1) {
+    if (!this.ctx || !wins?.length) return false;
+    const { cellW, cellH } = this.getLayout();
+    const ctx = this.ctx;
+    let drew = false;
+
+    ctx.save();
+    ctx.globalCompositeOperation = "lighter";
+    wins.slice(0, 3).forEach((win, groupIndex) => {
+      const keys = new Set(win.keys || []);
+      const points = this.getWinPoints(keys, 18);
+      if (!points || points.length < 2) return;
+      drew = true;
+      const color = groupIndex === 0
+        ? { core: "rgba(255, 232, 132, 0.92)", glow: "rgba(255, 104, 213, 0.34)", spark: "rgba(255, 248, 190, 0.9)" }
+        : groupIndex === 1
+          ? { core: "rgba(111, 238, 225, 0.82)", glow: "rgba(255, 207, 115, 0.24)", spark: "rgba(136, 248, 236, 0.82)" }
+          : { core: "rgba(255, 119, 210, 0.82)", glow: "rgba(255, 219, 122, 0.22)", spark: "rgba(255, 168, 224, 0.82)" };
+
+      const center = points.reduce((acc, point) => {
+        acc.x += point.x;
+        acc.y += point.y;
+        return acc;
+      }, { x: 0, y: 0 });
+      center.x /= points.length;
+      center.y /= points.length;
+
+      points.forEach((point, index) => {
+        const branchProgress = Math.max(0, Math.min(1, progress * 1.26 - index * 0.022));
+        if (branchProgress <= 0) return;
+        const targetX = center.x + (point.x - center.x) * branchProgress;
+        const targetY = center.y + (point.y - center.y) * branchProgress;
+        const bendX = (center.x + targetX) / 2 + Math.sin(progress * 8 + index * 1.7) * cellW * 0.11;
+        const bendY = (center.y + targetY) / 2 + Math.cos(progress * 6 + index * 1.3) * cellH * 0.08;
+
+        ctx.beginPath();
+        ctx.moveTo(center.x, center.y);
+        ctx.quadraticCurveTo(bendX, bendY, targetX, targetY);
+        ctx.strokeStyle = color.glow;
+        ctx.lineWidth = 5.2;
+        ctx.shadowColor = color.glow;
+        ctx.shadowBlur = 16;
+        ctx.stroke();
+
+        ctx.beginPath();
+        ctx.moveTo(center.x, center.y);
+        ctx.quadraticCurveTo(bendX, bendY, targetX, targetY);
+        ctx.strokeStyle = color.core;
+        ctx.lineWidth = 1.35;
+        ctx.shadowColor = color.core;
+        ctx.shadowBlur = 7;
+        ctx.stroke();
+      });
+
+      const haloRadius = Math.min(cellW, cellH) * (0.36 + Math.sin(progress * Math.PI) * 0.16);
+      const halo = ctx.createRadialGradient(center.x, center.y, 0, center.x, center.y, haloRadius * 2.3);
+      halo.addColorStop(0, color.spark);
+      halo.addColorStop(0.34, color.glow);
+      halo.addColorStop(1, "rgba(255, 255, 255, 0)");
+      ctx.fillStyle = halo;
+      ctx.beginPath();
+      ctx.arc(center.x, center.y, haloRadius * 2.3, 0, Math.PI * 2);
+      ctx.fill();
+
+      points.slice(0, 16).forEach((point, pointIndex) => {
+        const orbit = progress * Math.PI * 2 + pointIndex * 0.9 + groupIndex;
+        const radius = Math.min(cellW, cellH) * (0.12 + 0.1 * Math.sin(progress * Math.PI + pointIndex));
+        const px = point.x + Math.cos(orbit) * radius;
+        const py = point.y + Math.sin(orbit * 1.18) * radius;
+        ctx.fillStyle = pointIndex % 2 === 0 ? color.spark : color.core;
+        ctx.beginPath();
+        ctx.arc(px, py, Math.max(1.6, cellW * 0.035), 0, Math.PI * 2);
+        ctx.fill();
+      });
+    });
+    ctx.restore();
+    return drew;
+  }
+
+  drawWinLinks(winningKeys, progress = 1) {
+    if (!this.ctx || winningKeys.size < 2) return;
+    const { cellW, cellH } = this.getLayout();
+    const points = this.getWinPoints(winningKeys);
+    if (!points?.length) return;
+    const ctx = this.ctx;
+    ctx.save();
+    ctx.globalCompositeOperation = "lighter";
+    ctx.lineCap = "round";
+    ctx.lineJoin = "round";
+    for (let pass = 0; pass < 2; pass += 1) {
+      ctx.beginPath();
+      points.forEach((point, index) => {
+        if (index === 0) ctx.moveTo(point.x, point.y);
+        else {
+          const prev = points[index - 1];
+          const midX = (prev.x + point.x) / 2;
+          const wobble = Math.sin((index + progress * 4) * 1.8) * cellW * 0.16;
+          ctx.quadraticCurveTo(midX + wobble, prev.y + cellH * 0.18, point.x, point.y);
+        }
+      });
+      ctx.strokeStyle = pass === 0 ? "rgba(255, 219, 121, 0.28)" : "rgba(255, 91, 207, 0.72)";
+      ctx.lineWidth = pass === 0 ? 6 : 1.8;
+      ctx.shadowColor = "rgba(255, 102, 214, 0.8)";
+      ctx.shadowBlur = pass === 0 ? 18 : 8;
+      ctx.stroke();
+    }
+
+    points.forEach((point, index) => {
+      const orbit = progress * Math.PI * 2 + index;
+      const px = point.x + Math.cos(orbit) * cellW * 0.22;
+      const py = point.y + Math.sin(orbit * 1.3) * cellH * 0.18;
+      const spark = ctx.createRadialGradient(px, py, 0, px, py, Math.max(4, cellW * 0.16));
+      spark.addColorStop(0, "rgba(255, 246, 178, 0.9)");
+      spark.addColorStop(0.45, "rgba(255, 95, 215, 0.46)");
+      spark.addColorStop(1, "rgba(255, 95, 215, 0)");
+      ctx.fillStyle = spark;
+      ctx.beginPath();
+      ctx.arc(px, py, Math.max(3, cellW * 0.1), 0, Math.PI * 2);
+      ctx.fill();
+    });
+    ctx.restore();
+  }
+
+  drawWinBurst(winningKeys, progress = 1) {
+    if (!this.ctx || !winningKeys?.size) return;
+    const { cellW, cellH } = this.getLayout();
+    const points = this.getWinPoints(winningKeys, 18);
+    if (!points?.length) return;
+    const ctx = this.ctx;
+    const wave = Math.sin(progress * Math.PI);
+    ctx.save();
+    ctx.globalCompositeOperation = "lighter";
+    points.forEach((point, index) => {
+      const phase = progress * Math.PI * 2 + index * 0.72;
+      const ringRadius = (0.18 + progress * 0.52) * Math.min(cellW, cellH);
+      ctx.strokeStyle = `rgba(255, ${Math.round(196 + wave * 42)}, 122, ${0.38 * (1 - progress) + 0.14})`;
+      ctx.lineWidth = 1.2 + wave * 1.1;
+      ctx.beginPath();
+      ctx.arc(point.x, point.y, ringRadius, 0, Math.PI * 2);
+      ctx.stroke();
+
+      for (let sparkIndex = 0; sparkIndex < 3; sparkIndex += 1) {
+        const angle = phase + sparkIndex * 2.1;
+        const distance = Math.min(cellW, cellH) * (0.24 + progress * (0.22 + sparkIndex * 0.06));
+        const px = point.x + Math.cos(angle) * distance;
+        const py = point.y + Math.sin(angle * 1.15) * distance;
+        const size = Math.max(1.4, Math.min(cellW, cellH) * (0.035 + wave * 0.025));
+        ctx.fillStyle = sparkIndex === 1 ? "rgba(255, 95, 213, 0.62)" : "rgba(255, 235, 156, 0.72)";
+        ctx.beginPath();
+        ctx.arc(px, py, size, 0, Math.PI * 2);
+        ctx.fill();
+      }
+    });
+    ctx.restore();
+  }
+
+  drawGrid(grid, options = {}) {
+    if (!this.ready || !grid?.length) return;
+    this.lastGrid = grid.map((row) => row.slice());
+    this.lastWinningKeys = options.winningKeys || new Set();
+    this.lastWins = options.wins || [];
+    const { pad, gap, cellW, cellH } = this.getLayout();
+    this.drawBackground();
+    grid.forEach((row, rowIndex) => {
+      row.forEach((symbolId, colIndex) => {
+        const key = `${rowIndex}-${colIndex}`;
+        const x = pad + colIndex * (cellW + gap);
+        const y = pad + rowIndex * (cellH + gap);
+        const winning = this.lastWinningKeys.has(key);
+        this.drawSymbol(symbolId, x, y, cellW, cellH, { winning, scale: winning ? 1.03 : 1 });
+      });
+    });
+    if (this.lastWinningKeys.size > 1 && !this.drawWinGroupNetwork(this.lastWins)) {
+      this.drawWinLinks(this.lastWinningKeys);
+    }
+  }
+
+  async animate(duration, draw) {
+    this.cancel();
+    const start = performance.now();
+    return new Promise((resolve) => {
+      const tick = (now) => {
+        const progress = Math.min(1, (now - start) / duration);
+        draw(progress, now);
+        if (progress >= 1) {
+          this.frameId = 0;
+          resolve();
+          return;
+        }
+        this.frameId = requestAnimationFrame(tick);
+      };
+      this.frameId = requestAnimationFrame(tick);
+    });
+  }
+
+  async animateReel(targetGrid, context = "base", duration = 760) {
+    await this.preload();
+    const { pad, gap, cellW, cellH, cols, rows } = this.getLayout();
+    const columnRandoms = Array.from({ length: cols }, () =>
+      Array.from({ length: rows + 4 }, () => getSlotWeightedSymbol(context).id)
+    );
+    await this.animate(duration, (progress) => {
+      const ease = progress < 0.5 ? 4 * progress * progress * progress : 1 - Math.pow(-2 * progress + 2, 3) / 2;
+      this.drawBackground();
+      for (let col = 0; col < cols; col += 1) {
+        const colDelay = col * 0.055;
+        const local = Math.max(0, Math.min(1, (progress - colDelay) / (1 - colDelay)));
+        const settle = 1 - Math.pow(1 - local, 3);
+        const offset = settle * (cellH + gap) * 2.65;
+        const columnScale = 0.94 + ease * 0.06;
+        for (let row = -3; row < rows; row += 1) {
+          const symbolId = local > 0.86 && row >= 0 ? targetGrid[row][col] : columnRandoms[col][row + 3];
+          const x = pad + col * (cellW + gap);
+          const y = pad + row * (cellH + gap) + offset % (cellH + gap);
+          this.drawSymbol(symbolId, x, y, cellW, cellH, { alpha: row < 0 ? 0.4 : 1, scale: columnScale });
+        }
+      }
+    });
+    this.drawGrid(targetGrid);
+  }
+
+  async animateDrop(grid, duration = 330) {
+    await this.preload();
+    const { pad, gap, cellW, cellH } = this.getLayout();
+    await this.animate(duration, (progress) => {
+      const ease = 1 - Math.pow(1 - progress, 3);
+      this.drawBackground();
+      grid.forEach((row, rowIndex) => {
+        row.forEach((symbolId, colIndex) => {
+          const x = pad + colIndex * (cellW + gap);
+          const y = pad + rowIndex * (cellH + gap);
+          const offsetY = -(1 - ease) * (cellH + gap) * (1.4 + rowIndex * 0.18);
+          const bounce = Math.sin(Math.min(1, ease) * Math.PI) * 2.5;
+          this.drawSymbol(symbolId, x, y, cellW, cellH, { offsetY: offsetY - bounce, alpha: 0.45 + ease * 0.55 });
+        });
+      });
+    });
+    this.drawGrid(grid);
+  }
+
+  async animateWins(grid, winningKeys, wins = [], duration = 620, emptyDelay = 120) {
+    await this.preload();
+    const keys = winningKeys || new Set();
+    if (!keys.size) {
+      this.drawGrid(grid);
+      await sleep(emptyDelay);
+      return;
+    }
+    await this.animate(duration, (progress) => {
+      const pulse = 1 + Math.sin(progress * Math.PI * 4) * 0.035;
+      const shimmer = 0.5 + Math.sin(progress * Math.PI * 6) * 0.5;
+      const { pad, gap, cellW, cellH } = this.getLayout();
+      this.drawBackground();
+      if (!this.drawWinGroupNetwork(wins, progress)) this.drawWinLinks(keys, progress);
+      grid.forEach((row, rowIndex) => {
+        row.forEach((symbolId, colIndex) => {
+          const key = `${rowIndex}-${colIndex}`;
+          const x = pad + colIndex * (cellW + gap);
+          const y = pad + rowIndex * (cellH + gap);
+          const isWinning = keys.has(key);
+          this.drawSymbol(symbolId, x, y, cellW, cellH, { winning: isWinning, scale: isWinning ? pulse : 1, shimmer });
+        });
+      });
+      this.drawWinBurst(keys, progress);
+    });
+  }
+
+  async playResult(displaySteps, context = "base", timings = {}) {
+    if (!displaySteps?.length) return;
+    const reelDuration = timings.reel ?? 760;
+    const dropDuration = timings.drop ?? 330;
+    const winDuration = timings.win ?? 620;
+    const emptyDelay = timings.empty ?? 120;
+    await this.animateReel(displaySteps[0].grid, context, reelDuration);
+    for (const [index, step] of displaySteps.entries()) {
+      if (index > 0) await this.animateDrop(step.grid, dropDuration);
+      if (typeof timings.onStep === "function") timings.onStep(step, index);
+      await this.animateWins(step.grid, step.winningKeys, step.wins, winDuration, emptyDelay);
+    }
+  }
+}
+
+const pharaohCanvasRenderer = new PharaohCanvasRenderer();
+
+function shouldUsePharaohCanvasRenderer() {
+  const params = new URLSearchParams(window.location.search);
+  return params.get("domPharaoh") !== "1" && Boolean(window.HTMLCanvasElement);
+}
+
+function renderSlotPaytable() {
+  const root = $("#slot-paytable");
+  if (!root) return;
+  if (root.dataset.ready === "true") return;
+  root.innerHTML = "";
+
+  const header = document.createElement("div");
+  header.className = "slot-paytable-header";
+  ["Символ", "8+", "10+", "12+", "15+", "20+"].forEach((label) => {
+    const cell = document.createElement("span");
+    cell.textContent = label;
+    header.appendChild(cell);
+  });
+  root.appendChild(header);
+
+  SLOT_CONFIG.symbols
+    .filter((symbol) => SLOT_CONFIG.payouts[symbol.id])
+    .forEach((symbol) => {
+      const row = document.createElement("div");
+      row.className = "slot-paytable-row";
+      const symbolCell = document.createElement("span");
+      symbolCell.className = "slot-paytable-symbol";
+      symbolCell.appendChild(createSlotSymbolIcon(symbol, "slot-paytable-icon"));
+      const name = document.createElement("b");
+      name.textContent = symbol.name;
+      symbolCell.appendChild(name);
+      row.appendChild(symbolCell);
+      [8, 10, 12, 15, 20].forEach((threshold) => {
+        const cell = document.createElement("span");
+        const multiplier = getSlotPayoutMultiplier(symbol.id, threshold);
+        cell.textContent = `${floorMultiplier(multiplier).toFixed(2)}x`;
+        row.appendChild(cell);
+      });
+      root.appendChild(row);
+    });
+
+  const special = document.createElement("div");
+  special.className = "slot-paytable-special";
+  special.innerHTML = `
+    <span><b>Scatter</b> 4/5/6+ открывают 10/12/15 free spins.</span>
+    <span><b>Множитель</b> усиливает выигрышные каскады, чаще появляется во free spins.</span>
+    <span><b>Bonus buy</b> стоит x100 от ставки и сразу открывает 15 free spins.</span>
+  `;
+  root.appendChild(special);
+  root.dataset.ready = "true";
+}
+
+function getSlotReactionContent(slot) {
+  if (slot.reaction === "free") return { state: "free", text: "FREE SPINS" };
+  if (slot.status !== "READY") {
+    if (slot.winningKeys?.size > 0) return { state: "cascade", text: "КАСКАД" };
+    return { state: "spin", text: "СПИН" };
+  }
+  if (slot.totalWin > 0) {
+    const multiplier = slot.totalWin / Math.max(1, slot.stake);
+    if (multiplier >= 100) return { state: "legend", text: "ЛЕГЕНДАРНО" };
+    if (multiplier >= 30) return { state: "mega", text: "МЕГА ВЫИГРЫШ" };
+    if (multiplier >= 10) return { state: "big", text: "БОЛЬШОЙ ВЫИГРЫШ" };
+    return { state: "win", text: "ВЫИГРЫШ" };
+  }
+  if (slot.autoRunning || slot.autoRunsRemaining > 0) return { state: "spin", text: "АВТО СПИН" };
+  return { state: "idle", text: "ДЖИН ГОТОВ" };
+}
+
+function ensureSlotPresentationPanel() {
+  let panel = $("#slot-presentation");
+  if (panel) return panel;
+  const stage = $(".pharaoh-stage");
+  if (!stage) return null;
+  panel = document.createElement("div");
+  panel.id = "slot-presentation";
+  panel.className = "slot-presentation";
+  panel.setAttribute("aria-hidden", "true");
+  panel.innerHTML = `
+    <span class="slot-presentation-aura" aria-hidden="true"></span>
+    <b class="slot-presentation-title"></b>
+    <strong class="slot-presentation-value"></strong>
+    <span class="slot-presentation-note"></span>
+  `;
+  const gridRoot = $("#slot-grid");
+  if (gridRoot?.parentElement === stage) {
+    stage.insertBefore(panel, gridRoot);
+  } else {
+    stage.appendChild(panel);
+  }
+  return panel;
+}
+
+function renderSlotPresentation(slot) {
+  const panel = ensureSlotPresentationPanel();
+  if (!panel) return;
+  const presentation = slot.presentation || {};
+  const visible = Boolean(presentation.title || presentation.value);
+  panel.className = `slot-presentation${visible ? " show" : ""} ${presentation.type || "idle"}`;
+  panel.setAttribute("aria-hidden", visible ? "false" : "true");
+  const title = panel.querySelector(".slot-presentation-title");
+  const value = panel.querySelector(".slot-presentation-value");
+  const note = panel.querySelector(".slot-presentation-note");
+  if (title) title.textContent = presentation.title || "";
+  if (value) value.textContent = presentation.value || "";
+  if (note) note.textContent = presentation.note || "";
+}
+
+function clearSlotPresentation() {
+  const slot = state.slot;
+  if (slot.presentationTimer) {
+    window.clearTimeout(slot.presentationTimer);
+    slot.presentationTimer = null;
+  }
+  slot.presentation = { type: "idle", title: "", value: "", note: "" };
+}
+
+function showSlotPresentation(presentation, duration = 1550) {
+  const slot = state.slot;
+  clearSlotPresentation();
+  slot.presentation = presentation;
+  const winbar = $("#slot-winbar");
+  if (winbar && presentation.type !== "free") {
+    const strong = ["big", "mega", "legend", "free-win"].includes(presentation.type);
+    winbar.classList.remove("pulse", "big-pulse");
+    void winbar.offsetWidth;
+    winbar.classList.add(strong ? "big-pulse" : "pulse");
+  }
+  slot.presentationTimer = window.setTimeout(() => {
+    if (state.slot.presentation === presentation) {
+      state.slot.presentation = { type: "idle", title: "", value: "", note: "" };
+      state.slot.presentationTimer = null;
+      renderSlotPresentation(state.slot);
+    }
+  }, duration);
+}
+
+function getSlotWinPresentation(result, { bonusBuy = false, isFreeSpin = false } = {}) {
+  if (bonusBuy) {
+    const freeCount = Math.max(result.freeSpinsPlayed, SLOT_CONFIG.bonusBuy.freeSpins);
+    return {
+      type: "free",
+      title: "БОНУС ОТКРЫТ",
+      value: `${freeCount} FREE SPINS`,
+      note: result.totalWin > 0 ? `Итог +${format(result.totalWin)} 💎` : "Серия запущена",
+    };
+  }
+  if (result.freeSpinsPlayed > 0 || isFreeSpin) {
+    return {
+      type: result.totalWin > 0 ? "free-win" : "free",
+      title: "FREE SPINS",
+      value: result.totalWin > 0 ? `+${format(result.totalWin)} 💎` : "Серия завершена",
+      note: `${result.freeSpinsPlayed || 1} спинов`,
+    };
+  }
+  if (result.totalWin <= 0) return null;
+  const multiplier = result.totalWin / Math.max(1, state.slot.stake);
+  if (multiplier >= 100) {
+    return { type: "legend", title: "ЛЕГЕНДАРНО", value: `+${format(result.totalWin)} 💎`, note: `${floorMultiplier(multiplier).toFixed(2)}x` };
+  }
+  if (multiplier >= 30) {
+    return { type: "mega", title: "МЕГА ВЫИГРЫШ", value: `+${format(result.totalWin)} 💎`, note: `${floorMultiplier(multiplier).toFixed(2)}x` };
+  }
+  if (multiplier >= 10) {
+    return { type: "big", title: "БОЛЬШОЙ ВЫИГРЫШ", value: `+${format(result.totalWin)} 💎`, note: `${floorMultiplier(multiplier).toFixed(2)}x` };
+  }
+  return { type: "win", title: "ВЫИГРЫШ", value: `+${format(result.totalWin)} 💎`, note: `${floorMultiplier(multiplier).toFixed(2)}x` };
+}
+
+function ensureSlotGridCells(gridRoot) {
+  const total = SLOT_CONFIG.gridRows * SLOT_CONFIG.gridColumns;
+  if (gridRoot.children.length === total) return;
+  gridRoot.innerHTML = "";
+  for (let index = 0; index < total; index += 1) {
+    const cell = document.createElement("div");
+    cell.className = "slot-symbol";
+    gridRoot.appendChild(cell);
+  }
+}
+
+function updateSlotGridCell(cell, symbolId, rowIndex, colIndex, winningKeys) {
+  const symbol = getSlotSymbol(symbolId);
+  const winning = winningKeys?.has(`${rowIndex}-${colIndex}`);
+  const className = `slot-symbol ${symbol.tier}${winning ? " winning" : ""}`;
+  if (cell.className !== className) cell.className = className;
+  cell.style.setProperty("--symbol-color", symbol.color);
+  cell.style.setProperty("--slot-delay", `${(rowIndex * 28 + colIndex * 13) % 130}ms`);
+  cell.style.setProperty("--slot-col-delay", `${colIndex * 34 + rowIndex * 8}ms`);
+  cell.setAttribute("aria-label", symbol.name);
+  if (cell.dataset.symbol === symbolId) return;
+  cell.dataset.symbol = symbolId;
+  cell.innerHTML = "";
+  cell.appendChild(createSlotSymbolIcon(symbol));
+}
+
+function updateSlotGenieReaction(slot) {
+  const genie = $("#slot-genie-reaction");
+  const genieText = $("#slot-genie-text");
+  if (!genie) return;
+  const reaction = getSlotReactionContent(slot);
+  genie.dataset.reaction = reaction.state;
+  if (genieText) genieText.textContent = reaction.text;
+}
+
+function updateSlotGridWinSignal(gridRoot = $("#slot-grid"), winningCount = 0, restart = false) {
+  if (!gridRoot) return;
+  const count = Math.min(18, Math.max(0, winningCount || 0));
+  gridRoot.dataset.winActive = count > 0 ? "1" : "0";
+  gridRoot.style.setProperty("--pharaoh-win-count", String(count));
+  if (restart) {
+    gridRoot.classList.remove("slot-grid-win-pulse");
+    void gridRoot.offsetWidth;
+    gridRoot.classList.add("slot-grid-win-pulse");
+  } else if (count === 0) {
+    gridRoot.classList.remove("slot-grid-win-pulse");
+  }
+}
+
+function renderPharaoh() {
+  const slot = state.slot;
+  const gridRoot = $("#slot-grid");
+  if (gridRoot) {
+    if (!slot.grid.length) slot.grid = createSlotGrid();
+    const visibleGrid = slot.spinPreviewGrid || slot.grid;
+    const reactionState = getSlotReactionContent(slot).state;
+    gridRoot.dataset.phase = slot.spinVisualMode !== "idle" ? slot.spinVisualMode : reactionState;
+    const winningCount = slot.winningKeys?.size || 0;
+    updateSlotGridWinSignal(gridRoot, winningCount);
+    gridRoot.classList.toggle("slot-grid-spinning", slot.spinVisualMode === "reel");
+    gridRoot.classList.toggle("slot-grid-drop", slot.spinVisualMode === "drop");
+    if (shouldUsePharaohCanvasRenderer()) {
+      pharaohCanvasRenderer.init(gridRoot);
+      pharaohCanvasRenderer.preload();
+      pharaohCanvasRenderer.drawGrid(visibleGrid, { winningKeys: slot.winningKeys });
+    } else {
+      gridRoot.classList.remove("slot-grid-canvas-mode");
+      ensureSlotGridCells(gridRoot);
+      visibleGrid.forEach((row, rowIndex) => {
+        row.forEach((symbolId, colIndex) => {
+          const cell = gridRoot.children[rowIndex * SLOT_CONFIG.gridColumns + colIndex];
+          updateSlotGridCell(cell, symbolId, rowIndex, colIndex, slot.winningKeys);
+        });
+      });
+    }
+  }
+
+  const status = $("#slot-status");
+  if (status) status.textContent = slot.message;
+  renderSlotPresentation(slot);
+  const stake = $("#slot-stake");
+  if (stake) stake.textContent = format(slot.stake);
+  const winbar = $("#slot-winbar");
+  if (winbar) {
+    winbar.textContent = slot.totalWin > 0 ? `+${format(slot.totalWin)} 💎` : "+0";
+    winbar.classList.toggle("show", slot.totalWin > 0 || slot.status !== "READY");
+  }
+  const freeSpins = $("#slot-free-spins");
+  if (freeSpins) {
+    const freeText = slot.freeSpins > 0 ? `FREE SPINS ${slot.freeSpins}` : "FREE SPINS 0";
+    const autoText = slot.autoRunning ? `АВТО ${slot.autoRunsRemaining}` : "";
+    freeSpins.textContent = autoText ? `${freeText} · ${autoText}` : freeText;
+    freeSpins.classList.toggle("active", slot.freeSpins > 0 || slot.autoRunning);
+  }
+  const history = $("#slot-history");
+  if (history) {
+    const items = slot.history.slice(0, 5);
+    while (items.length < 5) items.push(null);
+    history.innerHTML = "";
+    items.forEach((item) => {
+      const chip = document.createElement("span");
+      chip.className = "slot-history-chip";
+      if (!item) {
+        chip.textContent = "?";
+      } else {
+        const multiplier = item.stake > 0 ? item.win / item.stake : 0;
+        chip.classList.add(item.win > 0 ? "win" : "miss");
+        chip.textContent = item.win > 0 ? `${floorMultiplier(multiplier).toFixed(2)}x` : "0x";
+      }
+      history.appendChild(chip);
+    });
+  }
+  updateSlotGenieReaction(slot);
+  const spinButton = $("#slot-spin");
+  if (spinButton) {
+    spinButton.disabled = slot.status !== "READY" && !slot.autoRunning;
+    spinButton.querySelector("strong").textContent = slot.autoRunning ? "СТОП" : "СПИН";
+  }
+  $$("[data-slot-mode]").forEach((button) => {
+    button.classList.toggle("selected", button.dataset.slotMode === slot.mode);
+  });
+  const autoRuns = $("#slot-auto-runs");
+  if (autoRuns) autoRuns.textContent = slot.autoRunning ? slot.autoRunsRemaining : slot.autoRuns;
+  const bonus = $("#slot-bonus-buy");
+  const bonusCost = slot.stake * SLOT_CONFIG.bonusBuy.costMultiplier;
+  const bonusAvailable = SLOT_CONFIG.bonusBuy.enabled && slot.status === "READY" && !slot.autoRunning && slot.freeSpins === 0 && bonusCost <= state.balance;
+  if (bonus) {
+    bonus.disabled = !bonusAvailable;
+    bonus.classList.toggle("available", bonusAvailable);
+    bonus.textContent = SLOT_CONFIG.bonusBuy.enabled ? "БОНУС x100" : "БОНУС СКОРО";
+    bonus.title = SLOT_CONFIG.bonusBuy.enabled ? `Цена: ${format(bonusCost)} кристаллов` : "Бонус будет включен позже";
+  }
+  if (slot.bonusConfirmOpen && !bonusAvailable) slot.bonusConfirmOpen = false;
+  const bonusPanel = $("#slot-bonus-panel");
+  if (bonusPanel) {
+    bonusPanel.classList.toggle("open", slot.bonusConfirmOpen);
+    bonusPanel.setAttribute("aria-hidden", slot.bonusConfirmOpen ? "false" : "true");
+  }
+  const bonusBackdrop = $("#slot-bonus-backdrop");
+  if (bonusBackdrop) {
+    bonusBackdrop.classList.toggle("open", slot.bonusConfirmOpen);
+  }
+  const bonusCostLabel = $("#slot-bonus-cost");
+  if (bonusCostLabel) bonusCostLabel.textContent = format(bonusCost);
+  const bonusNote = $("#slot-bonus-note");
+  if (bonusNote) {
+    bonusNote.textContent = `Ставка ${format(slot.stake)} ✦. Бонус запускает ${SLOT_CONFIG.bonusBuy.freeSpins} free spins сразу после подтверждения.`;
+  }
+  const bonusConfirm = $("#slot-bonus-confirm");
+  if (bonusConfirm) {
+    bonusConfirm.disabled = !bonusAvailable;
+    bonusConfirm.classList.toggle("available", bonusAvailable);
+  }
+  const rulesPanel = $("#slot-rules-panel");
+  if (rulesPanel) {
+    rulesPanel.classList.toggle("open", slot.rulesOpen);
+    rulesPanel.setAttribute("aria-hidden", slot.rulesOpen ? "false" : "true");
+  }
+  const rulesBackdrop = $("#slot-rules-backdrop");
+  if (rulesBackdrop) {
+    rulesBackdrop.classList.toggle("open", slot.rulesOpen);
+  }
+  renderSlotPaytable();
+}
+
+function getCarpetRandomUnit() {
+  if (window.crypto?.getRandomValues) {
+    const values = new Uint32Array(1);
+    window.crypto.getRandomValues(values);
+    return Math.max((values[0] + 1) / (CARPET_ENTROPY_MAX + 1), Number.EPSILON);
+  }
+  return Math.max(Math.random(), Number.EPSILON);
+}
+
+const carpetEngine = {
+  createRound({ protectedRoundsPlayed }) {
+    const entropy = getCarpetRandomUnit();
+    let crashPoint = CARPET_RTP / entropy;
+    const protectedRound = protectedRoundsPlayed < CARPET_PROTECTED_ROUNDS;
+
+    if (protectedRound) {
+      crashPoint = Math.max(crashPoint, CARPET_MIN_PROTECTED_CRASH);
+    }
+
+    return {
+      id: `${Date.now().toString(36)}-${Math.floor(entropy * 1e9).toString(36)}`,
+      crashPoint,
+      protectedRound,
+      createdAt: Date.now(),
+    };
+  },
+
+  getMultiplier(elapsedMs) {
+    return Math.exp(CARPET_GROWTH_RATE * Math.max(0, elapsedMs));
+  },
+
+  getProgress(multiplier) {
+    return Math.max(0, Math.min(1, Math.log(Math.max(1, multiplier)) / Math.log(10)));
+  },
+
+  lockMultiplier(multiplier) {
+    return floorMultiplier(Math.max(1, multiplier));
+  },
+
+  getPayout(stake, multiplier) {
+    return Math.floor(stake * this.lockMultiplier(multiplier));
+  },
+
+  shouldAutoCashout({ mode, autoCashout, crashPoint, multiplier }) {
+    return mode === "auto" && autoCashout <= crashPoint && multiplier >= autoCashout;
+  },
+
+  shouldCrash({ crashPoint, multiplier }) {
+    return multiplier >= crashPoint;
+  },
+};
+
+function generateCarpetCrashPoint() {
+  return carpetEngine.createRound({
+    protectedRoundsPlayed: state.carpet.protectedRoundsPlayed,
+  }).crashPoint;
+}
+
+function getCarpetMultiplier(elapsedMs) {
+  return carpetEngine.getMultiplier(elapsedMs);
+}
+
+function getCarpetProgress(multiplier) {
+  return carpetEngine.getProgress(multiplier);
+}
+
+function addLedger(label, amount) {
+  state.ledger.unshift({ label, amount });
+  state.ledger = state.ledger.slice(0, 8);
+  state.net += amount;
+  render();
+}
+
+function setBalance(next) {
+  state.balance = Math.max(0, Math.round(next));
+  render();
+}
+
+function render() {
+  ["balance-value", "solo-balance", "carpet-balance", "slot-balance", "pvp-balance", "wallet-balance"].forEach((id) => {
+    const el = document.getElementById(id);
+    if (el) el.textContent = format(state.balance);
+  });
+
+  const dailyStatus = $("#daily-status");
+  if (dailyStatus) dailyStatus.textContent = state.dailyClaimed ? "Следующий бонус через 24ч" : "Бонус доступен";
+  const statGames = $("#stat-games");
+  if (statGames) statGames.textContent = state.games;
+  const statProfit = $("#stat-profit");
+  if (statProfit) statProfit.textContent = format(state.net);
+  renderDaily();
+  renderLedger("#home-ledger");
+  renderLedger("#wallet-ledger");
+  renderSlots();
+  updateLimits();
+  renderHomeControls();
+  renderCarpet();
+  renderPharaoh();
+}
+
+function renderHomeControls() {
+  const homeStake = $("#home-stake");
+  if (homeStake) {
+    homeStake.textContent = format(state.homeStake);
+    homeStake.dataset.digits = String(state.homeStake).length >= 5 ? "long" : String(state.homeStake).length >= 4 ? "medium" : "short";
+  }
+  const homeRuns = $("#home-runs");
+  const activeRuns = state.homeMode === "auto" ? state.homeAutoBalls : 1;
+  state.homeRuns = activeRuns;
+  if (homeRuns) homeRuns.textContent = 1;
+  const homeLines = $("#home-lines-value");
+  if (homeLines) homeLines.textContent = state.homeRows;
+  const autoScale = $("#home-auto-scale");
+  const autoProgress = getHomeAutoProgress(state.homeAutoBalls);
+  if (autoScale) {
+    autoScale.classList.toggle("show", state.homeMode === "auto");
+    autoScale.style.setProperty("--auto-progress", autoProgress);
+  }
+  const autoRange = $("#home-auto-range");
+  if (autoRange) autoRange.value = state.homeAutoBalls;
+  const autoValue = $("#home-auto-value");
+  if (autoValue) autoValue.textContent = `${format(state.homeAutoBalls)} шариков`;
+  $$("[data-auto-balls]").forEach((button) => {
+    const autoBalls = Number(button.dataset.autoBalls);
+    button.classList.toggle("selected", Math.abs(getHomeAutoProgress(autoBalls) - autoProgress) <= 0.018);
+  });
+}
+
+function renderCarpet() {
+  const carpet = state.carpet;
+  const stage = $("#carpet-stage");
+  if (!stage) return;
+
+  const displayMultiplier = Math.min(CARPET_MAX_CRASH_DISPLAY, carpet.multiplier);
+  const progress = getCarpetProgress(displayMultiplier);
+  const x = Math.pow(progress, 0.72) * 184;
+  const y = Math.pow(progress, 1.28) * -226;
+  const scale = 1;
+  const rotate = -8 + progress * 12;
+
+  stage.style.setProperty("--carpet-progress", progress.toFixed(4));
+  stage.classList.toggle("ready", carpet.status === "READY");
+  stage.classList.toggle("flying", carpet.status === "FLYING" || carpet.status === "STARTING");
+  stage.classList.toggle("cashed", carpet.status === "CASHED_OUT");
+  stage.classList.toggle("message", ["CASHED_OUT", "CRASHED", "STARTING"].includes(carpet.status));
+  stage.classList.toggle("crashed", carpet.status === "CRASHED");
+  const screen = $("#screen-solo");
+  if (screen) {
+    screen.classList.toggle("carpet-ready", carpet.status === "READY");
+    screen.classList.toggle("carpet-flying", carpet.status === "FLYING" || carpet.status === "STARTING");
+    screen.classList.toggle("carpet-cashed", carpet.status === "CASHED_OUT");
+    screen.classList.toggle("carpet-crashed", carpet.status === "CRASHED");
+  }
+
+  const hero = $("#carpet-hero-wrap");
+  if (hero) {
+    hero.style.transform = `translate3d(${x}px, ${y}px, 0) scale(${scale}) rotate(${rotate}deg)`;
+    hero.style.setProperty("--crash-x", `${x}px`);
+    hero.style.setProperty("--crash-y", `${y}px`);
+  }
+  const flightFx = $("#carpet-flight-fx");
+  if (flightFx) {
+    flightFx.style.transform = `translate3d(${x}px, ${y}px, 0) scale(${scale}) rotate(${rotate}deg)`;
+    flightFx.style.setProperty("--crash-x", `${x}px`);
+    flightFx.style.setProperty("--crash-y", `${y}px`);
+  }
+  updateCarpetTrailEmitter();
+  updateCarpetMagicSparks();
+
+  const multiplier = $("#carpet-multiplier");
+  if (multiplier) multiplier.textContent = `${formatCarpetMultiplier(displayMultiplier)}x`;
+
+  const status = $("#carpet-status");
+  if (status) {
+    if (carpet.status === "STARTING") status.textContent = "КОВЕР ГОТОВИТСЯ";
+    else if (carpet.status === "CASHED_OUT") status.textContent = `ЗАБРАНО ${format(carpet.payout)} КРИСТАЛЛОВ`;
+    else if (carpet.status === "CRASHED") status.textContent = "БУРЯ НАСТИГЛА КОВЕР";
+    else status.textContent = "ГОТОВ К ПОЛЕТУ";
+  }
+
+  const autoCounter = $("#carpet-auto-counter");
+  if (autoCounter) {
+    const showCounter = carpet.autoRunning || carpet.autoRunsRemaining > 0;
+    autoCounter.classList.toggle("show", showCounter);
+    autoCounter.textContent = `ОСТАЛОСЬ ${format(carpet.autoRunsRemaining)}`;
+  }
+
+  const label = $("#carpet-action-label");
+  const payout = $("#carpet-live-payout");
+  const button = $("#carpet-action-button");
+  if (label) {
+    if (carpet.autoRunning && (carpet.status === "READY" || carpet.status === "STARTING")) label.textContent = "СТОП";
+    else if (carpet.status === "FLYING" || carpet.status === "STARTING") label.textContent = "ЗАБРАТЬ";
+    else if (carpet.status === "CASHED_OUT") label.textContent = "ЗАБРАНО";
+    else if (carpet.status === "CRASHED") label.textContent = "БУРЯ";
+    else label.textContent = "СТАРТ";
+  }
+  if (payout) {
+    payout.textContent = "";
+  }
+  if (button) {
+    button.classList.toggle("flying", carpet.status === "FLYING" || carpet.status === "STARTING");
+    button.classList.toggle("lost", carpet.status === "CRASHED");
+    button.disabled = false;
+  }
+
+  const stake = $("#carpet-stake");
+  if (stake) {
+    stake.textContent = format(carpet.stake);
+    stake.dataset.digits = String(carpet.stake).length >= 5 ? "long" : String(carpet.stake).length >= 4 ? "medium" : "short";
+  }
+
+  const autoCashout = $("#carpet-autocash");
+  if (autoCashout) autoCashout.classList.toggle("show", carpet.mode === "auto");
+  const autoCashoutValue = $("#carpet-cashout-value");
+  if (autoCashoutValue) autoCashoutValue.textContent = `${carpet.autoCashout.toFixed(2)}X`;
+  $$("[data-carpet-mode]").forEach((modeButton) => {
+    modeButton.classList.toggle("selected", modeButton.dataset.carpetMode === carpet.mode);
+    modeButton.disabled = carpet.status !== "READY";
+  });
+  const autoStarts = $("#carpet-autostarts");
+  if (autoStarts) autoStarts.classList.toggle("show", carpet.betMode === "auto");
+  const runsValue = $("#carpet-runs-value");
+  if (runsValue) runsValue.textContent = format(carpet.autoRuns);
+  $$("[data-carpet-bet-mode]").forEach((modeButton) => {
+    modeButton.classList.toggle("selected", modeButton.dataset.carpetBetMode === carpet.betMode);
+    modeButton.disabled = carpet.status !== "READY";
+  });
+
+  ["carpet-stake-minus", "carpet-stake-plus", "carpet-stake-double", "carpet-stake-max", "carpet-cashout-minus", "carpet-cashout-plus", "carpet-runs-minus", "carpet-runs-plus"].forEach((id) => {
+    const control = document.getElementById(id);
+    if (control) control.disabled = carpet.status !== "READY";
+  });
+
+  const history = $("#carpet-history");
+  if (history) {
+    history.innerHTML = "";
+    const title = document.createElement("span");
+    title.className = "carpet-history-title";
+    title.textContent = "ПОЛЕТЫ";
+    history.appendChild(title);
+
+    const rounds = carpet.history.slice(0, 5);
+    for (let index = 0; index < 5; index += 1) {
+      const round = rounds[index];
+      const chip = document.createElement("span");
+      chip.className = round ? `carpet-chip ${round.result}` : "carpet-chip unknown";
+      chip.textContent = round ? formatCarpetMultiplier(round.multiplier) : "?";
+      history.appendChild(chip);
+    }
+  }
+}
+
+function getCarpetTrailCanvas() {
+  return $("#carpet-trail-canvas");
+}
+
+function getCarpetCloudCanvas() {
+  return $("#carpet-cloud-canvas");
+}
+
+function getCarpetSparkLayer() {
+  return $("#carpet-magic-sparks");
+}
+
+function resizeCarpetCloudCanvas(canvas) {
+  const shell = $(".app-shell");
+  if (!shell || !canvas) return null;
+  const rect = shell.getBoundingClientRect();
+  const ratio = Math.min(2, window.devicePixelRatio || 1);
+  const width = Math.max(1, Math.round(rect.width));
+  const height = Math.max(1, Math.round(rect.height));
+  const pixelWidth = Math.round(width * ratio);
+  const pixelHeight = Math.round(height * ratio);
+
+  if (canvas.width !== pixelWidth || canvas.height !== pixelHeight) {
+    canvas.width = pixelWidth;
+    canvas.height = pixelHeight;
+    canvas.style.width = `${width}px`;
+    canvas.style.height = `${height}px`;
+  }
+
+  return { width, height, ratio };
+}
+
+function seedCarpetClouds(width, height) {
+  if (carpetClouds.width === width && carpetClouds.height === height && carpetClouds.items.length) return;
+  carpetClouds.width = width;
+  carpetClouds.height = height;
+  carpetClouds.items = [
+    { x: width * 0.08, y: height * 0.13, rx: width * 0.28, ry: height * 0.09, speed: 4.2, phase: 0.2, hue: "violet", alpha: 0.28 },
+    { x: width * 0.76, y: height * 0.18, rx: width * 0.24, ry: height * 0.08, speed: 3.2, phase: 1.4, hue: "rose", alpha: 0.23 },
+    { x: width * 0.2, y: height * 0.48, rx: width * 0.3, ry: height * 0.08, speed: 2.6, phase: 2.8, hue: "blue", alpha: 0.2 },
+    { x: width * 0.86, y: height * 0.56, rx: width * 0.28, ry: height * 0.09, speed: 3.6, phase: 4.1, hue: "violet", alpha: 0.22 },
+    { x: width * 0.28, y: height * 0.78, rx: width * 0.34, ry: height * 0.1, speed: 2.1, phase: 5.1, hue: "gold", alpha: 0.17 },
+    { x: width * 0.7, y: height * 0.86, rx: width * 0.3, ry: height * 0.09, speed: 2.8, phase: 6.2, hue: "rose", alpha: 0.19 },
+  ];
+}
+
+function drawCarpetCloud(ctx, cloud, time) {
+  const palette = cloud.hue === "gold"
+    ? [255, 185, 106]
+    : cloud.hue === "blue"
+      ? [104, 142, 255]
+      : cloud.hue === "rose"
+        ? [210, 96, 196]
+        : [148, 96, 222];
+  const breathe = 0.86 + Math.sin(time * 0.00045 + cloud.phase) * 0.12;
+  const x = cloud.x + Math.sin(time * 0.00018 + cloud.phase) * 18;
+  const y = cloud.y + Math.cos(time * 0.00022 + cloud.phase) * 10;
+  const rx = cloud.rx * breathe;
+  const ry = cloud.ry * (0.88 + Math.cos(time * 0.00036 + cloud.phase) * 0.1);
+
+  ctx.save();
+  ctx.translate(x, y);
+  ctx.rotate(Math.sin(time * 0.00016 + cloud.phase) * 0.08);
+  ctx.filter = "blur(12px)";
+  const gradient = ctx.createRadialGradient(0, 0, 0, 0, 0, rx);
+  gradient.addColorStop(0, `rgba(${palette[0]}, ${palette[1]}, ${palette[2]}, ${cloud.alpha})`);
+  gradient.addColorStop(0.5, `rgba(${palette[0]}, ${palette[1]}, ${palette[2]}, ${cloud.alpha * 0.38})`);
+  gradient.addColorStop(1, `rgba(${palette[0]}, ${palette[1]}, ${palette[2]}, 0)`);
+  ctx.fillStyle = gradient;
+  ctx.beginPath();
+  ctx.ellipse(0, 0, rx, ry, 0, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.restore();
+}
+
+function renderCarpetCloudFrame(now = performance.now()) {
+  const canvas = getCarpetCloudCanvas();
+  if (!canvas) {
+    carpetClouds.frameId = null;
+    return;
+  }
+
+  const active = document.body.dataset.activeTab === "solo";
+  const dimensions = resizeCarpetCloudCanvas(canvas);
+  if (!dimensions) {
+    carpetClouds.frameId = null;
+    return;
+  }
+
+  const ctx = canvas.getContext("2d");
+  ctx.setTransform(dimensions.ratio, 0, 0, dimensions.ratio, 0, 0);
+  ctx.clearRect(0, 0, dimensions.width, dimensions.height);
+
+  if (!active) {
+    carpetClouds.frameId = null;
+    carpetClouds.lastTime = 0;
+    return;
+  }
+
+  seedCarpetClouds(dimensions.width, dimensions.height);
+  const dt = carpetClouds.lastTime ? Math.min(48, now - carpetClouds.lastTime) / 1000 : 0;
+  carpetClouds.lastTime = now;
+
+  ctx.save();
+  ctx.globalCompositeOperation = "screen";
+  carpetClouds.items.forEach((cloud) => {
+    cloud.x += cloud.speed * dt;
+    if (cloud.x - cloud.rx > dimensions.width + 24) cloud.x = -cloud.rx - 24;
+    drawCarpetCloud(ctx, cloud, now);
+  });
+  ctx.restore();
+
+  carpetClouds.frameId = requestAnimationFrame(renderCarpetCloudFrame);
+}
+
+function startCarpetCloudRenderer() {
+  if (carpetClouds.frameId) return;
+  carpetClouds.lastTime = 0;
+  carpetClouds.frameId = requestAnimationFrame(renderCarpetCloudFrame);
+}
+
+
+function getCarpetTrailPoint() {
+  const screen = $("#screen-solo");
+  const hero = $("#carpet-hero-wrap");
+  if (!screen || !hero) return { x: carpetTrail.lastX, y: carpetTrail.lastY };
+
+  const screenRect = screen.getBoundingClientRect();
+  const heroRect = hero.getBoundingClientRect();
+  return {
+    x: heroRect.left - screenRect.left + heroRect.width * 0.16,
+    y: heroRect.top - screenRect.top + heroRect.height * 0.7,
+  };
+}
+
+function resetCarpetTrail() {
+  carpetTrail.points = [];
+  carpetTrail.particles = [];
+  carpetTrail.lastEmit = 0;
+}
+
+function updateCarpetTrailEmitter() {
+  if (!CARPET_TRAIL_ENABLED) {
+    resetCarpetTrail();
+    return;
+  }
+  const point = getCarpetTrailPoint();
+  const jump = Math.hypot(point.x - carpetTrail.lastX, point.y - carpetTrail.lastY);
+  if (jump > 96 || (carpetTrail.lastStatus !== state.carpet.status && state.carpet.status === "STARTING")) {
+    resetCarpetTrail();
+  }
+  carpetTrail.lastX = point.x;
+  carpetTrail.lastY = point.y;
+  carpetTrail.lastStatus = state.carpet.status;
+  const active = ["STARTING", "FLYING", "CASHED_OUT"].includes(state.carpet.status);
+  if (active || carpetTrail.particles.length > 0) startCarpetTrailRenderer();
+}
+
+function resizeCarpetTrailCanvas(canvas) {
+  const screen = $("#screen-solo");
+  if (!screen || !canvas) return null;
+  const rect = screen.getBoundingClientRect();
+  const ratio = Math.min(2, window.devicePixelRatio || 1);
+  const width = Math.max(1, Math.round(rect.width));
+  const height = Math.max(1, Math.round(rect.height));
+  const pixelWidth = Math.round(width * ratio);
+  const pixelHeight = Math.round(height * ratio);
+
+  if (canvas.width !== pixelWidth || canvas.height !== pixelHeight) {
+    canvas.width = pixelWidth;
+    canvas.height = pixelHeight;
+    canvas.style.width = `${width}px`;
+    canvas.style.height = `${height}px`;
+  }
+
+  return { width, height, ratio };
+}
+
+function addCarpetTrailParticle(now, power = 1) {
+  const flying = state.carpet.status === "FLYING" || state.carpet.status === "STARTING";
+  const cashed = state.carpet.status === "CASHED_OUT";
+  const baseLife = cashed ? 620 : flying ? 760 : 520;
+  const spread = flying ? 12 : 6;
+  const drift = flying ? 28 : 12;
+  const particle = {
+    x: carpetTrail.lastX + (Math.random() - 0.5) * spread,
+    y: carpetTrail.lastY + (Math.random() - 0.5) * spread * 0.55,
+    vx: -drift - Math.random() * 32 * power,
+    vy: (Math.random() - 0.5) * 15 - 4,
+    life: baseLife + Math.random() * 340,
+    born: now,
+    size: 12 + Math.random() * 20 * power,
+    stretch: 2.2 + Math.random() * 1.8,
+    hue: Math.random(),
+    spin: -0.2 + Math.random() * 0.4,
+    alpha: 0.18 + Math.random() * 0.18,
+  };
+  carpetTrail.particles.push(particle);
+  if (carpetTrail.particles.length > CARPET_TRAIL_MAX_PARTICLES) carpetTrail.particles.shift();
+}
+
+function drawCarpetTrailParticle(ctx, particle, age) {
+  const progress = Math.min(1, age / particle.life);
+  const alpha = particle.alpha * Math.sin((1 - progress) * Math.PI * 0.5);
+  if (alpha <= 0.01) return;
+
+  const palette = particle.hue < 0.48
+    ? [96, 178, 255]
+    : particle.hue < 0.76
+      ? [226, 92, 255]
+      : [255, 221, 126];
+  const radius = particle.size * (0.7 + progress * 0.7);
+
+  ctx.save();
+  ctx.translate(particle.x, particle.y);
+  ctx.rotate(-0.16 + particle.spin + progress * 0.12);
+  const gradient = ctx.createRadialGradient(0, 0, 0, 0, 0, radius * particle.stretch);
+  gradient.addColorStop(0, `rgba(${palette[0]}, ${palette[1]}, ${palette[2]}, ${alpha})`);
+  gradient.addColorStop(0.42, `rgba(${palette[0]}, ${palette[1]}, ${palette[2]}, ${alpha * 0.34})`);
+  gradient.addColorStop(1, `rgba(${palette[0]}, ${palette[1]}, ${palette[2]}, 0)`);
+  ctx.fillStyle = gradient;
+  ctx.beginPath();
+  ctx.ellipse(0, 0, radius * particle.stretch, radius * 0.46, 0, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.restore();
+}
+
+function drawCarpetTrailRibbon(ctx, now) {
+  const points = carpetTrail.points.filter((point) => now - point.t < 1180);
+  carpetTrail.points = points;
+  if (points.length < 2) return;
+
+  for (let index = 1; index < points.length; index += 1) {
+    const from = points[index - 1];
+    const to = points[index];
+    const age = now - to.t;
+    const fade = Math.max(0, 1 - age / 1180);
+    const width = 30 * fade + 8;
+
+    ctx.save();
+    ctx.lineCap = "round";
+    ctx.lineJoin = "round";
+    ctx.shadowBlur = 7 * fade;
+    ctx.shadowColor = `rgba(97, 178, 255, ${0.34 * fade})`;
+    ctx.strokeStyle = `rgba(91, 168, 255, ${0.12 * fade})`;
+    ctx.lineWidth = width;
+    ctx.beginPath();
+    ctx.moveTo(from.x, from.y);
+    ctx.lineTo(to.x, to.y);
+    ctx.stroke();
+
+    ctx.shadowBlur = 5 * fade;
+    ctx.shadowColor = `rgba(221, 96, 255, ${0.28 * fade})`;
+    ctx.strokeStyle = `rgba(218, 90, 255, ${0.1 * fade})`;
+    ctx.lineWidth = width * 0.54;
+    ctx.beginPath();
+    ctx.moveTo(from.x, from.y + 2);
+    ctx.lineTo(to.x, to.y + 1);
+    ctx.stroke();
+
+    ctx.shadowBlur = 3 * fade;
+    ctx.shadowColor = `rgba(255, 221, 126, ${0.24 * fade})`;
+    ctx.strokeStyle = `rgba(255, 226, 139, ${0.16 * fade})`;
+    ctx.lineWidth = Math.max(2, width * 0.12);
+    ctx.beginPath();
+    ctx.moveTo(from.x + 3, from.y - 2);
+    ctx.lineTo(to.x + 2, to.y - 1);
+    ctx.stroke();
+    ctx.restore();
+  }
+}
+
+function renderCarpetTrailFrame(now = performance.now()) {
+  if (!CARPET_TRAIL_ENABLED) {
+    resetCarpetTrail();
+    carpetTrail.frameId = null;
+    const canvas = getCarpetTrailCanvas();
+    const ctx = canvas?.getContext?.("2d");
+    if (canvas && ctx) ctx.clearRect(0, 0, canvas.width, canvas.height);
+    return;
+  }
+  const canvas = getCarpetTrailCanvas();
+  if (!canvas) {
+    carpetTrail.frameId = null;
+    return;
+  }
+
+  const dimensions = resizeCarpetTrailCanvas(canvas);
+  if (!dimensions) {
+    carpetTrail.frameId = null;
+    return;
+  }
+
+  const ctx = canvas.getContext("2d");
+  ctx.setTransform(dimensions.ratio, 0, 0, dimensions.ratio, 0, 0);
+  ctx.clearRect(0, 0, dimensions.width, dimensions.height);
+
+  const activeTab = document.body.dataset.activeTab === "solo";
+  const status = state.carpet.status;
+  const flying = activeTab && (status === "FLYING" || status === "STARTING");
+  const cashed = activeTab && status === "CASHED_OUT";
+  const ready = activeTab && status === "READY";
+  const interval = flying ? 42 : cashed ? 28 : 260;
+  const canEmit = flying || cashed || (ready && carpetTrail.particles.length < CARPET_TRAIL_IDLE_PARTICLES);
+
+  if (canEmit && now - carpetTrail.lastEmit > interval) {
+    const count = cashed ? 3 : flying ? 2 : 1;
+    for (let index = 0; index < count; index += 1) addCarpetTrailParticle(now, cashed ? 1.25 : flying ? 1 : 0.42);
+    carpetTrail.lastEmit = now;
+  }
+
+  if (flying || cashed) {
+    const lastPoint = carpetTrail.points[carpetTrail.points.length - 1];
+    const moved = !lastPoint || Math.hypot(carpetTrail.lastX - lastPoint.x, carpetTrail.lastY - lastPoint.y) > 1.4;
+    if (moved || now - lastPoint.t > 55) {
+      carpetTrail.points.push({ x: carpetTrail.lastX, y: carpetTrail.lastY, t: now });
+      if (carpetTrail.points.length > 22) carpetTrail.points.shift();
+    }
+  }
+
+  drawCarpetTrailRibbon(ctx, now);
+
+  carpetTrail.particles = carpetTrail.particles.filter((particle) => {
+    const age = now - particle.born;
+    if (age >= particle.life) return false;
+    const dt = carpetTrail.lastTime ? Math.min(32, now - carpetTrail.lastTime) / 16.67 : 1;
+    particle.x += particle.vx * 0.016 * dt;
+    particle.y += particle.vy * 0.016 * dt;
+    particle.vx *= 0.992;
+    particle.vy += 0.08 * dt;
+    drawCarpetTrailParticle(ctx, particle, age);
+    return true;
+  });
+
+  carpetTrail.lastTime = now;
+  if (activeTab && (flying || cashed || carpetTrail.particles.length > 0)) {
+    carpetTrail.frameId = requestAnimationFrame(renderCarpetTrailFrame);
+  } else {
+    carpetTrail.frameId = null;
+  }
+}
+
+function startCarpetTrailRenderer() {
+  if (!CARPET_TRAIL_ENABLED) return;
+  if (carpetTrail.frameId) return;
+  carpetTrail.lastTime = 0;
+  carpetTrail.lastEmit = 0;
+  carpetTrail.frameId = requestAnimationFrame(renderCarpetTrailFrame);
+}
+
+function cleanupCarpetSparkLayer() {
+  const layer = getCarpetSparkLayer();
+  if (!layer) return;
+  while (layer.children.length > 42) {
+    layer.firstElementChild?.remove();
+  }
+}
+
+function updateCarpetSparkOrigin(layer = getCarpetSparkLayer()) {
+  const rect = layer?.getBoundingClientRect();
+  const point = rect
+    ? { x: rect.width * 0.18, y: rect.height * 0.73 }
+    : { x: 20, y: 108 };
+  if (layer) {
+    layer.style.setProperty("--spark-x", `${point.x}px`);
+    layer.style.setProperty("--spark-y", `${point.y}px`);
+  }
+  return point;
+}
+
+function createCarpetSpark(now, burst = false) {
+  const layer = getCarpetSparkLayer();
+  if (!layer) return;
+  const point = updateCarpetSparkOrigin(layer);
+  const spark = document.createElement("span");
+  const palette = Math.random();
+  const size = burst ? 5 + Math.random() * 3.2 : 3.2 + Math.random() * 3.2;
+  const life = burst ? 820 + Math.random() * 300 : 620 + Math.random() * 360;
+  const dx = -(18 + Math.random() * (burst ? 48 : 34));
+  const dy = (Math.random() - 0.5) * (burst ? 34 : 22) + (burst ? -3 : -1);
+  const rot = -30 + Math.random() * 60;
+
+  spark.className = palette < 0.5 ? "carpet-spark gold" : palette < 0.78 ? "carpet-spark rose" : "carpet-spark blue";
+  if (Math.random() < 0.34) spark.classList.add("diamond");
+  spark.style.left = `${point.x + (Math.random() - 0.5) * 10}px`;
+  spark.style.top = `${point.y + (Math.random() - 0.5) * 9}px`;
+  spark.style.width = `${size}px`;
+  spark.style.height = `${size}px`;
+  spark.style.setProperty("--spark-dx", `${dx}px`);
+  spark.style.setProperty("--spark-dy", `${dy}px`);
+  spark.style.setProperty("--spark-rot", `${rot}deg`);
+  spark.style.setProperty("--spark-life", `${life}ms`);
+  spark.style.animationDuration = `${life}ms`;
+  spark.addEventListener("animationend", () => spark.remove(), { once: true });
+  layer.appendChild(spark);
+  cleanupCarpetSparkLayer();
+}
+
+function renderCarpetSparkFrame(now = performance.now()) {
+  const activeTab = document.body.dataset.activeTab === "solo";
+  const status = state.carpet.status;
+  const active = activeTab && (status === "READY" || status === "STARTING" || status === "FLYING" || status === "CASHED_OUT");
+  if (!active) {
+    carpetSparks.frameId = null;
+    return;
+  }
+
+  updateCarpetSparkOrigin();
+
+  const idle = status === "READY";
+  const interval = idle ? 120 : status === "CASHED_OUT" ? 36 : 46;
+  if (now - carpetSparks.lastEmit > interval) {
+    const count = idle ? 1 : status === "CASHED_OUT" ? 5 : 3;
+    for (let index = 0; index < count; index += 1) createCarpetSpark(now, status === "CASHED_OUT");
+    carpetSparks.lastEmit = now;
+  }
+
+  carpetSparks.frameId = requestAnimationFrame(renderCarpetSparkFrame);
+}
+
+function updateCarpetMagicSparks() {
+  const active = ["READY", "STARTING", "FLYING", "CASHED_OUT"].includes(state.carpet.status);
+  if (!active || document.body.dataset.activeTab !== "solo") return;
+  updateCarpetSparkOrigin();
+  if (carpetSparks.frameId) return;
+  carpetSparks.lastEmit = 0;
+  createCarpetSpark(performance.now(), state.carpet.status === "CASHED_OUT");
+  carpetSparks.frameId = requestAnimationFrame(renderCarpetSparkFrame);
+}
+
+function renderDaily() {
+  const root = $("#daily-track");
+  if (!root) return;
+  root.innerHTML = "";
+  for (let day = 1; day <= 7; day += 1) {
+    const el = document.createElement("div");
+    el.className = `daily-day ${day <= 3 || state.dailyClaimed ? "claimed" : ""}`;
+    el.textContent = `${day}д`;
+    root.appendChild(el);
+  }
+}
+
+function renderLedger(selector) {
+  const root = $(selector);
+  if (!root) return;
+  root.innerHTML = "";
+  state.ledger.slice(0, 5).forEach((row) => {
+    const el = document.createElement("div");
+    el.className = "ledger-row";
+    const amountClass = row.amount >= 0 ? "plus" : "minus";
+    const prefix = row.amount >= 0 ? "+" : "";
+    el.innerHTML = `<span>${row.label}</span><strong class="${amountClass}">${prefix}${format(row.amount)} ✦</strong>`;
+    root.appendChild(el);
+  });
+}
+
+function renderSlots(hotIndex = -1) {
+  const root = $("#slot-row");
+  if (!root) return;
+  root.innerHTML = "";
+  getMultipliers(12, state.risk).forEach((value, index) => {
+    const slot = document.createElement("div");
+    slot.className = `slot ${index === hotIndex ? "hot" : ""}`;
+    slot.textContent = `${formatMultiplier(value)}x`;
+    root.appendChild(slot);
+  });
+}
+
+function updateLimits() {
+  const line = $("#limit-line");
+  const stake = $("#stake-input");
+  if (!line || !stake) return;
+  const limit = riskLimits[state.risk];
+  line.textContent = `Лимит режима: ${format(limit)} кристаллов`;
+  stake.max = limit;
+  if (Number(stake.value) > limit) stake.value = limit;
+}
+function switchTab(tab) {
+  if (!tab || document.body.dataset.activeTab === tab) return;
+  document.body.dataset.activeTab = tab;
+  $$(".screen").forEach((screen) => screen.classList.remove("active"));
+  $(`#screen-${tab}`).classList.add("active");
+  $$(".bottom-nav button").forEach((button) => {
+    button.classList.toggle("active", button.dataset.tab === tab);
+  });
+  if (tab === "home") {
+    requestAnimationFrame(() => drawHomeBoard());
+  }
+  if (tab === "solo") {
+    renderCarpet();
+    startCarpetCloudRenderer();
+    requestAnimationFrame(() => {
+      renderCarpet();
+      startCarpetCloudRenderer();
+      const canvas = getCarpetTrailCanvas();
+      if (canvas) resizeCarpetTrailCanvas(canvas);
+    });
+  }
+  if (tab === "pvp") {
+    renderPharaoh();
+  }
+}
+
+function weightedSlotFromFairWalk(rows = state.homeRows) {
+  let slot = 0;
+  const path = [];
+  for (let row = 0; row < rows; row += 1) {
+    const right = Math.random() >= 0.5;
+    if (right) slot += 1;
+    path.push(slot);
+  }
+  return { slot, path };
+}
+
+const plinkoCanvas = $("#plinko-canvas");
+const plinkoCtx = plinkoCanvas?.getContext("2d");
+const homeCanvas = $("#home-plinko-canvas");
+const homeCtx = homeCanvas?.getContext("2d");
+const homeMonkeyImages = {
+  left: new Image(),
+  right: new Image(),
+};
+const homeMonkeyState = {
+  left: { start: 0, until: 0, intensity: 0 },
+  right: { start: 0, until: 0, intensity: 0 },
+};
+homeMonkeyImages.left.src = "./assets/monkey-left.png?v=telegram62";
+homeMonkeyImages.right.src = "./assets/monkey-right.png?v=telegram62";
+Object.values(homeMonkeyImages).forEach((image) => {
+  image.onload = () => drawHomeBoard();
+});
+const coefficientSlotPath = new Path2D(
+  "M3.83726 0H0C0 1.49347 0 5.9736 0.21799 6.544C0.40973 7.04573 0.71569 7.45373 1.09202 7.70933C1.51984 8 2.07989 8 3.2 8H14.8C15.9201 8 16.4802 8 16.908 7.70933C17.2843 7.45373 17.5903 7.04573 17.782 6.544C18 5.9736 18 1.49347 18 0H14.1627C13.9182 0 13.7959 0 13.6808 0.0368005C13.5787 0.0694672 13.4812 0.123333 13.3917 0.196533C13.2908 0.278933 13.2043 0.394266 13.0314 0.6248L12.4373 1.41693C12.0914 1.87814 11.9184 2.1088 11.7166 2.27373C11.5376 2.41987 11.3425 2.5276 11.1385 2.59293C10.9083 2.66667 10.6637 2.66667 10.1745 2.66667H7.8255C7.3363 2.66667 7.0917 2.66667 6.86154 2.59293C6.65746 2.5276 6.46237 2.41987 6.28343 2.27373C6.08174 2.10892 5.9089 1.87846 5.56348 1.41792L5.56274 1.41693L4.96863 0.6248C4.79548 0.394 4.70908 0.278838 4.60828 0.196533C4.51881 0.123333 4.42127 0.0694672 4.31923 0.0368005C4.20414 0 4.08185 0 3.83726 0Z"
+);
+
+function setupCanvasForDisplay(canvas, ctx) {
+  const rect = canvas.getBoundingClientRect();
+  const dpr = window.devicePixelRatio || 1;
+  const width = Math.max(1, Math.round(rect.width || canvas.clientWidth || canvas.width / dpr || 356));
+  const height = Math.max(1, Math.round(rect.height || canvas.clientHeight || canvas.height / dpr || 360));
+  const pixelWidth = Math.round(width * dpr);
+  const pixelHeight = Math.round(height * dpr);
+
+  if (canvas.width !== pixelWidth || canvas.height !== pixelHeight) {
+    canvas.width = pixelWidth;
+    canvas.height = pixelHeight;
+  }
+
+  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  return { width, height };
+}
+
+function isRealTelegramWebApp() {
+  return document.body.classList.contains("is-telegram-webapp") &&
+    !document.body.classList.contains("local-telegram-frame");
+}
+
+function getHomeCanvasProfile() {
+  if (isRealTelegramWebApp() || document.body.classList.contains("local-telegram-frame")) {
+    return {
+      horizontalInsetMin: 10,
+      horizontalInsetMax: 16,
+      horizontalInsetRatio: 0.04,
+      pegRadius: 2.85,
+      activePegRadius: 3.15,
+      activeGlowRadius: 4.35,
+      activeGlowBlur: 7,
+      idleGlowBlur: 3.8,
+      activeDuration: 82,
+      collisionPadding: 0.55,
+      ballRadius: HOME_BALL_RADIUS,
+    };
+  }
+  return {
+    horizontalInsetMin: 18,
+    horizontalInsetMax: 26,
+    horizontalInsetRatio: 0.055,
+    pegRadius: HOME_PEG_RADIUS,
+    activePegRadius: HOME_PEG_RADIUS + 0.6,
+    activeGlowRadius: 5.4,
+    activeGlowBlur: 14,
+    idleGlowBlur: 6,
+    activeDuration: 150,
+    collisionPadding: 0.9,
+    ballRadius: HOME_BALL_RADIUS,
+  };
+}
+
+function getHomeBoardGeometry(width, rows, height = 420) {
+  const profile = getHomeCanvasProfile();
+  const slotCount = rows + 1;
+  const pegTop = 66;
+  const horizontalInset = Math.max(
+    profile.horizontalInsetMin,
+    Math.min(profile.horizontalInsetMax, width * profile.horizontalInsetRatio)
+  );
+  const pegGap = (width - horizontalInset * 2) / Math.max(1, rows + 1);
+  const pegBottom = Math.min(height - 124, Math.max(286, height * 0.715));
+  const pegStep = rows > 1 ? (pegBottom - pegTop) / (rows - 1) : 0;
+  const slotY = Math.min(height - 82, pegBottom + 18);
+  const slotWidth = Math.max(17, Math.min(24, pegGap - 3));
+  const slotHeight = Math.max(8, Math.min(12, slotWidth * (8 / 18)));
+  const centerX = (index) => width / 2 + (index - (slotCount - 1) / 2) * pegGap;
+  return { slotCount, pegTop, pegBottom, slotY, pegStep, pegGap, slotWidth, slotHeight, centerX };
+}
+
+function drawHomeLauncher(ctx, width, isLaunching = false, timestamp = performance.now()) {
+  const x = width / 2;
+  const y = 30;
+  const pulse = isLaunching ? 0.5 + Math.sin(timestamp / 110) * 0.5 : 0;
+
+  ctx.save();
+  ctx.fillStyle = "rgba(0, 0, 0, 0.32)";
+  ctx.beginPath();
+  ctx.ellipse(x, y + 10.8, 8.8, 2.1, 0, 0, Math.PI * 2);
+  ctx.fill();
+
+  const halo = ctx.createRadialGradient(x, y, 5.5, x, y, 15.5 + pulse * 1.5);
+  halo.addColorStop(0, `rgba(255, 222, 134, ${0.18 + pulse * 0.12})`);
+  halo.addColorStop(0.46, `rgba(255, 98, 189, ${0.09 + pulse * 0.08})`);
+  halo.addColorStop(1, "rgba(255, 98, 189, 0)");
+  ctx.fillStyle = halo;
+  ctx.beginPath();
+  ctx.arc(x, y, 15.5 + pulse * 1.5, 0, Math.PI * 2);
+  ctx.fill();
+
+  if (isLaunching) {
+    ctx.strokeStyle = `rgba(255, 236, 156, ${0.58 + pulse * 0.26})`;
+    ctx.lineWidth = 1.15;
+    ctx.beginPath();
+    ctx.arc(x, y + 0.4, 10.2 + pulse * 0.8, 0, Math.PI * 2);
+    ctx.stroke();
+  }
+
+  const rim = ctx.createLinearGradient(x - 8, y - 8, x + 8, y + 8);
+  rim.addColorStop(0, "#f4d678");
+  rim.addColorStop(0.44, "#c49445");
+  rim.addColorStop(1, "#4b2b31");
+
+  ctx.shadowColor = `rgba(255, 213, 116, ${0.2 + pulse * 0.18})`;
+  ctx.shadowBlur = 5 + pulse * 3;
+  ctx.strokeStyle = rim;
+  ctx.lineWidth = 2.1;
+  ctx.beginPath();
+  ctx.arc(x, y, 10.4, 0, Math.PI * 2);
+  ctx.stroke();
+
+  ctx.shadowBlur = 0;
+  const depth = ctx.createRadialGradient(x - 2, y - 3, 1, x, y + 1, 8.8);
+  depth.addColorStop(0, "#050307");
+  depth.addColorStop(0.7, "#08050c");
+  depth.addColorStop(1, "#17101a");
+
+  ctx.fillStyle = depth;
+  ctx.beginPath();
+  ctx.arc(x, y + 0.4, 7.9, 0, Math.PI * 2);
+  ctx.fill();
+
+  ctx.strokeStyle = `rgba(255, 229, 151, ${0.38 + pulse * 0.16})`;
+  ctx.lineWidth = 0.75;
+  ctx.beginPath();
+  ctx.arc(x, y + 0.4, 8.8, 0, Math.PI * 2);
+  ctx.stroke();
+  ctx.restore();
+}
+
+function drawCoefficientSlot(ctx, x, y, width, height, color) {
+  ctx.save();
+  ctx.translate(x, y);
+  ctx.scale(width / 18, height / 8);
+  ctx.fillStyle = color;
+  ctx.fill(coefficientSlotPath);
+  ctx.restore();
+}
+
+function drawHomeBall(ctx, ball, trail = []) {
+  const radius = ball.radius || 5;
+  ctx.save();
+  trail.forEach((point, index) => {
+    const age = trail.length - index;
+    const alpha = Math.max(0, 0.2 - age * 0.035);
+    if (alpha <= 0) return;
+    ctx.beginPath();
+    ctx.fillStyle = `rgba(255, 73, 182, ${alpha})`;
+    ctx.shadowColor = "rgba(255, 73, 182, 0.42)";
+    ctx.shadowBlur = 12;
+    ctx.arc(point.x, point.y, Math.max(1.2, radius - age * 0.38), 0, Math.PI * 2);
+    ctx.fill();
+  });
+
+  const body = ctx.createRadialGradient(ball.x - radius * 0.35, ball.y - radius * 0.45, 1, ball.x, ball.y, radius + 1);
+  body.addColorStop(0, "#ffd0ee");
+  body.addColorStop(0.34, "#ff6ac2");
+  body.addColorStop(1, "#c81782");
+
+  ctx.beginPath();
+  ctx.fillStyle = body;
+  ctx.shadowColor = "rgba(255, 73, 182, 0.9)";
+  ctx.shadowBlur = 15;
+  ctx.arc(ball.x, ball.y, radius, 0, Math.PI * 2);
+  ctx.fill();
+
+  ctx.shadowBlur = 0;
+  ctx.fillStyle = "rgba(255, 255, 255, 0.58)";
+  ctx.beginPath();
+  ctx.arc(ball.x - radius * 0.31, ball.y - radius * 0.37, radius * 0.25, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.restore();
+}
+
+function getHomeBallPoints(path, slot, canvasWidth, canvasHeight = 420) {
+  const rows = path.length;
+  const geometry = getHomeBoardGeometry(canvasWidth, rows, canvasHeight);
+  const { pegTop, slotY, pegStep, pegGap, centerX } = geometry;
+  const launcherX = canvasWidth / 2;
+  const profile = getHomeCanvasProfile();
+  const ballRadius = profile.ballRadius;
+  const contactDistance = ballRadius + profile.pegRadius + profile.collisionPadding + 1.4;
+  const clampToBoard = (x, y) => {
+    const bounds = getHomeTriangleBounds(y, geometry, canvasWidth, rows, ballRadius);
+    return Math.max(bounds.left, Math.min(bounds.right, x));
+  };
+  const points = [
+    { x: launcherX, y: 30 },
+    { x: launcherX + (Math.random() - 0.5) * 1.2, y: 42 },
+    { x: launcherX + (Math.random() - 0.5) * 2.2, y: pegTop - 17 },
+  ];
+  for (let row = 0; row < path.length; row += 1) {
+    const previousSlot = row > 0 ? path[row - 1] : 0;
+    const currentSlot = path[row];
+    const direction = currentSlot > previousSlot ? 1 : -1;
+    const touchedPeg = getHomeTouchedPeg(path, row);
+    const pegY = pegTop + row * pegStep;
+    const peg = getHomePegPosition(row, touchedPeg.col, canvasWidth, rows, canvasHeight);
+    const rowNoise = (Math.random() - 0.5) * Math.min(pegGap * 0.18, 5);
+    const contactX = clampToBoard(peg.x - direction * contactDistance * 0.78 + rowNoise, pegY);
+    const contactY = pegY - Math.min(3.4, pegStep * 0.12) + (Math.random() - 0.5) * 1.2;
+    const reboundY = Math.min(slotY - 16, pegY + pegStep * (0.32 + Math.random() * 0.1));
+    const reboundX = clampToBoard(
+      peg.x + direction * (pegGap * (0.27 + Math.random() * 0.12)) + (Math.random() - 0.5) * Math.min(pegGap * 0.15, 5),
+      reboundY
+    );
+    const driftY = Math.min(slotY - 12, pegY + pegStep * (0.67 + Math.random() * 0.09));
+    const laneX = launcherX + (currentSlot - (row + 1) / 2) * pegGap;
+    const driftX = clampToBoard(
+      laneX + direction * Math.min(pegGap * 0.2, 6) + (Math.random() - 0.5) * Math.min(pegGap * 0.28, 8),
+      driftY
+    );
+
+    points.push({ x: contactX, y: contactY, peg: touchedPeg, contact: true, pegX: peg.x, pegY });
+    points.push({ x: reboundX, y: reboundY, peg: touchedPeg });
+    if (row < path.length - 1) {
+      points.push({ x: driftX, y: driftY, peg: touchedPeg });
+    }
+  }
+  const settleY = Math.max(pegTop, slotY - Math.max(16, pegStep * 0.58));
+  points.push({
+    x: clampToBoard(centerX(slot) + (Math.random() - 0.5) * Math.min(pegGap * 0.18, 5), settleY),
+    y: settleY,
+  });
+  points.push({ x: centerX(slot), y: slotY - 5 });
+  return points;
+}
+
+function getHomeTouchedPeg(path, row) {
+  const previousSlot = row > 0 ? path[row - 1] : 0;
+  const currentSlot = path[row];
+  const touchedCol = currentSlot > previousSlot ? currentSlot - 1 : currentSlot;
+  return {
+    row,
+    col: Math.max(0, Math.min(row + 2, touchedCol + 1)),
+  };
+}
+
+function getHomePegPosition(row, col, width, rows, height) {
+  const { pegTop, pegStep, pegGap } = getHomeBoardGeometry(width, rows, height);
+  const count = row + 3;
+  return {
+    x: width / 2 + (col - (count - 1) / 2) * pegGap,
+    y: pegTop + row * pegStep,
+  };
+}
+
+function getHomeSlotFromX(x, width, rows, height) {
+  const { slotCount, centerX } = getHomeBoardGeometry(width, rows, height);
+  let closest = 0;
+  let closestDistance = Infinity;
+  for (let index = 0; index < slotCount; index += 1) {
+    const distance = Math.abs(centerX(index) - x);
+    if (distance < closestDistance) {
+      closest = index;
+      closestDistance = distance;
+    }
+  }
+  return closest;
+}
+
+function getHomeMatterApi() {
+  return window.Matter || null;
+}
+
+function createMatterWall(MatterApi, x1, y1, x2, y2, thickness) {
+  const { Bodies } = MatterApi;
+  const dx = x2 - x1;
+  const dy = y2 - y1;
+  const length = Math.sqrt(dx * dx + dy * dy);
+  return Bodies.rectangle((x1 + x2) / 2, (y1 + y2) / 2, length, thickness, {
+    isStatic: true,
+    angle: Math.atan2(dy, dx),
+    render: { visible: false },
+    friction: 0,
+    restitution: 0.5,
+  });
+}
+
+function simulateHomeMatterDrop(canvasWidth, canvasHeight, rows) {
+  const MatterApi = getHomeMatterApi();
+  if (!MatterApi) return null;
+
+  const { Engine, World, Bodies, Body, Events } = MatterApi;
+  const profile = getHomeCanvasProfile();
+  const geometry = getHomeBoardGeometry(canvasWidth, rows, canvasHeight);
+  const engine = Engine.create({ enableSleeping: false });
+  engine.gravity.y = 0.92;
+  engine.gravity.scale = 0.001;
+  engine.positionIterations = 8;
+  engine.velocityIterations = 6;
+
+  const ball = Bodies.circle(canvasWidth / 2 + (Math.random() - 0.5) * 1.2, 31.5, profile.ballRadius, {
+    label: "ball",
+    restitution: 0.52,
+    friction: 0,
+    frictionStatic: 0,
+    frictionAir: 0.0026,
+    density: 0.0016,
+    slop: 0.01,
+  });
+  Body.setVelocity(ball, { x: (Math.random() - 0.5) * 0.42, y: 1.18 + Math.random() * 0.22 });
+
+  const bodies = [ball];
+  for (let row = 0; row < rows; row += 1) {
+    const count = row + 3;
+    for (let col = 0; col < count; col += 1) {
+      const peg = getHomePegPosition(row, col, canvasWidth, rows, canvasHeight);
+      bodies.push(
+        Bodies.circle(peg.x, peg.y, profile.pegRadius + 0.15, {
+          label: `peg:${row}:${col}`,
+          isStatic: true,
+          restitution: 0.68,
+          friction: 0,
+          slop: 0.01,
+        })
+      );
+    }
+  }
+
+  bodies.push(
+    Bodies.rectangle(canvasWidth / 2, geometry.slotY + 13, canvasWidth, 8, {
+      isStatic: true,
+      render: { visible: false },
+      restitution: 0.1,
+    })
+  );
+
+  World.add(engine.world, bodies);
+
+  let simTime = 0;
+  const activeUntil = new Map();
+  Events.on(engine, "collisionStart", (event) => {
+    event.pairs.forEach((pair) => {
+      const labels = [pair.bodyA.label, pair.bodyB.label];
+      const pegLabel = labels.find((label) => label.startsWith("peg:"));
+      if (!pegLabel || !labels.includes("ball")) return;
+      const [, row, col] = pegLabel.split(":").map(Number);
+      if (Number.isFinite(row) && Number.isFinite(col)) {
+        activeUntil.set(`${row}:${col}`, simTime + profile.activeDuration);
+      }
+    });
+  });
+
+  const frames = [];
+  for (let step = 0; step < HOME_MATTER_MAX_STEPS; step += 1) {
+    simTime += HOME_MATTER_STEP_MS;
+    Engine.update(engine, HOME_MATTER_STEP_MS);
+
+    const bounds = getHomeTriangleBounds(ball.position.y, geometry, canvasWidth, rows, profile.ballRadius);
+    const boundaryNudge = Math.max(2.2, profile.ballRadius * 0.55);
+    if (ball.position.x < bounds.left) {
+      Body.setPosition(ball, { x: bounds.left + boundaryNudge, y: ball.position.y });
+      Body.setVelocity(ball, {
+        x: Math.abs(ball.velocity.x) * 0.62 + 0.18 + Math.random() * 0.08,
+        y: Math.max(ball.velocity.y, 0.72),
+      });
+    } else if (ball.position.x > bounds.right) {
+      Body.setPosition(ball, { x: bounds.right - boundaryNudge, y: ball.position.y });
+      Body.setVelocity(ball, {
+        x: -Math.abs(ball.velocity.x) * 0.62 - 0.18 - Math.random() * 0.08,
+        y: Math.max(ball.velocity.y, 0.72),
+      });
+    } else if (
+      (ball.position.x - bounds.left < boundaryNudge || bounds.right - ball.position.x < boundaryNudge) &&
+      Math.abs(ball.velocity.x) < 0.08 &&
+      ball.velocity.y < 0.5
+    ) {
+      const pushRight = ball.position.x - bounds.left < bounds.right - ball.position.x;
+      Body.setVelocity(ball, {
+        x: pushRight ? 0.24 + Math.random() * 0.08 : -0.24 - Math.random() * 0.08,
+        y: 0.76,
+      });
+    }
+
+    const activePeg = [];
+    activeUntil.forEach((until, key) => {
+      if (until < simTime) {
+        activeUntil.delete(key);
+        return;
+      }
+      const [row, col] = key.split(":").map(Number);
+      activePeg.push({ row, col });
+    });
+
+    frames.push({
+      t: simTime,
+      x: ball.position.x,
+      y: ball.position.y,
+      activePeg,
+    });
+
+    if (ball.position.y >= geometry.slotY - 5) break;
+    if (step > 100 && Math.abs(ball.velocity.y) < 0.03) {
+      Body.setVelocity(ball, {
+        x: ball.velocity.x + (Math.random() < 0.5 ? -0.45 : 0.45),
+        y: Math.max(ball.velocity.y, 0.85),
+      });
+    }
+  }
+
+  const lastFrame = frames[frames.length - 1] || { x: canvasWidth / 2, y: geometry.slotY - 5, t: 0, activePeg: [] };
+  const slot = getHomeSlotFromX(lastFrame.x, canvasWidth, rows, canvasHeight);
+  frames.push({ t: lastFrame.t + 70, x: geometry.centerX(slot), y: geometry.slotY - 5, activePeg: lastFrame.activePeg || [] });
+
+  World.clear(engine.world, false);
+  Engine.clear(engine);
+
+  return {
+    frames,
+    slot,
+    duration: frames[frames.length - 1]?.t || 1200,
+  };
+}
+
+function createHomePhysicsAnimation(stake, timestamp, canvasWidth, canvasHeight, risk, rows) {
+  const profile = getHomeCanvasProfile();
+  const matterDrop = simulateHomeMatterDrop(canvasWidth, canvasHeight, rows);
+  return {
+    physics: !matterDrop,
+    matterReplay: Boolean(matterDrop),
+    rows,
+    risk,
+    targetSlot: matterDrop?.slot ?? null,
+    frames: matterDrop?.frames || null,
+    duration: matterDrop?.duration || 0,
+    start: timestamp || 0,
+    width: canvasWidth,
+    height: canvasHeight,
+    x: canvasWidth / 2 + (Math.random() - 0.5) * 1.4,
+    y: 31.5,
+    vx: (Math.random() - 0.5) * 26,
+    vy: 32 + Math.random() * 8,
+    radius: profile.ballRadius,
+    last: timestamp || 0,
+    trail: [],
+    activePegs: [],
+    stake,
+    slot: null,
+    multiplier: 0,
+    payout: 0,
+    stuckMs: 0,
+    lastY: 42,
+  };
+}
+
+function resolveHomePhysicsAnimation(animation) {
+  if (animation.slot !== null) return;
+  const slot =
+    typeof animation.targetSlot === "number"
+      ? Math.max(0, Math.min(animation.rows, animation.targetSlot))
+      : getHomeSlotFromX(animation.x, animation.width, animation.rows, animation.height);
+  const multiplier = getMultipliers(animation.rows, animation.risk)[slot] || 0;
+  animation.slot = slot;
+  animation.multiplier = multiplier;
+  animation.payout = Math.round(animation.stake * multiplier);
+}
+
+function getHomeTriangleBounds(y, geometry, width, rows, radius) {
+  if (y < geometry.pegTop - 18) {
+    return {
+      left: width / 2 - 13,
+      right: width / 2 + 13,
+    };
+  }
+  const rowFloat = Math.max(0, Math.min(rows - 1, (y - geometry.pegTop) / Math.max(1, geometry.pegStep)));
+  const visualCount = rowFloat + 3;
+  const half = ((visualCount - 1) * geometry.pegGap) / 2 + geometry.pegGap * 0.58;
+  return {
+    left: width / 2 - half + radius,
+    right: width / 2 + half - radius,
+  };
+}
+
+function stepHomePhysicsAnimation(animation, timestamp) {
+  const geometry = getHomeBoardGeometry(animation.width, animation.rows, animation.height);
+  const profile = getHomeCanvasProfile();
+  const now = timestamp || performance.now();
+  if (!animation.last) animation.last = now;
+  const elapsed = Math.max(0, Math.min(48, now - animation.last));
+  animation.last = now;
+
+  let remaining = elapsed / 1000;
+  while (remaining > 0) {
+    const dt = Math.min(remaining, 1 / 120);
+    remaining -= dt;
+
+    animation.vy += HOME_PHYSICS_GRAVITY * dt;
+    animation.x += animation.vx * dt;
+    animation.y += animation.vy * dt;
+
+    const bounds = getHomeTriangleBounds(animation.y, geometry, animation.width, animation.rows, animation.radius);
+    if (animation.x < bounds.left) {
+      animation.x = bounds.left;
+      animation.vx = Math.abs(animation.vx) * HOME_PHYSICS_WALL_RESTITUTION;
+    } else if (animation.x > bounds.right) {
+      animation.x = bounds.right;
+      animation.vx = -Math.abs(animation.vx) * HOME_PHYSICS_WALL_RESTITUTION;
+    }
+
+    const approximateRow = Math.round((animation.y - geometry.pegTop) / Math.max(1, geometry.pegStep));
+    const firstRow = Math.max(0, approximateRow - 2);
+    const lastRow = Math.min(animation.rows - 1, approximateRow + 2);
+    for (let row = firstRow; row <= lastRow; row += 1) {
+      const count = row + 3;
+      for (let col = 0; col < count; col += 1) {
+        const peg = getHomePegPosition(row, col, animation.width, animation.rows, animation.height);
+        const dx = animation.x - peg.x;
+        const dy = animation.y - peg.y;
+        const distance = Math.sqrt(dx * dx + dy * dy) || 0.0001;
+        const minDistance = animation.radius + profile.pegRadius + profile.collisionPadding;
+        if (distance >= minDistance) continue;
+
+        const nx = dx / distance;
+        const ny = dy / distance;
+        const overlap = minDistance - distance;
+        animation.x += nx * overlap;
+        animation.y += ny * overlap;
+
+        const normalVelocity = animation.vx * nx + animation.vy * ny;
+        if (normalVelocity < 0) {
+          animation.vx -= (1 + HOME_PHYSICS_RESTITUTION) * normalVelocity * nx;
+          animation.vy -= (1 + HOME_PHYSICS_RESTITUTION) * normalVelocity * ny;
+          animation.vx += nx * (8 + Math.random() * 14);
+          animation.vy -= Math.max(0, Math.min(18, Math.abs(normalVelocity) * 0.08));
+        }
+        if (Math.abs(animation.vx) < 24) {
+          const side = nx || (Math.random() < 0.5 ? -1 : 1);
+          animation.vx += side * (18 + Math.random() * 18);
+        }
+        if (animation.vy < 38) {
+          animation.vy = 38 + Math.random() * 18;
+        }
+
+        animation.activePegs.push({ row, col, until: now + profile.activeDuration });
+      }
+    }
+
+    if (typeof animation.targetSlot === "number") {
+      const targetX = geometry.centerX(animation.targetSlot);
+      const progress = Math.max(
+        0,
+        Math.min(1, (animation.y - (geometry.pegTop + geometry.pegStep * 1.5)) / Math.max(1, geometry.slotY - geometry.pegTop))
+      );
+      if (progress > 0) {
+        const ease = progress * progress * (3 - 2 * progress);
+        animation.vx += (targetX - animation.x) * (0.2 + ease * 0.62) * dt;
+        if (progress > 0.74) {
+          animation.x += (targetX - animation.x) * 0.018 * ease;
+        }
+      }
+    }
+
+    animation.vx = Math.max(-190, Math.min(190, animation.vx * 0.997));
+    animation.vy = Math.max(-120, Math.min(310, animation.vy));
+
+    if (animation.y >= geometry.slotY - 5) {
+      if (typeof animation.targetSlot === "number") {
+        animation.x = geometry.centerX(animation.targetSlot);
+      }
+      animation.y = geometry.slotY - 5;
+      resolveHomePhysicsAnimation(animation);
+      animation.done = true;
+      break;
+    }
+  }
+
+  animation.trail.push({ x: animation.x, y: animation.y });
+  if (animation.trail.length > 7) animation.trail.shift();
+  animation.activePegs = animation.activePegs.filter((peg) => peg.until >= now);
+
+  const verticalProgress = animation.y - (animation.lastY ?? animation.y);
+  if (!animation.done && animation.y > geometry.pegTop - 6 && verticalProgress < 0.22 && Math.abs(animation.vy) < 72) {
+    animation.stuckMs = (animation.stuckMs || 0) + elapsed;
+  } else {
+    animation.stuckMs = 0;
+  }
+  if (!animation.done && animation.stuckMs > 140) {
+    animation.vx += (Math.random() < 0.5 ? -1 : 1) * (34 + Math.random() * 22);
+    animation.vy = Math.max(animation.vy, 112);
+    animation.y += 1.8;
+    animation.stuckMs = 0;
+  }
+  animation.lastY = animation.y;
+
+  return {
+    ball: {
+      x: animation.x,
+      y: animation.y,
+      radius: animation.radius,
+    },
+    trail: animation.trail,
+    activePeg: animation.activePegs.map(({ row, col }) => ({ row, col })),
+    done: Boolean(animation.done),
+  };
+}
+
+function getHomeBallFrame(animation, timestamp) {
+  if (animation.matterReplay && Array.isArray(animation.frames)) {
+    const elapsed = Math.max(0, timestamp - animation.start);
+    const replayElapsed = elapsed / HOME_MATTER_REPLAY_SLOWDOWN;
+    const frames = animation.frames;
+    let index = 0;
+    while (index < frames.length - 2 && frames[index + 1].t < replayElapsed) {
+      index += 1;
+    }
+    const a = frames[index] || frames[0];
+    const b = frames[Math.min(index + 1, frames.length - 1)] || a;
+    const span = Math.max(1, b.t - a.t);
+    const local = Math.max(0, Math.min(1, (replayElapsed - a.t) / span));
+    const smooth = local * local * (3 - 2 * local);
+    const ball = {
+      x: a.x + (b.x - a.x) * smooth,
+      y: a.y + (b.y - a.y) * smooth,
+      radius: animation.radius || HOME_BALL_RADIUS,
+    };
+    animation.trail.push({ x: ball.x, y: ball.y });
+    if (animation.trail.length > 7) animation.trail.shift();
+    return {
+      ball,
+      trail: animation.trail,
+      activePeg: b.activePeg || a.activePeg || [],
+      done: elapsed >= animation.duration * HOME_MATTER_REPLAY_SLOWDOWN,
+    };
+  }
+  if (animation.physics) return stepHomePhysicsAnimation(animation, timestamp);
+  const progress = Math.min((timestamp - animation.start) / animation.duration, 1);
+  const scaled = progress * (animation.points.length - 1);
+  const index = Math.floor(scaled);
+  const local = scaled - index;
+  const a = animation.points[index];
+  const b = animation.points[Math.min(index + 1, animation.points.length - 1)];
+  const p0 = animation.points[Math.max(0, index - 1)];
+  const p1 = a;
+  const p2 = b;
+  const p3 = animation.points[Math.min(animation.points.length - 1, index + 2)];
+  const t = local;
+  const t2 = t * t;
+  const t3 = t2 * t;
+  const x = 0.5 * (
+    (2 * p1.x) +
+    (-p0.x + p2.x) * t +
+    (2 * p0.x - 5 * p1.x + 4 * p2.x - p3.x) * t2 +
+    (-p0.x + 3 * p1.x - 3 * p2.x + p3.x) * t3
+  );
+  const y = 0.5 * (
+    (2 * p1.y) +
+    (-p0.y + p2.y) * t +
+    (2 * p0.y - 5 * p1.y + 4 * p2.y - p3.y) * t2 +
+    (-p0.y + 3 * p1.y - 3 * p2.y + p3.y) * t3
+  );
+  const ball = {
+    x,
+    y,
+    radius: animation.radius || HOME_BALL_RADIUS,
+  };
+  let activePeg = null;
+  if (b?.contact && local > 0.7) activePeg = b.peg;
+  else if (a?.contact && local < 0.18) activePeg = a.peg;
+  animation.trail.push({ x: ball.x, y: ball.y });
+  if (animation.trail.length > 7) animation.trail.shift();
+  return {
+    ball,
+    trail: animation.trail,
+    activePeg,
+    done: progress >= 1,
+  };
+}
+
+const homeWinEffects = [];
+let homeEffectsRunning = false;
+
+function getHomeMonkeyLayout(side, width, height) {
+  const drawWidth = Math.max(42, Math.min(58, width * 0.15));
+  const aspect = side === "left" ? 499 / 360 : 491 / 360;
+  const drawHeight = drawWidth * aspect;
+  const top = Math.min(height - drawHeight - 160, Math.max(90, height * 0.285));
+  const left = side === "left" ? 7 : width - drawWidth - 7;
+  return {
+    left,
+    top,
+    width: drawWidth,
+    height: drawHeight,
+    mouthX: side === "left" ? left + drawWidth * 0.76 : left + drawWidth * 0.24,
+    mouthY: top + drawHeight * 0.63,
+  };
+}
+
+function drawHomeMonkeys(ctx, width, height, timestamp) {
+  ["left", "right"].forEach((side) => {
+    const image = homeMonkeyImages[side];
+    if (!image || !image.complete || image.naturalWidth === 0) return;
+
+    const layout = getHomeMonkeyLayout(side, width, height);
+    const state = homeMonkeyState[side];
+    const active = state.until > timestamp;
+    const progress = active ? Math.max(0, Math.min(1, (timestamp - state.start) / Math.max(1, state.until - state.start))) : 1;
+    const shake = active ? Math.sin(timestamp / 22) * (1 - progress) * (1.1 + state.intensity * 1.8) : 0;
+    const pulse = active ? Math.sin(progress * Math.PI) : 0;
+    const scale = 1 + pulse * (0.035 + state.intensity * 0.025);
+
+    ctx.save();
+    ctx.globalAlpha = 0.9 + pulse * 0.1;
+    ctx.translate(layout.left + layout.width / 2 + shake, layout.top + layout.height / 2);
+    ctx.scale(scale, scale);
+    ctx.shadowColor = `rgba(255, 205, 92, ${0.24 + pulse * 0.56})`;
+    ctx.shadowBlur = 7 + pulse * 12;
+    ctx.drawImage(image, -layout.width / 2, -layout.height / 2, layout.width, layout.height);
+    ctx.restore();
+
+    if (active) {
+      ctx.save();
+      const mouth = ctx.createRadialGradient(layout.mouthX, layout.mouthY, 1, layout.mouthX, layout.mouthY, 11 + state.intensity * 3.5);
+      mouth.addColorStop(0, `rgba(255, 241, 167, ${0.5 + pulse * 0.46})`);
+      mouth.addColorStop(0.42, `rgba(255, 205, 88, ${0.24 + pulse * 0.32})`);
+      mouth.addColorStop(1, "rgba(255, 205, 88, 0)");
+      ctx.fillStyle = mouth;
+      ctx.beginPath();
+      ctx.arc(layout.mouthX, layout.mouthY, 11 + state.intensity * 3.5, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.restore();
+    }
+  });
+}
+
+function createHomeCoinBurst(side, width, height, timestamp) {
+  const originX = side === "left" ? 28 : width - 28;
+  const direction = side === "left" ? 1 : -1;
+  const originY = Math.min(height - 82, Math.max(150, height * 0.56));
+  for (let index = 0; index < HOME_EFFECT_COIN_COUNT; index += 1) {
+    homeWinEffects.push({
+      type: "coin",
+      start: timestamp,
+      duration: 780 + Math.random() * 260,
+      x: originX + (Math.random() - 0.5) * 14,
+      y: originY + (Math.random() - 0.5) * 34,
+      vx: direction * (34 + Math.random() * 58),
+      vy: -66 - Math.random() * 80,
+      gravity: 120 + Math.random() * 60,
+      size: 3.4 + Math.random() * 2.3,
+      spin: (Math.random() - 0.5) * Math.PI * 4,
+      phase: Math.random() * Math.PI * 2,
+    });
+  }
+}
+
+function createHomeMonkeyBurst(side, width, height, timestamp, count, intensity) {
+  const layout = getHomeMonkeyLayout(side, width, height);
+  const direction = side === "left" ? 1 : -1;
+  homeMonkeyState[side] = {
+    start: timestamp,
+    until: timestamp + 760 + intensity * 120,
+    intensity,
+  };
+
+  for (let index = 0; index < count; index += 1) {
+    const spread = index / Math.max(1, count - 1);
+    homeWinEffects.push({
+      type: "coin",
+      start: timestamp + Math.random() * 90,
+      duration: 780 + Math.random() * 260 + intensity * 80,
+      x: layout.mouthX + (Math.random() - 0.5) * 4,
+      y: layout.mouthY + (Math.random() - 0.5) * 4,
+      vx: direction * (42 + Math.random() * 64 + intensity * 20),
+      vy: -42 - Math.random() * 72 - Math.sin(spread * Math.PI) * 16,
+      gravity: 118 + Math.random() * 62,
+      size: 3.1 + Math.random() * 2.4 + intensity * 0.4,
+      spin: (Math.random() - 0.5) * Math.PI * (4.5 + intensity),
+      phase: Math.random() * Math.PI * 2,
+    });
+  }
+}
+
+function createHomeSparkBurst(slot, timestamp) {
+  const rect = homeCanvas.getBoundingClientRect();
+  const width = Math.round(rect.width);
+  const height = Math.round(rect.height);
+  const { slotY, centerX } = getHomeBoardGeometry(width, state.homeRows, height);
+  for (let index = 0; index < 10; index += 1) {
+    const angle = -Math.PI / 2 + (Math.random() - 0.5) * Math.PI * 1.15;
+    const distance = 16 + Math.random() * 24;
+    homeWinEffects.push({
+      type: "spark",
+      start: timestamp,
+      duration: 420 + Math.random() * 180,
+      x: centerX(slot),
+      y: slotY + 4,
+      vx: Math.cos(angle) * distance,
+      vy: Math.sin(angle) * distance,
+      gravity: 34,
+      size: 1.6 + Math.random() * 1.4,
+      phase: Math.random() * Math.PI * 2,
+    });
+  }
+}
+
+function requestHomeEffectsFrame() {
+  if (homeEffectsRunning || homeManualRunning || homeAutoRunning || homeWinEffects.length === 0) return;
+  homeEffectsRunning = true;
+  function frame(timestamp) {
+    drawHomeBoard(null, -1, 0, null, [], timestamp);
+    if (homeWinEffects.length > 0 && !homeManualRunning && !homeAutoRunning) {
+      requestAnimationFrame(frame);
+      return;
+    }
+    homeEffectsRunning = false;
+  }
+  requestAnimationFrame(frame);
+}
+
+function triggerHomeWinEffect(slot, multiplier, timestamp = performance.now()) {
+  if (multiplier < HOME_EFFECT_GOOD_MULTIPLIER) return;
+  const rect = homeCanvas.getBoundingClientRect();
+  const width = Math.round(rect.width);
+  const height = Math.round(rect.height);
+  const slotCount = state.homeRows + 1;
+  const leftOuter = slot === 0;
+  const rightOuter = slot === slotCount - 1;
+  const leftInner = slot === 1;
+  const rightInner = slot === slotCount - 2;
+
+  if (leftOuter || rightOuter || leftInner || rightInner) {
+    const side = leftOuter || leftInner ? "left" : "right";
+    const outer = leftOuter || rightOuter;
+    createHomeMonkeyBurst(
+      side,
+      width,
+      height,
+      timestamp,
+      outer ? HOME_MONKEY_EDGE_COIN_COUNT : HOME_MONKEY_INNER_COIN_COUNT,
+      outer ? 1 : 0.55
+    );
+  } else {
+    createHomeSparkBurst(slot, timestamp);
+  }
+  requestHomeEffectsFrame();
+}
+
+function drawHomeWinEffects(ctx, timestamp) {
+  if (homeWinEffects.length === 0) return;
+  ctx.save();
+  for (let index = homeWinEffects.length - 1; index >= 0; index -= 1) {
+    const particle = homeWinEffects[index];
+    const rawProgress = (timestamp - particle.start) / particle.duration;
+    if (rawProgress < 0) continue;
+    const progress = Math.min(rawProgress, 1);
+    if (progress >= 1) {
+      homeWinEffects.splice(index, 1);
+      continue;
+    }
+    const easeOut = 1 - (1 - progress) * (1 - progress);
+    const x = particle.x + particle.vx * progress + Math.sin(progress * Math.PI * 2 + particle.phase) * 5;
+    const y = particle.y + particle.vy * progress + particle.gravity * progress * progress;
+    const alpha = Math.sin(progress * Math.PI);
+
+    ctx.globalAlpha = alpha;
+    if (particle.type === "coin") {
+      const rotation = particle.phase + particle.spin * easeOut;
+      ctx.save();
+      ctx.translate(x, y);
+      ctx.rotate(rotation);
+      ctx.shadowColor = "rgba(255, 214, 91, 0.72)";
+      ctx.shadowBlur = 8;
+      const coinGradient = ctx.createRadialGradient(-particle.size * 0.35, -particle.size * 0.45, 0.5, 0, 0, particle.size * 1.2);
+      coinGradient.addColorStop(0, "#fff4a8");
+      coinGradient.addColorStop(0.48, "#ffd95c");
+      coinGradient.addColorStop(1, "#b56c20");
+      ctx.fillStyle = coinGradient;
+      ctx.beginPath();
+      ctx.ellipse(0, 0, particle.size * 1.18, particle.size * 0.78, 0, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.shadowBlur = 0;
+      ctx.strokeStyle = "rgba(255, 255, 210, 0.68)";
+      ctx.lineWidth = 0.7;
+      ctx.stroke();
+      ctx.restore();
+    } else {
+      ctx.shadowColor = "rgba(255, 224, 91, 0.9)";
+      ctx.shadowBlur = 10;
+      ctx.fillStyle = "#fff2a2";
+      ctx.beginPath();
+      ctx.arc(x, y, particle.size * (1 - progress * 0.35), 0, Math.PI * 2);
+      ctx.fill();
+    }
+  }
+  ctx.restore();
+}
+
+function drawHomeBoard(ball = null, hotSlot = -1, slotDrop = 0, activePeg = null, ballTrail = [], effectTimestamp = performance.now()) {
+  if (!homeCtx) return;
+  const ctx = homeCtx;
+  const { width, height } = setupCanvasForDisplay(homeCanvas, ctx);
+  ctx.clearRect(0, 0, width, height);
+  const ballEntries = Array.isArray(ball) ? ball : ball ? [{ ball, trail: ballTrail }] : [];
+  const activePegs = Array.isArray(activePeg) ? activePeg : activePeg ? [activePeg] : [];
+
+  const rows = state.homeRows;
+  const { slotCount, pegTop, slotY, pegStep, pegGap, slotWidth, slotHeight, centerX } = getHomeBoardGeometry(width, rows, height);
+  const canvasProfile = getHomeCanvasProfile();
+
+  drawHomeLauncher(
+    ctx,
+    width,
+    ballEntries.some((entry) => entry.ball && entry.ball.y < pegTop + 4),
+    effectTimestamp
+  );
+  drawHomeMonkeys(ctx, width, height, effectTimestamp);
+
+  ctx.textAlign = "left";
+  ctx.textBaseline = "alphabetic";
+  ballEntries.forEach((entry) => drawHomeBall(ctx, entry.ball, entry.trail || []));
+
+  ctx.save();
+  ctx.globalAlpha = 0.95;
+  for (let row = 0; row < rows; row += 1) {
+    const count = row + 3;
+    const y = pegTop + row * pegStep;
+    for (let col = 0; col < count; col += 1) {
+      const x = width / 2 + (col - (count - 1) / 2) * pegGap;
+      const isActivePeg = activePegs.some((peg) => peg && peg.row === row && peg.col === col);
+      if (isActivePeg) {
+        const activeGlow = ctx.createRadialGradient(x - 1, y - 1, 0.5, x, y, canvasProfile.activeGlowRadius + 0.8);
+        activeGlow.addColorStop(0, "rgba(255, 255, 205, 1)");
+        activeGlow.addColorStop(0.48, "rgba(255, 244, 116, 0.82)");
+        activeGlow.addColorStop(1, "rgba(255, 213, 68, 0.1)");
+        ctx.beginPath();
+        ctx.fillStyle = activeGlow;
+        ctx.shadowColor = "rgba(255, 239, 104, 0.76)";
+        ctx.shadowBlur = canvasProfile.activeGlowBlur;
+        ctx.arc(x, y, canvasProfile.activeGlowRadius, 0, Math.PI * 2);
+        ctx.fill();
+      }
+      ctx.beginPath();
+      ctx.fillStyle = isActivePeg ? "#fff58c" : "#ffd95c";
+      ctx.shadowColor = isActivePeg ? "rgba(255, 225, 92, 0.82)" : "rgba(255, 203, 68, 0.76)";
+      ctx.shadowBlur = isActivePeg ? canvasProfile.activeGlowBlur : canvasProfile.idleGlowBlur;
+      ctx.arc(x, y, isActivePeg ? canvasProfile.activePegRadius : canvasProfile.pegRadius, 0, Math.PI * 2);
+      ctx.fill();
+    }
+  }
+  ctx.restore();
+
+  const labels = getMultipliers(rows, state.homeRisk);
+  labels.forEach((multiplier, index) => {
+    const x = centerX(index) - slotWidth / 2;
+    const impactOffset = index === hotSlot ? slotDrop : 0;
+    const hot = index <= 1 || index >= slotCount - 2;
+    const slotColor = index === hotSlot ? "#ff49b6" : hot ? "#b31655" : index % 3 === 0 ? "#f4ce62" : "#79d99a";
+    ctx.save();
+    if (index === hotSlot) {
+      ctx.shadowColor = "rgba(255, 73, 182, 0.9)";
+      ctx.shadowBlur = 12;
+    }
+    drawCoefficientSlot(ctx, x, slotY + impactOffset, slotWidth, slotHeight, slotColor);
+    ctx.restore();
+    ctx.fillStyle = "#fffbea";
+    ctx.font = "500 7px Inter, system-ui, sans-serif";
+    ctx.textAlign = "center";
+    ctx.textBaseline = "middle";
+    ctx.fillText(formatMultiplier(multiplier), centerX(index), slotY + 26 + impactOffset);
+  });
+
+  drawHomeWinEffects(ctx, effectTimestamp);
+}
+
+function animateHomeSlotImpact(slot, onDone) {
+  let start = null;
+  const duration = 260;
+  const maxDrop = 9;
+  function frame(timestamp) {
+    if (!start) start = timestamp;
+    const progress = Math.min((timestamp - start) / duration, 1);
+    const bounce = Math.sin(progress * Math.PI);
+    drawHomeBoard(null, slot, bounce * maxDrop, null, [], timestamp);
+    if (progress < 1) {
+      requestAnimationFrame(frame);
+    } else {
+      drawHomeBoard(null, -1, 0);
+      onDone();
+    }
+  }
+  requestAnimationFrame(frame);
+}
+
+function animateHomeBoard(path, slot, onDone) {
+  const rows = path.length;
+  const rect = homeCanvas.getBoundingClientRect();
+  const canvasWidth = Math.round(rect.width);
+  const canvasHeight = Math.round(rect.height);
+  const points = getHomeBallPoints(path, slot, canvasWidth, canvasHeight);
+
+  let start = null;
+  const trail = [];
+  const duration = 1500;
+  function frame(timestamp) {
+    if (!start) start = timestamp;
+    const animation = { path, points, start, duration, trail };
+    const frameState = getHomeBallFrame(animation, timestamp);
+    if (!frameState.done) {
+      drawHomeBoard(frameState.ball, -1, 0, frameState.activePeg, frameState.trail, timestamp);
+      requestAnimationFrame(frame);
+    } else {
+      animateHomeSlotImpact(slot, onDone);
+    }
+  }
+  requestAnimationFrame(frame);
+}
+
+let homeWinbarTimer = null;
+let homeAutoCounterTimer = null;
+let homeAutoRunning = false;
+let homeAutoCancelRequested = false;
+const homeManualAnimations = [];
+let homeManualRunning = false;
+let homeManualImpactSlot = -1;
+let homeManualImpactStarted = 0;
+let homeManualQueuedBalls = 0;
+let homeManualTotalPayout = 0;
+
+function setHomeWinbarContent(text, withRuby = false) {
+  const winbar = $("#home-winbar");
+  if (!winbar) return null;
+  winbar.textContent = "";
+  const label = document.createElement("span");
+  label.textContent = text;
+  winbar.appendChild(label);
+  if (withRuby) {
+    const ruby = document.createElement("span");
+    ruby.className = "figma-winbar-ruby";
+    ruby.setAttribute("aria-hidden", "true");
+    winbar.appendChild(ruby);
+  }
+  return winbar;
+}
+
+function pulseHomeWinbar(strong = false) {
+  const winbar = $("#home-winbar");
+  if (!winbar) return;
+  winbar.classList.remove("pulse", "big-pulse");
+  void winbar.offsetWidth;
+  winbar.classList.add(strong ? "big-pulse" : "pulse");
+}
+
+function flashHomeWinbar(text, duration = 850, withRuby = false) {
+  const winbar = setHomeWinbarContent(text, withRuby);
+  if (!winbar) return;
+  if (homeWinbarTimer) clearTimeout(homeWinbarTimer);
+  winbar.classList.add("show");
+  pulseHomeWinbar(false);
+  homeWinbarTimer = setTimeout(() => {
+    winbar.classList.remove("show");
+    homeWinbarTimer = null;
+  }, duration);
+}
+
+function updateHomeAutoCounter(remaining) {
+  const counter = $("#home-auto-counter");
+  if (!counter) return;
+  counter.textContent = `ОСТАЛОСЬ ${format(remaining)}`;
+  counter.classList.add("show");
+}
+
+function hideHomeAutoCounter(delay = 0) {
+  const counter = $("#home-auto-counter");
+  if (homeAutoCounterTimer) clearTimeout(homeAutoCounterTimer);
+  if (!counter) return;
+  homeAutoCounterTimer = setTimeout(() => {
+    counter.classList.remove("show");
+    homeAutoCounterTimer = null;
+  }, delay);
+}
+
+function cancelHomeAutoPyramid() {
+  if (!homeAutoRunning) return false;
+  homeAutoCancelRequested = true;
+  updateHomeAutoCounter(0);
+  return true;
+}
+
+function pulseChoice(button) {
+  if (!button) return;
+  button.classList.remove("choice-press");
+  void button.offsetWidth;
+  button.classList.add("choice-press");
+}
+
+function playHomeAutoPyramid(runs, totalStake) {
+  const play = $("#home-play");
+  const winbar = $("#home-winbar");
+  const rect = homeCanvas.getBoundingClientRect();
+  const canvasWidth = Math.round(rect.width);
+  const canvasHeight = Math.round(rect.height);
+  const multipliers = getMultipliers(state.homeRows, state.homeRisk);
+  const spawnInterval = getHomeAutoSpawnInterval(runs);
+  const stakePerBall = state.homeStake;
+  const animations = [];
+  let spawned = 0;
+  let completed = 0;
+  let totalPayout = 0;
+  let lastSpawn = 0;
+  let impactSlot = -1;
+  let impactStarted = 0;
+
+  homeAutoRunning = true;
+  homeAutoCancelRequested = false;
+  if (winbar) {
+    if (homeWinbarTimer) clearTimeout(homeWinbarTimer);
+    homeWinbarTimer = null;
+    winbar.classList.remove("show", "pulse", "big-pulse");
+    winbar.textContent = "";
+  }
+  if (play) {
+    play.disabled = false;
+    const playLabel = play.querySelector("strong");
+    if (playLabel) playLabel.textContent = "СТОП";
+  }
+
+  updateHomeAutoCounter(runs);
+  setBalance(state.balance - totalStake);
+  addLedger(`Пирамида авто: ${format(runs)} шариков`, -totalStake);
+  const activeWinbar = setHomeWinbarContent("+0", true);
+  if (activeWinbar) activeWinbar.classList.add("show");
+
+  function spawnBall(timestamp) {
+    animations.push(createHomePhysicsAnimation(stakePerBall, timestamp, canvasWidth, canvasHeight, state.homeRisk, state.homeRows));
+    spawned += 1;
+    lastSpawn = timestamp;
+  }
+
+  function frame(timestamp) {
+    const ballEntries = [];
+    const activePegs = [];
+
+    for (let index = animations.length - 1; index >= 0; index -= 1) {
+      const animation = animations[index];
+      const frameState = getHomeBallFrame(animation, timestamp);
+      if (frameState.done) {
+        resolveHomePhysicsAnimation(animation);
+        animations.splice(index, 1);
+        completed += 1;
+        totalPayout += animation.payout;
+        impactSlot = animation.slot;
+        impactStarted = timestamp;
+        triggerHomeWinEffect(animation.slot, animation.multiplier, timestamp);
+        updateHomeAutoCounter(homeAutoCancelRequested ? Math.max(0, spawned - completed) : runs - completed);
+        if (animation.payout > 0) {
+          setHomeWinbarContent(`+${format(totalPayout)}`, true);
+          pulseHomeWinbar(animation.multiplier >= 2);
+        }
+      } else {
+        ballEntries.push({ ball: frameState.ball, trail: frameState.trail });
+        if (Array.isArray(frameState.activePeg)) activePegs.push(...frameState.activePeg);
+        else activePegs.push(frameState.activePeg);
+      }
+    }
+
+    while (
+      !homeAutoCancelRequested &&
+      spawned < runs &&
+      animations.length < HOME_AUTO_MAX_ACTIVE_BALLS &&
+      (lastSpawn === 0 || timestamp - lastSpawn >= spawnInterval)
+    ) {
+      spawnBall(timestamp);
+    }
+
+    let slotDrop = 0;
+    if (impactSlot >= 0) {
+      const impactProgress = Math.min((timestamp - impactStarted) / 260, 1);
+      slotDrop = Math.sin(impactProgress * Math.PI) * 9;
+      if (impactProgress >= 1) impactSlot = -1;
+    }
+
+    drawHomeBoard(ballEntries, impactSlot, slotDrop, activePegs, [], timestamp);
+
+    const targetRuns = homeAutoCancelRequested ? spawned : runs;
+    if (completed < targetRuns || animations.length > 0) {
+      requestAnimationFrame(frame);
+      return;
+    }
+
+    homeAutoRunning = false;
+    homeAutoCancelRequested = false;
+    const refund = Math.max(0, runs - spawned) * stakePerBall;
+    setBalance(state.balance + totalPayout + refund);
+    addLedger("Пирамида авто итог", totalPayout);
+    if (refund > 0) addLedger("Пирамида: возврат несыгранных", refund);
+    state.games += completed;
+    setHomeWinbarContent(refund > 0 ? `СТОП +${format(totalPayout)}` : `ИТОГ +${format(totalPayout)}`, true);
+    const finalWinbar = $("#home-winbar");
+    if (finalWinbar) finalWinbar.classList.add("show");
+    pulseHomeWinbar(true);
+    hideHomeAutoCounter(900);
+    if (homeWinbarTimer) clearTimeout(homeWinbarTimer);
+    homeWinbarTimer = setTimeout(() => {
+      const currentWinbar = $("#home-winbar");
+      if (currentWinbar) currentWinbar.classList.remove("show");
+      homeWinbarTimer = null;
+    }, 1400);
+    if (play) {
+      play.disabled = false;
+      const playLabel = play.querySelector("strong");
+      if (playLabel) playLabel.textContent = "ИГРАТЬ";
+    }
+    render();
+    drawHomeBoard();
+    requestHomeEffectsFrame();
+  }
+
+  requestAnimationFrame(frame);
+}
+
+function spawnHomeManualBall() {
+  const rect = homeCanvas.getBoundingClientRect();
+  const canvasWidth = Math.round(rect.width);
+  const canvasHeight = Math.round(rect.height);
+  homeManualAnimations.push(createHomePhysicsAnimation(state.homeStake, 0, canvasWidth, canvasHeight, state.homeRisk, state.homeRows));
+}
+
+function fillHomeManualSlots() {
+  while (homeManualQueuedBalls > 0 && homeManualAnimations.length < HOME_MANUAL_MAX_ACTIVE_BALLS) {
+    homeManualQueuedBalls -= 1;
+    spawnHomeManualBall();
+  }
+}
+
+function runHomeManualLoop() {
+  if (homeManualRunning) return;
+  homeManualRunning = true;
+
+  function frame(timestamp) {
+    fillHomeManualSlots();
+    const ballEntries = [];
+    const activePegs = [];
+
+    for (let index = homeManualAnimations.length - 1; index >= 0; index -= 1) {
+      const animation = homeManualAnimations[index];
+      if (!animation.start) animation.start = timestamp;
+      const frameState = getHomeBallFrame(animation, timestamp);
+      if (frameState.done) {
+        resolveHomePhysicsAnimation(animation);
+        homeManualAnimations.splice(index, 1);
+        homeManualImpactSlot = animation.slot;
+        homeManualImpactStarted = timestamp;
+        triggerHomeWinEffect(animation.slot, animation.multiplier, timestamp);
+        setBalance(state.balance + animation.payout);
+        addLedger(`Pyramid win ${animation.multiplier.toFixed(2)}x`, animation.payout);
+        state.games += 1;
+        flashHomeWinbar(`+${format(animation.payout)}`, 820, true);
+        if (animation.multiplier >= 2) pulseHomeWinbar(true);
+        render();
+      } else {
+        ballEntries.push({ ball: frameState.ball, trail: frameState.trail });
+        if (Array.isArray(frameState.activePeg)) activePegs.push(...frameState.activePeg);
+        else activePegs.push(frameState.activePeg);
+      }
+    }
+
+    let slotDrop = 0;
+    if (homeManualImpactSlot >= 0) {
+      const impactProgress = Math.min((timestamp - homeManualImpactStarted) / 260, 1);
+      slotDrop = Math.sin(impactProgress * Math.PI) * 9;
+      if (impactProgress >= 1) homeManualImpactSlot = -1;
+    }
+
+    drawHomeBoard(ballEntries, homeManualImpactSlot, slotDrop, activePegs, [], timestamp);
+
+    if (homeManualAnimations.length > 0 || homeManualImpactSlot >= 0 || homeManualQueuedBalls > 0) {
+      requestAnimationFrame(frame);
+      return;
+    }
+
+    homeManualRunning = false;
+    if (homeWinbarTimer) clearTimeout(homeWinbarTimer);
+    homeWinbarTimer = setTimeout(() => {
+      const winbar = $("#home-winbar");
+      if (winbar) winbar.classList.remove("show");
+      homeWinbarTimer = null;
+      homeManualTotalPayout = 0;
+    }, 1300);
+    drawHomeBoard();
+    requestHomeEffectsFrame();
+  }
+
+  requestAnimationFrame(frame);
+}
+
+function playHomePyramid() {
+  const runs = state.homeMode === "auto" ? state.homeAutoBalls : 1;
+  state.homeRuns = runs;
+  const totalStake = state.homeStake * runs;
+  const winbar = $("#home-winbar");
+  if (totalStake <= 0) return;
+  if (totalStake > state.balance) {
+    flashHomeWinbar("Недостаточно кристаллов", 1200);
+    return;
+  }
+
+  if (state.homeMode === "auto") {
+    if (cancelHomeAutoPyramid()) return;
+    playHomeAutoPyramid(runs, totalStake);
+    return;
+  }
+
+  if (!homeManualRunning && homeManualAnimations.length === 0 && homeManualQueuedBalls === 0) {
+    homeManualTotalPayout = 0;
+  }
+
+  if (homeWinbarTimer) {
+    clearTimeout(homeWinbarTimer);
+    homeWinbarTimer = null;
+  }
+
+  if (winbar) {
+    winbar.classList.remove("show");
+    winbar.textContent = "";
+  }
+  setBalance(state.balance - totalStake);
+  addLedger("Пирамида: 1 шарик", -totalStake);
+  if (homeManualAnimations.length < HOME_MANUAL_MAX_ACTIVE_BALLS) {
+    spawnHomeManualBall();
+  } else {
+    homeManualQueuedBalls += 1;
+  }
+  runHomeManualLoop();
+  render();
+}
+
+function drawPlinko(ball = null, hotSlot = -1) {
+  if (!plinkoCtx || !plinkoCanvas) return;
+  const ctx = plinkoCtx;
+  const width = plinkoCanvas.width;
+  const height = plinkoCanvas.height;
+  ctx.clearRect(0, 0, width, height);
+
+  const gradient = ctx.createLinearGradient(0, 0, 0, height);
+  gradient.addColorStop(0, "rgba(255,63,212,0.18)");
+  gradient.addColorStop(1, "rgba(51,233,255,0.04)");
+  ctx.fillStyle = gradient;
+  ctx.fillRect(0, 0, width, height);
+
+  ctx.strokeStyle = "rgba(255,255,255,0.08)";
+  ctx.lineWidth = 1;
+  for (let i = 0; i < 8; i += 1) {
+    ctx.beginPath();
+    ctx.moveTo(0, i * 54);
+    ctx.lineTo(width, i * 54 + 28);
+    ctx.stroke();
+  }
+
+  for (let row = 0; row < 12; row += 1) {
+    const count = row + 2;
+    const y = 58 + row * 25;
+    for (let col = 0; col < count; col += 1) {
+      const x = width / 2 + (col - (count - 1) / 2) * 23;
+      ctx.beginPath();
+      ctx.fillStyle = "rgba(255,255,255,0.72)";
+      ctx.shadowColor = "rgba(51,233,255,0.7)";
+      ctx.shadowBlur = 7;
+      ctx.arc(x, y, 3.2, 0, Math.PI * 2);
+      ctx.fill();
+    }
+  }
+  ctx.shadowBlur = 0;
+
+  const slotWidth = width / 13;
+  for (let i = 0; i < 13; i += 1) {
+    ctx.fillStyle = i === hotSlot ? "rgba(255,63,212,0.56)" : "rgba(255,255,255,0.08)";
+    ctx.fillRect(i * slotWidth + 2, height - 42, slotWidth - 4, 34);
+  }
+
+  if (ball) {
+    ctx.beginPath();
+    ctx.fillStyle = "#ffd36b";
+    ctx.shadowColor = "rgba(255,211,107,0.85)";
+    ctx.shadowBlur = 18;
+    ctx.arc(ball.x, ball.y, 8, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.shadowBlur = 0;
+  }
+}
+
+function animatePlinko(path, slot, onDone) {
+  const points = [{ x: plinkoCanvas.width / 2, y: 28 }];
+  for (let row = 0; row < path.length; row += 1) {
+    const y = 58 + row * 25;
+    const x = plinkoCanvas.width / 2 + (path[row] - (row + 1) / 2) * 23;
+    points.push({ x, y });
+  }
+  points.push({ x: (slot + 0.5) * (plinkoCanvas.width / 13), y: plinkoCanvas.height - 56 });
+
+  let start = null;
+  const duration = 1250;
+  function frame(timestamp) {
+    if (!start) start = timestamp;
+    const progress = Math.min((timestamp - start) / duration, 1);
+    const scaled = progress * (points.length - 1);
+    const index = Math.floor(scaled);
+    const local = scaled - index;
+    const a = points[index];
+    const b = points[Math.min(index + 1, points.length - 1)];
+    const ball = {
+      x: a.x + (b.x - a.x) * local,
+      y: a.y + (b.y - a.y) * local + Math.sin(progress * Math.PI * 10) * 3,
+    };
+    drawPlinko(ball, progress === 1 ? slot : -1);
+    if (progress < 1) requestAnimationFrame(frame);
+    else onDone();
+  }
+  requestAnimationFrame(frame);
+}
+
+const raceCanvas = $("#race-canvas");
+const raceCtx = raceCanvas ? raceCanvas.getContext("2d") : null;
+
+function drawRace(progressA = 0, progressB = 0, winner = "") {
+  if (!raceCanvas || !raceCtx) return;
+  const ctx = raceCtx;
+  const w = raceCanvas.width;
+  const h = raceCanvas.height;
+  ctx.clearRect(0, 0, w, h);
+  ctx.fillStyle = "rgba(255,255,255,0.04)";
+  ctx.fillRect(0, 0, w, h);
+
+  const lanes = [
+    { y: 130, color: "#33e9ff", label: "Ты" },
+    { y: 235, color: "#ff3fd4", label: "Соперник" },
+  ];
+
+  lanes.forEach((lane, idx) => {
+    ctx.strokeStyle = "rgba(255,255,255,0.13)";
+    ctx.lineWidth = 4;
+    ctx.beginPath();
+    ctx.moveTo(28, lane.y);
+    ctx.bezierCurveTo(95, lane.y - 70, 180, lane.y + 78, 302, lane.y);
+    ctx.stroke();
+
+    for (let i = 0; i < 4; i += 1) {
+      ctx.fillStyle = i % 2 === 0 ? "rgba(255,211,107,0.75)" : "rgba(255,255,255,0.35)";
+      ctx.fillRect(78 + i * 52, lane.y - 12, 8, 24);
+    }
+
+    const t = idx === 0 ? progressA : progressB;
+    const x = 28 + 274 * t;
+    const y = lane.y + Math.sin(t * Math.PI * 4) * 22;
+    ctx.beginPath();
+    ctx.fillStyle = lane.color;
+    ctx.shadowColor = lane.color;
+    ctx.shadowBlur = 16;
+    ctx.arc(x, y, 10, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.shadowBlur = 0;
+
+    ctx.fillStyle = "rgba(255,255,255,0.82)";
+    ctx.font = "12px system-ui";
+    ctx.fillText(lane.label, 26, lane.y - 28);
+  });
+
+  ctx.fillStyle = "rgba(96,255,168,0.8)";
+  ctx.fillRect(302, 82, 4, 200);
+  ctx.fillStyle = "rgba(255,255,255,0.82)";
+  ctx.font = "12px system-ui";
+  ctx.fillText("ФИНИШ", 272, 304);
+
+  if (winner) {
+    ctx.fillStyle = "rgba(9,6,19,0.72)";
+    ctx.fillRect(55, 156, 220, 58);
+    ctx.fillStyle = winner === "player" ? "#60ffa8" : "#ff6b8a";
+    ctx.font = "bold 20px system-ui";
+    ctx.textAlign = "center";
+    ctx.fillText(winner === "player" ? "ТЫ ПОБЕДИЛ" : "ПОБЕДИЛ СОПЕРНИК", w / 2, 192);
+    ctx.textAlign = "left";
+  }
+}
+
+function animateRace(playerChance, bank, payout) {
+  const winner = Math.random() < playerChance ? "player" : "enemy";
+  let start = null;
+  const duration = 1800;
+  function frame(timestamp) {
+    if (!start) start = timestamp;
+    const p = Math.min((timestamp - start) / duration, 1);
+    const lead = winner === "player" ? 0.08 : -0.08;
+    const a = Math.min(1, p + lead * p);
+    const b = Math.min(1, p - lead * p);
+    drawRace(a, b, p === 1 ? winner : "");
+    if (p < 1) requestAnimationFrame(frame);
+    else {
+      if (winner === "player") {
+        setBalance(state.balance + payout);
+        addLedger("PvP победа", payout);
+        $("#pvp-result").textContent = `Победа! Банк ${format(bank)}, выплата ${format(payout)} ✦.`;
+      } else {
+        $("#pvp-result").textContent = `Соперник быстрее. Банк комнаты был ${format(bank)} ✦.`;
+      }
+      state.games += 1;
+      render();
+    }
+  }
+  requestAnimationFrame(frame);
+}
+
+function playPlinko() {
+  const button = $("#play-plinko");
+  const stakeInput = $("#stake-input");
+  const resultLine = $("#plinko-result");
+  if (!button || !stakeInput || !resultLine) return;
+  const stake = Math.round(Number($("#stake-input").value || 0));
+  const limit = riskLimits[state.risk];
+  if (stake <= 0) {
+    $("#plinko-result").textContent = "Ставка должна быть больше 0.";
+    return;
+  }
+  if (stake > limit) {
+    $("#plinko-result").textContent = `Для ${state.risk} лимит ${format(limit)} ✦.`;
+    return;
+  }
+  if (stake > state.balance) {
+    $("#plinko-result").textContent = "Не хватает кристаллов.";
+    return;
+  }
+
+  button.disabled = true;
+  setBalance(state.balance - stake);
+  addLedger("Solo ставка", -stake);
+  const result = weightedSlotFromFairWalk(12);
+  const multiplier = getMultipliers(12, state.risk)[result.slot];
+  const payout = Math.round(stake * multiplier);
+  $("#plinko-result").textContent = "Шарик падает...";
+  animatePlinko(result.path, result.slot, () => {
+    setBalance(state.balance + payout);
+    addLedger(`Solo выплата ${multiplier.toFixed(3)}x`, payout);
+    state.games += 1;
+    $("#plinko-result").textContent = `Слот ${result.slot}, коэффициент ${multiplier.toFixed(3)}x, выплата ${format(payout)} ✦.`;
+    button.disabled = false;
+    renderSlots(result.slot);
+    render();
+  });
+}
+
+function pushCarpetHistory(result, multiplier, payout = 0) {
+  state.carpet.history.unshift({
+    result,
+    multiplier: floorMultiplier(Math.max(1, multiplier)),
+    payout,
+  });
+  state.carpet.history = state.carpet.history.slice(0, CARPET_HISTORY_LIMIT);
+}
+
+function resetCarpetRound(delay = 980) {
+  renderCarpet();
+  setTimeout(() => {
+    state.carpet.status = "READY";
+    state.carpet.multiplier = 1;
+    state.carpet.round = null;
+    state.carpet.crashPoint = null;
+    state.carpet.roundStartedAt = null;
+    state.carpet.animationFrameId = null;
+    state.carpet.cashedOutMultiplier = null;
+    state.carpet.pendingCashout = false;
+    state.carpet.payout = 0;
+    renderCarpet();
+    maybeContinueCarpetAutoRuns();
+  }, delay);
+}
+
+function finishCarpetCrash() {
+  const carpet = state.carpet;
+  if (carpet.animationFrameId) cancelAnimationFrame(carpet.animationFrameId);
+  carpet.animationFrameId = null;
+  carpet.status = "CRASHED";
+  carpet.multiplier = carpetEngine.lockMultiplier(carpet.crashPoint || carpet.multiplier);
+  carpet.protectedRoundsPlayed += 1;
+  pushCarpetHistory("crash", carpet.multiplier, 0);
+  addLedger(`Ковер: буря ${formatCarpetMultiplier(carpet.multiplier)}x`, 0);
+  state.games += 1;
+  render();
+  resetCarpetRound(760);
+}
+
+function cashoutCarpetRound() {
+  const carpet = state.carpet;
+  if (carpet.status !== "FLYING") return;
+  if (carpet.animationFrameId) cancelAnimationFrame(carpet.animationFrameId);
+  const locked = carpetEngine.lockMultiplier(carpet.multiplier);
+  const payout = carpetEngine.getPayout(carpet.stake, locked);
+  carpet.animationFrameId = null;
+  carpet.status = "CASHED_OUT";
+  carpet.cashedOutMultiplier = locked;
+  carpet.payout = payout;
+  carpet.protectedRoundsPlayed += 1;
+  pushCarpetHistory("cashout", locked, payout);
+  setBalance(state.balance + payout);
+  addLedger(`Ковер: забрано ${formatCarpetMultiplier(locked)}x`, payout);
+  state.games += 1;
+  render();
+  resetCarpetRound(1050);
+}
+
+function tickCarpetRound(timestamp) {
+  const carpet = state.carpet;
+  if (carpet.status !== "FLYING") return;
+  if (!carpet.roundStartedAt) carpet.roundStartedAt = timestamp;
+
+  const elapsed = timestamp - carpet.roundStartedAt;
+  carpet.multiplier = carpetEngine.getMultiplier(elapsed);
+
+  if (carpet.multiplier >= CARPET_MAX_CRASH_DISPLAY) {
+    carpet.multiplier = CARPET_MAX_CRASH_DISPLAY;
+    cashoutCarpetRound();
+    return;
+  }
+
+  if (carpetEngine.shouldAutoCashout(carpet)) {
+    carpet.multiplier = carpet.autoCashout;
+    cashoutCarpetRound();
+    return;
+  }
+
+  if (carpetEngine.shouldCrash(carpet)) {
+    finishCarpetCrash();
+    return;
+  }
+
+  renderCarpet();
+  carpet.animationFrameId = requestAnimationFrame(tickCarpetRound);
+}
+
+function startCarpetRound() {
+  const carpet = state.carpet;
+  if (carpet.status !== "READY") return;
+  if (carpet.stake > state.balance) {
+    const stage = $("#carpet-stage");
+    const status = $("#carpet-status");
+    if (status) status.textContent = "НЕДОСТАТОЧНО КРИСТАЛЛОВ";
+    if (stage) {
+      stage.classList.add("message");
+      setTimeout(() => stage.classList.remove("message"), 900);
+    }
+    carpet.autoRunning = false;
+    carpet.autoRunsRemaining = 0;
+    renderCarpet();
+    return;
+  }
+
+  if (carpet.autoRunning) carpet.autoRunsRemaining = Math.max(0, carpet.autoRunsRemaining - 1);
+  const round = carpetEngine.createRound({
+    protectedRoundsPlayed: carpet.protectedRoundsPlayed,
+  });
+  carpet.status = "STARTING";
+  carpet.multiplier = 1;
+  carpet.round = round;
+  carpet.crashPoint = round.crashPoint;
+  carpet.roundStartedAt = null;
+  carpet.cashedOutMultiplier = null;
+  carpet.pendingCashout = false;
+  carpet.payout = 0;
+  setBalance(state.balance - carpet.stake);
+  addLedger("Ковер: ставка", -carpet.stake);
+  render();
+
+  setTimeout(() => {
+    if (carpet.status !== "STARTING") return;
+    carpet.status = "FLYING";
+    carpet.roundStartedAt = performance.now();
+    carpet.animationFrameId = requestAnimationFrame(tickCarpetRound);
+    renderCarpet();
+    if (carpet.pendingCashout) cashoutCarpetRound();
+  }, 280);
+}
+
+function handleCarpetMainButton() {
+  if (state.carpet.autoRunning) {
+    cancelCarpetAutoRuns();
+    if (state.carpet.status === "FLYING") cashoutCarpetRound();
+    return;
+  }
+  if (state.carpet.status === "FLYING") cashoutCarpetRound();
+  else if (state.carpet.status === "STARTING") state.carpet.pendingCashout = true;
+  else if (state.carpet.status === "READY") {
+    if (state.carpet.betMode === "auto") startCarpetAutoRuns();
+    else startCarpetRound();
+  }
+}
+
+let carpetActionHandledUntil = 0;
+
+function pulseCarpetMainButton() {
+  const button = $("#carpet-action-button");
+  if (!button) return;
+  button.classList.remove("pressed");
+  void button.offsetWidth;
+  button.classList.add("pressed");
+}
+
+function triggerCarpetMainButton() {
+  if (["READY", "STARTING", "FLYING"].includes(state.carpet.status)) pulseCarpetMainButton();
+  handleCarpetMainButton();
+}
+
+function isPrimaryPointer(event) {
+  return event.pointerType !== "mouse" || event.button === 0;
+}
+
+function isCarpetRoomPointer(event) {
+  if (document.body.dataset.activeTab !== "solo") return false;
+  const target = event.target;
+  if (!(target instanceof Element)) return false;
+  return Boolean(target.closest("#screen-solo")) && !target.closest(".bottom-nav");
+}
+
+function handleCarpetRoomPointerDown(event) {
+  if (!isPrimaryPointer(event) || !isCarpetRoomPointer(event)) return;
+  if (state.carpet.status !== "FLYING") return;
+  if (event.cancelable) event.preventDefault();
+  event.stopImmediatePropagation();
+  cancelCarpetAutoRuns();
+  pulseCarpetMainButton();
+  cashoutCarpetRound();
+}
+
+function changeCarpetStake(nextStake) {
+  const carpet = state.carpet;
+  if (carpet.status !== "READY") return;
+  carpet.stake = Math.max(carpet.minStake, Math.min(carpet.maxStake, Math.round(nextStake / carpet.stakeStep) * carpet.stakeStep));
+  renderCarpet();
+}
+
+function changeCarpetAutoCashout(nextValue) {
+  const carpet = state.carpet;
+  if (carpet.status !== "READY") return;
+  const stepped = Math.round(nextValue / CARPET_AUTO_CASHOUT_STEP) * CARPET_AUTO_CASHOUT_STEP;
+  carpet.autoCashout = Math.max(CARPET_AUTO_CASHOUT_MIN, Math.min(CARPET_AUTO_CASHOUT_MAX, stepped));
+  carpet.autoCashout = Math.round(carpet.autoCashout * 100) / 100;
+  renderCarpet();
+}
+
+function changeCarpetAutoRuns(nextValue) {
+  const carpet = state.carpet;
+  if (carpet.status !== "READY" || carpet.autoRunning) return;
+  const stepped = Math.round(nextValue / CARPET_AUTO_RUNS_STEP) * CARPET_AUTO_RUNS_STEP;
+  carpet.autoRuns = Math.max(CARPET_AUTO_RUNS_MIN, Math.min(CARPET_AUTO_RUNS_MAX, stepped));
+  renderCarpet();
+}
+
+function getCarpetAutoRunsStep(value) {
+  if (value >= 500) return 100;
+  if (value >= 100) return 50;
+  if (value >= 50) return 10;
+  if (value >= 20) return 5;
+  return CARPET_AUTO_RUNS_STEP;
+}
+
+function startCarpetAutoRuns() {
+  const carpet = state.carpet;
+  if (carpet.status !== "READY") return;
+  if (carpet.mode !== "auto") carpet.mode = "auto";
+  carpet.autoRunning = true;
+  carpet.autoRunsRemaining = carpet.autoRuns;
+  startCarpetRound();
+}
+
+function cancelCarpetAutoRuns() {
+  const carpet = state.carpet;
+  if (!carpet.autoRunning && carpet.autoRunsRemaining === 0) return;
+  carpet.autoRunning = false;
+  carpet.autoRunsRemaining = 0;
+  renderCarpet();
+}
+
+function maybeContinueCarpetAutoRuns() {
+  const carpet = state.carpet;
+  if (!carpet.autoRunning) return;
+  if (carpet.betMode !== "auto" || carpet.autoRunsRemaining <= 0) {
+    carpet.autoRunning = false;
+    carpet.autoRunsRemaining = 0;
+    renderCarpet();
+    return;
+  }
+  setTimeout(() => {
+    if (carpet.status === "READY" && carpet.autoRunning && carpet.autoRunsRemaining > 0) {
+      startCarpetRound();
+    }
+  }, 240);
+}
+
+function sleep(ms) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+function nextAnimationFrame() {
+  return new Promise((resolve) => requestAnimationFrame(() => resolve()));
+}
+
+function shouldUsePharaohLiteRenderer() {
+  const ua = navigator.userAgent || "";
+  return Boolean(window.Telegram?.WebApp) || /iPhone|iPad|iPod|Android/i.test(ua) || window.innerWidth <= 480;
+}
+
+function shouldUsePharaohUltraLiteRenderer() {
+  const params = new URLSearchParams(window.location.search);
+  if (params.get("forcePharaohUltra") === "1") return true;
+  const ua = navigator.userAgent || "";
+  const isTouchPhone = /iPhone|iPad|iPod|Android/i.test(ua);
+  const isTelegram = Boolean(window.Telegram?.WebApp) || document.body.classList.contains("is-telegram-webapp");
+  return isTelegram && (isTouchPhone || window.innerWidth <= 520);
+}
+
+function changeSlotStake(nextStake) {
+  const slot = state.slot;
+  slot.stake = Math.max(slot.minStake, Math.min(slot.maxStake, Math.round(nextStake)));
+  renderPharaoh();
+}
+
+function changeSlotAutoRuns(nextRuns) {
+  const slot = state.slot;
+  slot.autoRuns = Math.max(1, Math.min(100, Math.round(nextRuns)));
+  renderPharaoh();
+}
+
+function cancelSlotAutoRuns() {
+  const slot = state.slot;
+  if (!slot.autoRunning && slot.autoRunsRemaining === 0) return false;
+  slot.autoRunning = false;
+  slot.autoRunsRemaining = 0;
+  slot.message = "Авто остановлено";
+  slot.reaction = "idle";
+  renderPharaoh();
+  return true;
+}
+
+function maybeContinueSlotAutoRuns() {
+  const slot = state.slot;
+  if (!slot.autoRunning) return;
+  if (slot.mode !== "auto" || slot.autoRunsRemaining <= 0) {
+    slot.autoRunning = false;
+    slot.autoRunsRemaining = 0;
+    renderPharaoh();
+    return;
+  }
+  setTimeout(() => {
+    if (slot.status === "READY" && slot.autoRunning && slot.autoRunsRemaining > 0) {
+      playPharaohSlot({ autoStep: true });
+    }
+  }, 360);
+}
+
+function triggerPharaohMainButton() {
+  const slot = state.slot;
+  if (slot.autoRunning) {
+    cancelSlotAutoRuns();
+    return;
+  }
+  if (slot.status !== "READY") return;
+  if (slot.mode === "auto") {
+    slot.autoRunning = true;
+    slot.autoRunsRemaining = slot.autoRuns;
+    playPharaohSlot({ autoStep: true });
+    return;
+  }
+  playPharaohSlot();
+}
+
+function recoverPharaohSpin(message = "Спин сброшен") {
+  const slot = state.slot;
+  slot.status = "READY";
+  slot.autoRunning = false;
+  slot.autoRunsRemaining = 0;
+  slot.spinPreviewGrid = null;
+  slot.spinVisualMode = "idle";
+  slot.winningKeys = new Set();
+  slot.reaction = "idle";
+  slot.message = message;
+  clearSlotPresentation();
+  render();
+}
+
+function settlePharaohRoundResult(result) {
+  const slot = state.slot;
+  const finalStep = result.steps[result.steps.length - 1];
+  if (finalStep?.grid) slot.grid = finalStep.grid;
+  slot.totalWin = result.totalWin;
+
+  if (result.freeSpinsAwarded > 0) {
+    slot.freeSpins = 0;
+    slot.message = `Free spins сыграны: ${result.freeSpinsPlayed}`;
+  } else if (result.totalWin > 0) {
+    slot.message = `Выигрыш ${format(result.totalWin)} 💎`;
+  } else {
+    slot.message = "Без выигрыша";
+  }
+  slot.reaction = result.totalWin > 0 ? "win" : "idle";
+  slot.spinPreviewGrid = null;
+  slot.spinVisualMode = "idle";
+
+  if (result.totalWin > 0) {
+    setBalance(state.balance + result.totalWin);
+    addLedger("Фараон: выигрыш", result.totalWin);
+  }
+
+  slot.history.unshift({
+    win: result.totalWin,
+    stake: slot.stake,
+    freeSpins: result.freeSpinsPlayed,
+  });
+  slot.history = slot.history.slice(0, 6);
+  state.games += 1;
+  slot.status = "READY";
+  slot.winningKeys = new Set();
+}
+
+async function playPharaohSlot({ bonusBuy = false, autoStep = false } = {}) {
+  const slot = state.slot;
+  if (slot.status !== "READY") return;
+  if (bonusBuy && slot.autoRunning) {
+    cancelSlotAutoRuns();
+    return;
+  }
+  if (autoStep && slot.autoRunsRemaining <= 0) {
+    cancelSlotAutoRuns();
+    return;
+  }
+
+  const bonusCost = slot.stake * SLOT_CONFIG.bonusBuy.costMultiplier;
+  const isFreeSpin = slot.freeSpins > 0;
+  const cost = bonusBuy ? bonusCost : isFreeSpin ? 0 : slot.stake;
+
+  if (bonusBuy && !SLOT_CONFIG.bonusBuy.enabled) {
+    slot.message = "Бонус будет включен после проверки экономики";
+    renderPharaoh();
+    return;
+  }
+
+  if (bonusBuy && isFreeSpin) {
+    slot.message = "Сначала доиграй free spins";
+    renderPharaoh();
+    return;
+  }
+
+  if (cost > state.balance) {
+    slot.message = "Недостаточно кристаллов";
+    slot.autoRunning = false;
+    slot.autoRunsRemaining = 0;
+    renderPharaoh();
+    return;
+  }
+
+  const runId = slot.spinRunId + 1;
+  let chargedCost = 0;
+  let roundSettled = false;
+
+  try {
+    if (autoStep && !bonusBuy && !isFreeSpin) {
+      slot.autoRunsRemaining = Math.max(0, slot.autoRunsRemaining - 1);
+    }
+
+    if (cost > 0) {
+      setBalance(state.balance - cost);
+      chargedCost = cost;
+      addLedger(bonusBuy ? "Фараон: bonus buy" : "Фараон: спин", -cost);
+    }
+    if (isFreeSpin) slot.freeSpins = Math.max(0, slot.freeSpins - 1);
+    if (bonusBuy) slot.freeSpins = SLOT_CONFIG.bonusBuy.freeSpins;
+
+    slot.spinRunId = runId;
+    slot.status = "SPINNING";
+    slot.bonusConfirmOpen = false;
+    slot.rulesOpen = false;
+    slot.totalWin = 0;
+    slot.winningKeys = new Set();
+    clearSlotPresentation();
+    const liteRenderer = shouldUsePharaohLiteRenderer();
+    const ultraLiteRenderer = shouldUsePharaohUltraLiteRenderer();
+
+    slot.spinPreviewGrid = ultraLiteRenderer ? null : createSlotPreviewGrid(bonusBuy || isFreeSpin ? "free" : "base");
+    slot.spinVisualMode = ultraLiteRenderer ? "idle" : "reel";
+    slot.reaction = bonusBuy || isFreeSpin ? "free" : "spin";
+    slot.message = bonusBuy ? "Запуск бонуса" : isFreeSpin ? "Бесплатный спин" : "Спин...";
+    renderPharaoh();
+
+    window.setTimeout(() => {
+      if (state.slot.spinRunId === runId && state.slot.status !== "READY") {
+        console.warn("Pharaoh spin watchdog recovered a stuck round");
+        recoverPharaohSpin("Спин восстановлен");
+      }
+    }, ultraLiteRenderer ? 4500 : 30000);
+
+    if (ultraLiteRenderer) {
+      await sleep(80);
+    } else {
+      await nextAnimationFrame();
+      await sleep(40);
+    }
+
+    const result = createSlotRoundResult(slot.stake, {
+      bonusBuy,
+      freeSpinOnly: isFreeSpin,
+    });
+
+    if (ultraLiteRenderer && !shouldUsePharaohCanvasRenderer()) {
+      await sleep(360);
+      if (slot.spinRunId !== runId) return;
+      settlePharaohRoundResult(result);
+      const presentation = getSlotWinPresentation(result, { bonusBuy, isFreeSpin });
+      if (presentation) showSlotPresentation(presentation, bonusBuy ? 1900 : 1550);
+      roundSettled = true;
+      render();
+      maybeContinueSlotAutoRuns();
+      return;
+    }
+
+    const freeSpinBank = result.freeSpinsPlayed;
+    const canvasRenderer = shouldUsePharaohCanvasRenderer();
+    const maxDisplaySteps = canvasRenderer ? ultraLiteRenderer ? 3 : liteRenderer ? 4 : 8 : liteRenderer ? 5 : 12;
+    const displaySteps = result.steps.length > maxDisplaySteps
+      ? [
+          ...result.steps.slice(0, maxDisplaySteps - 1),
+          result.steps[result.steps.length - 1],
+        ]
+      : result.steps;
+
+    if (canvasRenderer) {
+      slot.spinPreviewGrid = null;
+      slot.spinVisualMode = "reel";
+      slot.message = bonusBuy ? "Магия бонуса" : isFreeSpin ? "Free spin..." : "Спин...";
+      renderPharaoh();
+      await pharaohCanvasRenderer.playResult(
+        displaySteps,
+        bonusBuy || isFreeSpin ? "free" : "base",
+        {
+          ...(ultraLiteRenderer
+            ? { reel: 520, drop: 220, win: 320, empty: 70 }
+            : liteRenderer ? { reel: 680, drop: 280, win: 480, empty: 90 } : {}),
+          onStep: (step) => {
+            if (slot.spinRunId !== runId) return;
+            slot.winningKeys = step.winningKeys;
+            updateSlotGridWinSignal($("#slot-grid"), slot.winningKeys?.size || 0, step.wins.length > 0);
+            slot.reaction = step.phase === "free" ? "free" : step.wins.length > 0 ? "cascade" : "spin";
+            if (step.phase === "free") slot.freeSpins = Math.max(0, freeSpinBank - step.freeSpinIndex);
+            if (step.wins.length > 0) {
+              slot.message = step.phase === "free" ? `Free ${step.freeSpinIndex}: +${format(step.win)} 💎` : `Каскад: +${format(step.win)} 💎`;
+            }
+            const status = $("#slot-status");
+            if (status) status.textContent = slot.message;
+            const freeSpins = $("#slot-free-spins");
+            if (freeSpins) {
+              const freeText = slot.freeSpins > 0 ? `FREE SPINS ${slot.freeSpins}` : "FREE SPINS 0";
+              const autoText = slot.autoRunning ? `АВТО ${slot.autoRunsRemaining}` : "";
+              freeSpins.textContent = autoText ? `${freeText} · ${autoText}` : freeText;
+              freeSpins.classList.toggle("active", slot.freeSpins > 0 || slot.autoRunning);
+            }
+            updateSlotGenieReaction(slot);
+          },
+        }
+      );
+      if (slot.spinRunId !== runId) return;
+      slot.winningKeys = new Set();
+      updateSlotGridWinSignal($("#slot-grid"), 0);
+    } else {
+      const previewPasses = liteRenderer ? 1 : 5;
+      for (let previewIndex = 0; previewIndex < previewPasses; previewIndex += 1) {
+        await sleep(liteRenderer ? 180 : 82 + previewIndex * 18);
+        if (slot.spinRunId !== runId) return;
+        slot.spinPreviewGrid = createSlotPreviewGrid(bonusBuy || isFreeSpin ? "free" : "base");
+        renderPharaoh();
+        await nextAnimationFrame();
+      }
+
+      for (const [index, step] of displaySteps.entries()) {
+        if (slot.spinRunId !== runId) return;
+        slot.grid = step.grid;
+        slot.spinPreviewGrid = null;
+        slot.spinVisualMode = index === 0 ? "drop" : "cascade";
+        slot.winningKeys = new Set();
+        renderPharaoh();
+        await sleep(liteRenderer ? index === 0 ? 150 : 110 : index === 0 ? 260 : 180);
+        if (slot.spinRunId !== runId) return;
+        slot.winningKeys = step.winningKeys;
+        slot.reaction = step.phase === "free" ? "free" : step.wins.length > 0 ? "cascade" : "spin";
+        const skippedSteps = result.steps.length - displaySteps.length;
+        const phaseLabel = step.phase === "free" ? `Free ${step.freeSpinIndex}` : `Каскад ${index + 1}`;
+        if (step.phase === "free") {
+          slot.freeSpins = Math.max(0, freeSpinBank - step.freeSpinIndex);
+        }
+        slot.message = step.wins.length > 0
+          ? `${phaseLabel}: +${format(step.win)} 💎`
+          : skippedSteps > 0 && index === displaySteps.length - 1 ? "Финальный расчет"
+          : step.phase === "free" ? `Free ${step.freeSpinIndex}: проверка` : "Проверка поля";
+        slot.totalWin += step.win;
+        slot.spinVisualMode = step.wins.length > 0 ? "cascade" : "idle";
+        renderPharaoh();
+        await sleep(liteRenderer ? step.wins.length > 0 ? 260 : 160 : step.wins.length > 0 ? 620 : 360);
+      }
+    }
+
+    settlePharaohRoundResult(result);
+    const presentation = getSlotWinPresentation(result, { bonusBuy, isFreeSpin });
+    if (presentation) showSlotPresentation(presentation, bonusBuy ? 1900 : 1550);
+    roundSettled = true;
+    render();
+    maybeContinueSlotAutoRuns();
+  } catch (error) {
+    console.error("Pharaoh spin failed", error);
+    if (chargedCost > 0 && !roundSettled) {
+      setBalance(state.balance + chargedCost);
+      addLedger("Фараон: возврат после сбоя", chargedCost);
+    }
+    recoverPharaohSpin("Спин восстановлен");
+  }
+}
+
+function startPvp() {
+  const price = tiers[state.tier];
+  const cost = price * state.balls;
+  const enemyBalls = Math.max(1, Math.round(state.balls * (0.75 + Math.random() * 0.7)));
+  const enemyCost = enemyBalls * price;
+  const totalBalls = state.balls + enemyBalls;
+  const bank = cost + enemyCost;
+  const fee = Math.round(bank * 0.07);
+  const payout = bank - fee;
+  const chance = state.balls / totalBalls;
+
+  if (cost > state.balance) {
+    $("#pvp-result").textContent = "Не хватает кристаллов на шарики.";
+    return;
+  }
+  setBalance(state.balance - cost);
+  addLedger(`PvP шарики x${state.balls}`, -cost);
+  $("#room-bank").textContent = `Банк: ${format(bank)} ✦`;
+  $("#room-timer").textContent = "Старт";
+  $("#pvp-result").textContent = `Твой шанс по шарикам: ${Math.round(chance * 100)}%. Комиссия: ${format(fee)} ✦.`;
+  animateRace(chance, bank, payout);
+}
+
+function initTelegramViewport() {
+  const webApp = window.Telegram?.WebApp;
+  const params = new URLSearchParams(window.location.search);
+  const localTelegramFrame = params.get("preview") === "telegram-frame";
+  const designWidth = 393;
+  const designHeight = 852;
+  if (localTelegramFrame) {
+    document.body.classList.add("local-telegram-frame");
+  }
+
+  const syncViewport = () => {
+    const telegramHeight = webApp?.viewportStableHeight || webApp?.viewportHeight;
+    const browserHeight = window.innerHeight || document.documentElement.clientHeight;
+    const browserWidth = window.innerWidth || document.documentElement.clientWidth;
+    const height = Math.max(420, Math.round(telegramHeight || browserHeight));
+    const width = Math.max(320, Math.round(browserWidth));
+    const scale = Math.min(1, width / designWidth, height / designHeight);
+    document.body.classList.toggle("pharaoh-lite-renderer", shouldUsePharaohLiteRenderer());
+    document.body.classList.toggle("pharaoh-ultra-lite-renderer", shouldUsePharaohUltraLiteRenderer());
+    document.documentElement.style.setProperty("--app-height", `${height}px`);
+    document.documentElement.style.setProperty("--app-width", `${width}px`);
+    document.documentElement.style.setProperty("--app-scale", `${scale}`);
+    document.documentElement.style.setProperty("--nav-top", `${766 * scale}px`);
+    drawHomeBoard();
+    renderCarpet();
+  };
+
+  syncViewport();
+  window.addEventListener("resize", syncViewport);
+
+  if (!webApp) return;
+  document.body.classList.add("is-telegram-webapp");
+  webApp.ready?.();
+  webApp.expand?.();
+  webApp.disableVerticalSwipes?.();
+  webApp.onEvent?.("viewportChanged", syncViewport);
+  webApp.onEvent?.("safeAreaChanged", syncViewport);
+  syncViewport();
+}
+
+function initMobileGestureGuards() {
+  document.addEventListener("dblclick", (event) => {
+    if (event.cancelable) event.preventDefault();
+  }, { passive: false });
+  document.addEventListener("gesturestart", (event) => {
+    if (event.cancelable) event.preventDefault();
+  }, { passive: false });
+}
+
+function initEvents() {
+  $$("[data-tab]").forEach((button) => {
+    button.addEventListener("click", () => switchTab(button.dataset.tab));
+  });
+
+  const playerProfileLink = $("#player-profile-link");
+  if (playerProfileLink) {
+    playerProfileLink.addEventListener("click", () => switchTab("profile"));
+  }
+
+  const carpetProfileLink = $("#carpet-profile-link");
+  if (carpetProfileLink) {
+    carpetProfileLink.addEventListener("click", () => switchTab("profile"));
+  }
+
+  const pharaohProfileLink = $("#pharaoh-profile-link");
+  if (pharaohProfileLink) {
+    pharaohProfileLink.addEventListener("click", () => switchTab("profile"));
+  }
+
+  const carpetActionButton = $("#carpet-action-button");
+  if (carpetActionButton) {
+    carpetActionButton.addEventListener("pointerdown", (event) => {
+      if (event.pointerType === "mouse" && event.button !== 0) return;
+      carpetActionHandledUntil = performance.now() + 320;
+      triggerCarpetMainButton();
+    });
+    carpetActionButton.addEventListener("click", (event) => {
+      event.preventDefault();
+      if (performance.now() < carpetActionHandledUntil) return;
+      triggerCarpetMainButton();
+    });
+  }
+  document.addEventListener("pointerdown", handleCarpetRoomPointerDown, true);
+
+  $$("[data-carpet-mode]").forEach((button) => {
+    button.addEventListener("click", () => {
+      if (state.carpet.autoRunning) {
+        cancelCarpetAutoRuns();
+      }
+      if (state.carpet.status !== "READY") return;
+      state.carpet.mode = button.dataset.carpetMode;
+      if (state.carpet.mode === "manual") state.carpet.betMode = "manual";
+      pulseChoice(button);
+      renderCarpet();
+    });
+  });
+
+  const carpetCashoutMinus = $("#carpet-cashout-minus");
+  if (carpetCashoutMinus) {
+    carpetCashoutMinus.addEventListener("click", () => {
+      if (state.carpet.autoRunning) {
+        cancelCarpetAutoRuns();
+        return;
+      }
+      changeCarpetAutoCashout(state.carpet.autoCashout - CARPET_AUTO_CASHOUT_STEP);
+    });
+  }
+
+  const carpetCashoutPlus = $("#carpet-cashout-plus");
+  if (carpetCashoutPlus) {
+    carpetCashoutPlus.addEventListener("click", () => {
+      if (state.carpet.autoRunning) {
+        cancelCarpetAutoRuns();
+        return;
+      }
+      changeCarpetAutoCashout(state.carpet.autoCashout + CARPET_AUTO_CASHOUT_STEP);
+    });
+  }
+
+  $$("[data-carpet-bet-mode]").forEach((button) => {
+    button.addEventListener("click", () => {
+      if (state.carpet.autoRunning) {
+        cancelCarpetAutoRuns();
+      }
+      if (state.carpet.status !== "READY") return;
+      state.carpet.betMode = button.dataset.carpetBetMode;
+      if (state.carpet.betMode === "auto") state.carpet.mode = "auto";
+      pulseChoice(button);
+      renderCarpet();
+    });
+  });
+
+  const carpetRunsMinus = $("#carpet-runs-minus");
+  if (carpetRunsMinus) {
+    carpetRunsMinus.addEventListener("click", () => {
+      if (state.carpet.autoRunning) {
+        cancelCarpetAutoRuns();
+        return;
+      }
+      changeCarpetAutoRuns(state.carpet.autoRuns - getCarpetAutoRunsStep(state.carpet.autoRuns));
+    });
+  }
+
+  const carpetRunsPlus = $("#carpet-runs-plus");
+  if (carpetRunsPlus) {
+    carpetRunsPlus.addEventListener("click", () => {
+      if (state.carpet.autoRunning) {
+        cancelCarpetAutoRuns();
+        return;
+      }
+      changeCarpetAutoRuns(state.carpet.autoRuns + getCarpetAutoRunsStep(state.carpet.autoRuns));
+    });
+  }
+
+  const carpetStakeMinus = $("#carpet-stake-minus");
+  if (carpetStakeMinus) {
+    carpetStakeMinus.addEventListener("click", () => {
+      if (state.carpet.autoRunning) {
+        cancelCarpetAutoRuns();
+        return;
+      }
+      changeCarpetStake(state.carpet.stake - getHomeStakeDecreaseStep(state.carpet.stake));
+    });
+  }
+
+  const carpetStakePlus = $("#carpet-stake-plus");
+  if (carpetStakePlus) {
+    carpetStakePlus.addEventListener("click", () => {
+      if (state.carpet.autoRunning) {
+        cancelCarpetAutoRuns();
+        return;
+      }
+      changeCarpetStake(state.carpet.stake + state.carpet.stakeStep);
+    });
+  }
+
+  const carpetStakeDouble = $("#carpet-stake-double");
+  if (carpetStakeDouble) {
+    carpetStakeDouble.addEventListener("click", () => {
+      if (state.carpet.autoRunning) {
+        cancelCarpetAutoRuns();
+        return;
+      }
+      changeCarpetStake(state.carpet.stake * 2);
+    });
+  }
+
+  const carpetStakeMax = $("#carpet-stake-max");
+  if (carpetStakeMax) {
+    carpetStakeMax.addEventListener("click", () => {
+      if (state.carpet.autoRunning) {
+        cancelCarpetAutoRuns();
+        return;
+      }
+      changeCarpetStake(Math.min(state.carpet.maxStake, state.balance));
+    });
+  }
+
+  const claimDaily = $("#claim-daily");
+  if (claimDaily) {
+    claimDaily.addEventListener("click", () => {
+      if (state.dailyClaimed) return;
+      state.dailyClaimed = true;
+      setBalance(state.balance + 40);
+      addLedger("Daily bonus", 40);
+    });
+  }
+
+  const homePlay = $("#home-play");
+  if (homePlay) homePlay.addEventListener("click", playHomePyramid);
+
+  const linesMinus = $("#home-lines-minus");
+  if (linesMinus) {
+    linesMinus.addEventListener("click", () => {
+      if (cancelHomeAutoPyramid()) return;
+      state.homeRows = Math.max(HOME_ROWS_MIN, state.homeRows - 1);
+      if (homeWinbarTimer) clearTimeout(homeWinbarTimer);
+      homeWinbarTimer = null;
+      const winbar = $("#home-winbar");
+      if (winbar) winbar.classList.remove("show");
+      render();
+      drawHomeBoard();
+    });
+  }
+
+  const linesPlus = $("#home-lines-plus");
+  if (linesPlus) {
+    linesPlus.addEventListener("click", () => {
+      if (cancelHomeAutoPyramid()) return;
+      state.homeRows = Math.min(HOME_ROWS_MAX, state.homeRows + 1);
+      if (homeWinbarTimer) clearTimeout(homeWinbarTimer);
+      homeWinbarTimer = null;
+      const winbar = $("#home-winbar");
+      if (winbar) winbar.classList.remove("show");
+      render();
+      drawHomeBoard();
+    });
+  }
+
+  $$(".risk-choice").forEach((button) => {
+    button.addEventListener("click", () => {
+      if (cancelHomeAutoPyramid()) return;
+      $$(".risk-choice").forEach((item) => item.classList.toggle("selected", item === button));
+      pulseChoice(button);
+      state.homeRisk = button.classList.contains("high") ? "high" : button.classList.contains("low") ? "low" : "medium";
+      const winbar = $("#home-winbar");
+      if (homeWinbarTimer) clearTimeout(homeWinbarTimer);
+      homeWinbarTimer = null;
+      if (winbar) winbar.classList.remove("show");
+      drawHomeBoard();
+    });
+  });
+
+  $$("[data-home-mode]").forEach((button) => {
+    button.addEventListener("click", () => {
+      if (cancelHomeAutoPyramid()) return;
+      $$("[data-home-mode]").forEach((item) => item.classList.toggle("selected", item === button));
+      pulseChoice(button);
+      state.homeMode = button.dataset.homeMode;
+      state.homeRuns = state.homeMode === "auto" ? state.homeAutoBalls : 1;
+      const winbar = $("#home-winbar");
+      if (homeWinbarTimer) clearTimeout(homeWinbarTimer);
+      homeWinbarTimer = null;
+      if (winbar) winbar.classList.remove("show");
+      render();
+    });
+  });
+
+  $$("[data-auto-balls]").forEach((button) => {
+    button.addEventListener("click", () => {
+      if (cancelHomeAutoPyramid()) return;
+      state.homeAutoBalls = Number(button.dataset.autoBalls);
+      if (state.homeMode === "auto") state.homeRuns = state.homeAutoBalls;
+      render();
+    });
+  });
+
+  $$("[data-auto-delta]").forEach((button) => {
+    button.addEventListener("click", () => {
+      if (cancelHomeAutoPyramid()) return;
+      const delta = Number(button.dataset.autoDelta);
+      state.homeAutoBalls = Math.max(HOME_AUTO_BALL_MIN, Math.min(HOME_AUTO_BALL_MAX, state.homeAutoBalls + delta));
+      if (state.homeMode === "auto") state.homeRuns = state.homeAutoBalls;
+      render();
+    });
+  });
+
+  const autoRange = $("#home-auto-range");
+  if (autoRange) {
+    autoRange.addEventListener("input", () => {
+      if (cancelHomeAutoPyramid()) return;
+      state.homeAutoBalls = Math.max(HOME_AUTO_BALL_MIN, Math.min(HOME_AUTO_BALL_MAX, Math.round(Number(autoRange.value))));
+      if (state.homeMode === "auto") state.homeRuns = state.homeAutoBalls;
+      render();
+    });
+  }
+
+  const autoMinus = $("#home-auto-minus");
+  if (autoMinus) {
+    autoMinus.addEventListener("click", () => {
+      if (cancelHomeAutoPyramid()) return;
+      state.homeAutoBalls = Math.max(HOME_AUTO_BALL_MIN, state.homeAutoBalls - 1);
+      if (state.homeMode === "auto") state.homeRuns = state.homeAutoBalls;
+      render();
+    });
+  }
+
+  const autoPlus = $("#home-auto-plus");
+  if (autoPlus) {
+    autoPlus.addEventListener("click", () => {
+      if (cancelHomeAutoPyramid()) return;
+      state.homeAutoBalls = Math.min(HOME_AUTO_BALL_MAX, state.homeAutoBalls + 1);
+      if (state.homeMode === "auto") state.homeRuns = state.homeAutoBalls;
+      render();
+    });
+  }
+
+  const stakeMinus = $("#home-stake-minus");
+  if (stakeMinus) {
+    stakeMinus.addEventListener("click", () => {
+      if (cancelHomeAutoPyramid()) return;
+      state.homeStake = Math.max(HOME_STAKE_MIN, state.homeStake - getHomeStakeDecreaseStep(state.homeStake));
+      render();
+    });
+  }
+
+  const stakePlus = $("#home-stake-plus");
+  if (stakePlus) {
+    stakePlus.addEventListener("click", () => {
+      if (cancelHomeAutoPyramid()) return;
+      state.homeStake = Math.min(HOME_STAKE_MAX, state.homeStake + HOME_STAKE_STEP);
+      render();
+    });
+  }
+
+  const stakeDouble = $("#home-stake-double");
+  if (stakeDouble) {
+    stakeDouble.addEventListener("click", () => {
+      if (cancelHomeAutoPyramid()) return;
+      state.homeStake = Math.min(HOME_STAKE_MAX, Math.max(HOME_STAKE_MIN, state.homeStake * 2));
+      render();
+    });
+  }
+
+  const stakeMax = $("#home-stake-max");
+  if (stakeMax) {
+    stakeMax.addEventListener("click", () => {
+      if (cancelHomeAutoPyramid()) return;
+      state.homeStake = Math.max(HOME_STAKE_MIN, Math.min(HOME_STAKE_MAX, state.balance));
+      render();
+    });
+  }
+
+  $$("#risk-tabs button").forEach((button) => {
+    button.addEventListener("click", () => {
+      state.risk = button.dataset.risk;
+      $$("#risk-tabs button").forEach((item) => item.classList.toggle("selected", item === button));
+      updateLimits();
+      renderSlots();
+    });
+  });
+
+  $$("#tier-grid button").forEach((button) => {
+    button.addEventListener("click", () => {
+      state.tier = button.dataset.tier;
+      $$("#tier-grid button").forEach((item) => item.classList.toggle("selected", item === button));
+    });
+  });
+
+  const ballsMinus = $("#balls-minus");
+  if (ballsMinus) ballsMinus.addEventListener("click", () => {
+    state.balls = Math.max(1, state.balls - 5);
+    $("#balls-count").textContent = state.balls;
+  });
+
+  const ballsPlus = $("#balls-plus");
+  if (ballsPlus) ballsPlus.addEventListener("click", () => {
+    state.balls = Math.min(150, state.balls + 5);
+    $("#balls-count").textContent = state.balls;
+  });
+
+  const playPlinkoButton = $("#play-plinko");
+  if (playPlinkoButton) playPlinkoButton.addEventListener("click", playPlinko);
+  const startPvpButton = $("#start-pvp");
+  if (startPvpButton) startPvpButton.addEventListener("click", startPvp);
+
+  const slotSpin = $("#slot-spin");
+  if (slotSpin) slotSpin.addEventListener("click", triggerPharaohMainButton);
+
+  $$("[data-slot-mode]").forEach((button) => {
+    button.addEventListener("click", () => {
+      if (state.slot.autoRunning) {
+        cancelSlotAutoRuns();
+        return;
+      }
+      if (state.slot.status !== "READY") return;
+      state.slot.mode = button.dataset.slotMode;
+      pulseChoice(button);
+      renderPharaoh();
+    });
+  });
+
+  const slotStakeMinus = $("#slot-stake-minus");
+  if (slotStakeMinus) {
+    slotStakeMinus.addEventListener("click", () => {
+      if (cancelSlotAutoRuns()) return;
+      if (state.slot.status !== "READY") return;
+      changeSlotStake(state.slot.stake - getHomeStakeDecreaseStep(state.slot.stake));
+    });
+  }
+
+  const slotStakePlus = $("#slot-stake-plus");
+  if (slotStakePlus) {
+    slotStakePlus.addEventListener("click", () => {
+      if (cancelSlotAutoRuns()) return;
+      if (state.slot.status !== "READY") return;
+      changeSlotStake(state.slot.stake + state.slot.stakeStep);
+    });
+  }
+
+  const slotStakeDouble = $("#slot-stake-double");
+  if (slotStakeDouble) {
+    slotStakeDouble.addEventListener("click", () => {
+      if (cancelSlotAutoRuns()) return;
+      if (state.slot.status !== "READY") return;
+      changeSlotStake(state.slot.stake * 2);
+    });
+  }
+
+  const slotStakeMax = $("#slot-stake-max");
+  if (slotStakeMax) {
+    slotStakeMax.addEventListener("click", () => {
+      if (cancelSlotAutoRuns()) return;
+      if (state.slot.status !== "READY") return;
+      changeSlotStake(Math.min(state.slot.maxStake, state.balance));
+    });
+  }
+
+  const slotAutoMinus = $("#slot-auto-minus");
+  if (slotAutoMinus) {
+    slotAutoMinus.addEventListener("click", () => {
+      if (cancelSlotAutoRuns()) return;
+      if (state.slot.status !== "READY") return;
+      changeSlotAutoRuns(state.slot.autoRuns - 1);
+    });
+  }
+
+  const slotAutoPlus = $("#slot-auto-plus");
+  if (slotAutoPlus) {
+    slotAutoPlus.addEventListener("click", () => {
+      if (cancelSlotAutoRuns()) return;
+      if (state.slot.status !== "READY") return;
+      changeSlotAutoRuns(state.slot.autoRuns + (state.slot.autoRuns >= 20 ? 10 : 1));
+    });
+  }
+
+  const slotBonusBuy = $("#slot-bonus-buy");
+  if (slotBonusBuy) {
+    slotBonusBuy.addEventListener("click", () => {
+      if (cancelSlotAutoRuns()) return;
+      const bonusCost = state.slot.stake * SLOT_CONFIG.bonusBuy.costMultiplier;
+      if (!SLOT_CONFIG.bonusBuy.enabled || state.slot.status !== "READY" || state.slot.freeSpins > 0 || bonusCost > state.balance) return;
+      state.slot.rulesOpen = false;
+      state.slot.bonusConfirmOpen = true;
+      renderPharaoh();
+    });
+  }
+
+  const closeSlotBonus = () => {
+    state.slot.bonusConfirmOpen = false;
+    renderPharaoh();
+  };
+
+  const slotBonusConfirm = $("#slot-bonus-confirm");
+  if (slotBonusConfirm) {
+    slotBonusConfirm.addEventListener("click", () => {
+      state.slot.bonusConfirmOpen = false;
+      playPharaohSlot({ bonusBuy: true });
+    });
+  }
+
+  const slotBonusCancel = $("#slot-bonus-cancel");
+  if (slotBonusCancel) {
+    slotBonusCancel.addEventListener("click", closeSlotBonus);
+  }
+
+  const slotBonusClose = $("#slot-bonus-close");
+  if (slotBonusClose) {
+    slotBonusClose.addEventListener("click", closeSlotBonus);
+  }
+
+  const slotBonusBackdrop = $("#slot-bonus-backdrop");
+  if (slotBonusBackdrop) {
+    slotBonusBackdrop.addEventListener("click", closeSlotBonus);
+  }
+
+  const slotRulesOpen = $("#slot-rules-open");
+  if (slotRulesOpen) {
+    slotRulesOpen.addEventListener("click", () => {
+      state.slot.bonusConfirmOpen = false;
+      state.slot.rulesOpen = true;
+      renderPharaoh();
+    });
+  }
+
+  const closeSlotRules = () => {
+    state.slot.rulesOpen = false;
+    renderPharaoh();
+  };
+
+  const slotRulesClose = $("#slot-rules-close");
+  if (slotRulesClose) {
+    slotRulesClose.addEventListener("click", closeSlotRules);
+  }
+
+  const slotRulesBackdrop = $("#slot-rules-backdrop");
+  if (slotRulesBackdrop) {
+    slotRulesBackdrop.addEventListener("click", closeSlotRules);
+  }
+
+  document.addEventListener("keydown", (event) => {
+    if (event.key !== "Escape") return;
+    if (state.slot.bonusConfirmOpen) closeSlotBonus();
+    if (state.slot.rulesOpen) closeSlotRules();
+  });
+
+  const buyUsdt = $("#buy-usdt");
+  if (buyUsdt) buyUsdt.addEventListener("click", () => {
+    setBalance(state.balance + 100);
+    addLedger("Покупка за 1 USDT", 100);
+  });
+  const buyTon = $("#buy-ton");
+  if (buyTon) buyTon.addEventListener("click", () => {
+    setBalance(state.balance + 150);
+    addLedger("Покупка за 1 TON", 150);
+  });
+  const withdrawTest = $("#withdraw-test");
+  if (withdrawTest) withdrawTest.addEventListener("click", () => {
+    const amount = 500;
+    const fee = 25;
+    if (state.balance < amount) {
+      $("#wallet-ledger").prepend();
+      return;
+    }
+    setBalance(state.balance - amount);
+    addLedger(`Вывод: ${amount - fee} ✦ после комиссии`, -amount);
+  });
+}
+
+initTelegramViewport();
+initMobileGestureGuards();
+document.body.dataset.activeTab = "home";
+drawPlinko();
+drawRace();
+drawHomeBoard();
+initEvents();
+render();
+prepareInitialAppPaint();
+window.addEventListener("resize", () => {
+  drawHomeBoard();
+  const cloudCanvas = getCarpetCloudCanvas();
+  if (cloudCanvas) {
+    resizeCarpetCloudCanvas(cloudCanvas);
+    startCarpetCloudRenderer();
+  }
+  const canvas = getCarpetTrailCanvas();
+  if (canvas) {
+    resizeCarpetTrailCanvas(canvas);
+    startCarpetTrailRenderer();
+  }
+});
+
