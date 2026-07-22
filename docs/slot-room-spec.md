@@ -638,3 +638,10 @@ QA gate for this pass:
 
 - The genie is moved out of the left-side overlay into a centered framed scene under the slot board. This keeps him connected to the spin grid while preventing overlap with the grid edge.
 - The history/free-spin row remains above the genie scene. Lower controls, RNG, RTP, payouts, cascade sequencing, free-spin rules, and bonus-buy rules are unchanged.
+
+`telegram163` note:
+
+- History chips move into the top winbar area, replacing the duplicate `+0/+win` strip.
+- Free-spins status moves into the lower-left controls zone near the spin/stake controls, not between the slot board and genie scene.
+- The genie scene is widened into a more rectangular panel under the slot board.
+- RNG, RTP, payouts, cascade sequencing, free-spin rules, bonus-buy rules, and slot math are unchanged.
