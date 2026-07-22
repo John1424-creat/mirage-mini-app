@@ -617,3 +617,8 @@ QA gate for this pass:
 
 - Mobile-safe cascade sequencing: vanish/clear and gravity/refill are now separate awaited animation phases so Telegram WebView cannot show old glowing winning symbols underneath new falling symbols.
 - This pass does not change RNG, RTP, payouts, free-spin rules, bonus-buy rules, or control layout.
+
+`telegram159` note:
+
+- Pharaoh win presentation now uses a dedicated counted ruby value instead of a static text string. The amount counts upward after the round settles, with the same win tiers: win, big, mega, legend, and free-win.
+- This pass does not change RNG, RTP, payouts, cascade sequencing, free-spin rules, bonus-buy rules, or control layout.
