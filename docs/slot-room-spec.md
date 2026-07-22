@@ -622,3 +622,9 @@ QA gate for this pass:
 
 - Pharaoh win presentation now uses a dedicated counted ruby value instead of a static text string. The amount counts upward after the round settles, with the same win tiers: win, big, mega, legend, and free-win.
 - This pass does not change RNG, RTP, payouts, cascade sequencing, free-spin rules, bonus-buy rules, or control layout.
+
+`telegram160` note:
+
+- The genie is moved from the lower service panel into the Pharaoh scene as a side reaction layer beside the slot grid. It is larger, vertical, and visually connected to the spin grid through a light/mist beam.
+- The win presentation is restyled from a plain text panel into a magic cartouche with sparks, a side beam, ruby value, and count-up amount.
+- This pass does not change RNG, RTP, payouts, cascade sequencing, free-spin rules, bonus-buy rules, or lower control layout.
