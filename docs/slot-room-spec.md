@@ -612,3 +612,8 @@ QA gate for this pass:
 - Cascade gravity is polished: winning symbols hold longer with a clearer connection/glow phase, then vanish, survivors drop into empty cells, and new symbols enter from above.
 - Big-win counter popup is explicitly tracked as the next presentation layer: animated rubies count-up, stronger win tiers, and genie reaction for larger wins.
 - This pass does not change RNG, RTP, payouts, free-spin rules, bonus-buy rules, or control layout.
+
+`telegram158` note:
+
+- Mobile-safe cascade sequencing: vanish/clear and gravity/refill are now separate awaited animation phases so Telegram WebView cannot show old glowing winning symbols underneath new falling symbols.
+- This pass does not change RNG, RTP, payouts, free-spin rules, bonus-buy rules, or control layout.
