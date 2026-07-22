@@ -591,3 +591,8 @@ QA gate for this pass:
 - In local Telegram-frame and published GitHub build, a winning cascade must visibly show: highlight -> disappear -> symbols fall -> new symbols enter from top.
 - Non-winning spins must still finish quickly and not hang.
 - If the renderer fails or performs badly in Telegram WebView, the round must still settle and the button must unlock.
+
+`telegram154` note:
+
+- The first win-presentation timing pass delays the large final win plaque until after the cascade has settled.
+- This pass does not finish genie behavior, control alignment, or full win explanation. Those stay as separate roadmap items.
