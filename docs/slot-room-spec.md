@@ -601,3 +601,8 @@ QA gate for this pass:
 
 - Win explanation chips are added to the existing five-chip row. During a winning cascade or after a winning spin, the row shows the main winning symbol, count, base payout, cascade multiplier, and rubies won.
 - This pass does not change RNG, RTP, stake logic, cascade math, bonus rules, or lower control layout.
+
+`telegram156` note:
+
+- The initial Pharaoh spin renderer is changed from a reel-like symbol swap to a tumble-style drop-in: target symbols enter from above by column/row, settle into the 6 x 5 grid, then existing win highlight, vanish, gravity, and refill phases continue.
+- This pass does not change RNG, RTP, payouts, free-spin rules, bonus-buy rules, or control layout.
