@@ -596,3 +596,8 @@ QA gate for this pass:
 
 - The first win-presentation timing pass delays the large final win plaque until after the cascade has settled.
 - This pass does not finish genie behavior, control alignment, or full win explanation. Those stay as separate roadmap items.
+
+`telegram155` note:
+
+- Win explanation chips are added to the existing five-chip row. During a winning cascade or after a winning spin, the row shows the main winning symbol, count, base payout, cascade multiplier, and rubies won.
+- This pass does not change RNG, RTP, stake logic, cascade math, bonus rules, or lower control layout.
