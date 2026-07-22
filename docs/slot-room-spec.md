@@ -496,3 +496,98 @@ bonusBuy: {
 - визуал: темный магический Египет, золото, рубины, лампа, скарабей, портал.
 
 Так мы получим не самодельную угадайку, а полноценный слот с проверяемой математикой и нормальным визуальным фундаментом.
+
+## 22. Roadmap после `telegram148`
+
+Текущий рабочий базис:
+
+- версия `telegram148` принята как рабочая по базовой механике и слотовой сетке;
+- 6 x 5 grid, anywhere pays, tumble/cascade, множители, free spins и bonus buy x100 уже заложены в архитектуру;
+- canvas-рендер и анимация самих символов стали рабочими в Telegram;
+- визуал самих слот-символов на текущем этапе принят как направление, но финальные ассеты могут быть заменены на более дорогие.
+
+Зафиксированные проблемы текущего визуала:
+
+- блок кнопок `ФАРАОН` отличается от кнопок `ПИРАМИДА` и `КОВЕР`;
+- центральная кнопка `СПИН` визуально не совпадает с круглыми кнопками `ИГРАТЬ` / `СТАРТ`;
+- панель ставки `1 СПИН | 10` и рубин визуально сырые, местами накладываются и требуют такой же аккуратности, как нижние панели первых двух комнат;
+- чипы множителей и коэффициентов отличаются по шрифту, весу, цвету и общей премиальности;
+- при выигрыше недостаточно ясно показывается сумма выигрыша и рубин;
+- фон комнаты временно дублирует атмосферу пирамиды, нужен отдельный фон `ФАРАОН`;
+- блок джина сейчас выглядит как рамочная вставка, а должен быть отдельным живым персонажем комнаты;
+- текст `ДЖИН ВЫИГРЫШ` не подходит как финальная win-copy;
+- выигрышное состояние не должно выглядеть зависшим после завершения спина;
+- темп спина нужно проверить: базовый спин должен быть достаточно быстрым, но не мгновенным; выигрыши и каскады должны давать игроку успеть почувствовать событие.
+
+Внешняя опора по механике:
+
+- официальный Gates of Olympus 1000 фиксирует 6 x 5 grid, 8+ matching symbols anywhere, tumble, multipliers 2x-1000x, 15 free spins and bonus buy x100;
+- официальные и операторские guides также используют понятные пользовательские поля `BET`, `SPIN`, `WIN`, `AUTO PLAY`, `FREE SPINS`, `BONUS BUY`, `SPIN SPEED`;
+- для `ФАРАОН` мы не копируем чужой код или ассеты, но держим структуру UX близкой к понятному iGaming-паттерну.
+
+Ссылки для сверки:
+
+- https://www.pragmaticplay.com/en/games/gates-of-olympus-1000/
+- https://slotcatalog.com/en/slots/Gates-of-Olympus-1000
+- https://casino.guru/free-casino-games/slots/starlight-princess-slot-play-free
+- https://casino.guru/free-casino-games
+
+Порядок следующих этапов:
+
+1. `telegram149` - привести нижние контролы `ФАРАОН` к общей системе Mirage: размеры, шрифты, отступы, центральная кнопка, ставка, плюс/минус, bonus buy, auto/manual.
+2. `telegram150` - сделать отдельный фон `ФАРАОН`: темный магический Египет, золото, рубины, лампа, портал; не использовать фон пирамиды как финальный.
+3. `telegram151` - переделать джина как живой реакционный слой: без тяжелой рамки, крупнее, с состояниями `idle`, `spin`, `cascade`, `win`, `bigWin`, `freeSpins`, `bonusBuy`.
+4. `telegram152` - заменить win-copy и результат: `ВЫИГРЫШ`, `БОЛЬШОЙ ВЫИГРЫШ`, `МЕГА ВЫИГРЫШ`, `СУПЕР ВЫИГРЫШ`, `FREE SPINS`, `BONUS`, сумма + рубин всегда видны.
+5. `telegram153` - настроить pacing спина: длительность базовой прокрутки, задержку перед раскрытием результата, темп каскадов, паузы на win presentation.
+6. `telegram154` - polishing сетки и эффектов: молнии/связи выигрышных символов, усиление множителей, финальная подсветка крупных выигрышей.
+7. `telegram155` - paytable/rules/info/history: объяснение символов, free spins, bonus buy, RTP, max win, история последних спинов.
+8. `telegram156` - полный regression pass по трем комнатам: локально, Telegram-frame, GitHub Pages, Telegram mobile.
+
+Правило контроля перед выдачей:
+
+- не менять механику при визуальных правках без отдельного решения;
+- после каждого этапа проверять локально и на GitHub Pages;
+- для Telegram-проверки отдавать отдельную ссылку с новым `build`;
+- если при правке `ФАРАОН` съезжают `ПИРАМИДА` или `КОВЕР`, правка считается неготовой.
+## 23. Reference video audit: Gates-style tumble target
+
+Source reviewed: `IMG_9394.MP4`, supplied by Tymur on 2026-07-22.
+
+Product rule for `ФАРАОН`: the room must behave like a real tumble/cascade slot, not like a static grid that swaps pictures.
+
+What the reference clearly shows:
+
+- The base format is a 6 x 5 grid with `symbols pay anywhere on the screen`.
+- A result is understandable because the game first highlights the winning symbol group, then removes it, then lets remaining symbols fall vertically by column.
+- New symbols enter from above the grid after holes are created. They do not appear by instant repaint.
+- Cascades repeat until there are no new wins.
+- Multipliers stay visually separate from regular symbols and are applied after a winning event.
+- The player always sees a reason for the win: highlighted cells, running total, multiplier state, and final win presentation.
+- The timing is not instant: initial spin, highlight, vanish, gravity drop, refill, and final pause are separate phases.
+
+Required renderer model:
+
+1. `initialDrop`: every column spins/falls from above into the final first grid.
+2. `winHold`: all winning cells for the current cascade pulse and connect visually.
+3. `vanish`: winning cells shrink/fade/burst out of their positions.
+4. `gravity`: non-winning symbols in the same columns fall down into empty spaces.
+5. `refill`: newly generated symbols enter from above and land in the top holes.
+6. Repeat steps 2-5 for each cascade.
+7. `settle`: final non-winning grid stays still; status copy returns to a clean idle state.
+
+Important implementation rule:
+
+- Math and visual steps must be separated. Math decides `grid`, `wins`, `winningKeys`, `nextGrid`, `win`, `multiplier`, `freeSpinsAwarded`. The renderer only animates those deterministic steps.
+- A visual-only change must not change RTP, symbol weights, payout tables, or bonus/free-spin rules.
+
+Current gap before the next implementation pass:
+
+- The math already produces cascade steps, but the canvas renderer does not yet animate holes, gravity, and refill as separate visible phases.
+- That is why the current spin can feel like a scripted picture swap even when the underlying cascade math is present.
+- Next build must replace the current `animateDrop(nextGrid)` shortcut with a real `animateCascadeTransition(fromGrid, winningKeys, nextGrid)` phase.
+
+QA gate for this pass:
+
+- In local Telegram-frame and published GitHub build, a winning cascade must visibly show: highlight -> disappear -> symbols fall -> new symbols enter from top.
+- Non-winning spins must still finish quickly and not hang.
+- If the renderer fails or performs badly in Telegram WebView, the round must still settle and the button must unlock.
