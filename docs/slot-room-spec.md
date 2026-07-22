@@ -633,3 +633,8 @@ QA gate for this pass:
 
 - The `telegram160` side-genie layout is kept, but the final win/cartouche presentation stays on screen longer so the win moment is readable on mobile instead of disappearing too quickly.
 - This pass does not change RNG, RTP, payouts, cascade sequencing, free-spin rules, bonus-buy rules, or lower control layout.
+
+`telegram162` note:
+
+- The genie is moved out of the left-side overlay into a centered framed scene under the slot board. This keeps him connected to the spin grid while preventing overlap with the grid edge.
+- The history/free-spin row remains above the genie scene. Lower controls, RNG, RTP, payouts, cascade sequencing, free-spin rules, and bonus-buy rules are unchanged.
