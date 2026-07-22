@@ -606,3 +606,9 @@ QA gate for this pass:
 
 - The initial Pharaoh spin renderer is changed from a reel-like symbol swap to a tumble-style drop-in: target symbols enter from above by column/row, settle into the 6 x 5 grid, then existing win highlight, vanish, gravity, and refill phases continue.
 - This pass does not change RNG, RTP, payouts, free-spin rules, bonus-buy rules, or control layout.
+
+`telegram157` note:
+
+- Cascade gravity is polished: winning symbols hold longer with a clearer connection/glow phase, then vanish, survivors drop into empty cells, and new symbols enter from above.
+- Big-win counter popup is explicitly tracked as the next presentation layer: animated rubies count-up, stronger win tiers, and genie reaction for larger wins.
+- This pass does not change RNG, RTP, payouts, free-spin rules, bonus-buy rules, or control layout.
