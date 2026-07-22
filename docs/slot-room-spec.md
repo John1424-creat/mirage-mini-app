@@ -628,3 +628,8 @@ QA gate for this pass:
 - The genie is moved from the lower service panel into the Pharaoh scene as a side reaction layer beside the slot grid. It is larger, vertical, and visually connected to the spin grid through a light/mist beam.
 - The win presentation is restyled from a plain text panel into a magic cartouche with sparks, a side beam, ruby value, and count-up amount.
 - This pass does not change RNG, RTP, payouts, cascade sequencing, free-spin rules, bonus-buy rules, or lower control layout.
+
+`telegram161` note:
+
+- The `telegram160` side-genie layout is kept, but the final win/cartouche presentation stays on screen longer so the win moment is readable on mobile instead of disappearing too quickly.
+- This pass does not change RNG, RTP, payouts, cascade sequencing, free-spin rules, bonus-buy rules, or lower control layout.
