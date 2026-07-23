@@ -701,3 +701,9 @@ QA gate for this pass:
 - The final win cartouche is centered against the slot board during its animation, including the animated hold keyframes.
 - The genie sprite lane clips its own right edge softly so state-asset effects do not bleed into the text chip area.
 - Slot grid, controls, RNG, RTP, payouts, cascades, free-spin rules, bonus-buy rules, and prize-frame tiers are unchanged.
+
+`telegram173` note:
+
+- Genie reaction assets now use cleaned WebP variants with detached gold flecks removed from the sprite files themselves.
+- The runtime CSS mask on the genie lane is removed and replaced with regular clipping, reducing potential Telegram WebView rendering cost.
+- Final win cartouche centering remains from `telegram172`; slot grid, controls, RNG, RTP, payouts, cascades, free-spin rules, bonus-buy rules, and prize-frame tiers are unchanged.
