@@ -659,3 +659,9 @@ QA gate for this pass:
 - The initial Pharaoh reel transition now runs as a row wave: old rows sink through the lower edge with slight column lag, then new rows fall from above one line after another.
 - The genie panel becomes a richer mini-scene with state-specific dust, beam, glow, and win spark layers behind the same genie asset.
 - Lower controls, free-spins placement, RNG, RTP, payouts, cascade math, free-spin rules, and bonus-buy rules are unchanged.
+
+`telegram166` note:
+
+- Strong Pharaoh wins now trigger a temporary magic contour on the slot-board frame. The effect is reserved for `big`, `mega`, `legend`, and `free-win` tiers so ordinary wins keep lighter feedback.
+- The contour is visual-only: a running gold/pink light and corner glow on `#slot-grid`, with longer intensity for higher tiers.
+- Slot math, win thresholds, RTP, payouts, cascades, free-spin rules, bonus-buy rules, and control layout are unchanged.
