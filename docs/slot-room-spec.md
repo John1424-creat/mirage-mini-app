@@ -707,3 +707,9 @@ QA gate for this pass:
 - Genie reaction assets now use cleaned WebP variants with detached gold flecks removed from the sprite files themselves.
 - The runtime CSS mask on the genie lane is removed and replaced with regular clipping, reducing potential Telegram WebView rendering cost.
 - Final win cartouche centering remains from `telegram172`; slot grid, controls, RNG, RTP, payouts, cascades, free-spin rules, bonus-buy rules, and prize-frame tiers are unchanged.
+
+`telegram174` note:
+
+- Supersedes the `telegram173` genie cleanup: the "detached flecks" were actually valid parts of cropped generated pose images.
+- All genie reaction states now use one complete optimized sprite, `genie-reaction-full.webp`; the state is communicated through plaque lighting, effects and text instead of cropped pose swaps.
+- This fixes missing-hand/cut-hand artifacts in win and cascade states without changing slot math, cascades, controls, RTP, payouts, free spins or bonus buy.
