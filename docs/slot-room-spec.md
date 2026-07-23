@@ -672,3 +672,10 @@ QA gate for this pass:
 - This is meant to avoid the "whole field dropped as one sheet" feeling while keeping the same downward old-symbol exit and top refill direction.
 - Genie replacement remains a separate asset/scenery task; this pass only corrects slot-symbol motion.
 - Slot math, win thresholds, RTP, payouts, cascades, free-spin rules, bonus-buy rules, prize-frame tiers, and control layout are unchanged.
+
+`telegram168` note:
+
+- The Pharaoh genie panel is rebuilt as a state-driven mini-scene instead of one PNG animated by CSS.
+- Added five transparent genie state assets: idle, spin, cascade, win, and legend.
+- `updateSlotGenieReaction` swaps the genie asset by state; `debugGenieState` can force states for visual QA.
+- Reel motion, controls, RNG, RTP, payouts, cascades, free-spin rules, bonus-buy rules, and prize-frame tiers are unchanged.
