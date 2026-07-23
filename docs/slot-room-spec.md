@@ -679,3 +679,8 @@ QA gate for this pass:
 - Added five transparent genie state assets: idle, spin, cascade, win, and legend.
 - `updateSlotGenieReaction` swaps the genie asset by state; `debugGenieState` can force states for visual QA.
 - Reel motion, controls, RNG, RTP, payouts, cascades, free-spin rules, bonus-buy rules, and prize-frame tiers are unchanged.
+
+`telegram169` note:
+
+- The Pharaoh genie panel is widened and raised in visual presence so the new state assets can render larger.
+- This pass only changes the genie plaque proportions: slot grid, controls, RNG, RTP, payouts, cascades, free-spin rules, bonus-buy rules, and prize-frame tiers are unchanged.
