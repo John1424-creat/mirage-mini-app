@@ -684,3 +684,8 @@ QA gate for this pass:
 
 - The Pharaoh genie panel is widened and raised in visual presence so the new state assets can render larger.
 - This pass only changes the genie plaque proportions: slot grid, controls, RNG, RTP, payouts, cascades, free-spin rules, bonus-buy rules, and prize-frame tiers are unchanged.
+
+`telegram170` note:
+
+- The Pharaoh genie plaque gets real vertical height so the genie head and smoke tail are no longer clipped.
+- The genie asset is centered inside the taller panel; slot grid, controls, RNG, RTP, payouts, cascades, free-spin rules, bonus-buy rules, and prize-frame tiers are unchanged.
