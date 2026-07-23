@@ -695,3 +695,9 @@ QA gate for this pass:
 - The Pharaoh genie plaque reserves more internal room for the character and keeps the text chip in a separate right lane, preventing visual conflict between the genie/effects and the win/status label.
 - Ordinary spin/casting now reuses the idle genie asset and animates the mini-scene instead of swapping idle -> spin -> idle on quick losing spins. Win, cascade, free-spin, and larger win states still use their dedicated reaction assets.
 - Slot grid, controls, RNG, RTP, payouts, cascades, free-spin rules, bonus-buy rules, and prize-frame tiers are unchanged.
+
+`telegram172` note:
+
+- The final win cartouche is centered against the slot board during its animation, including the animated hold keyframes.
+- The genie sprite lane clips its own right edge softly so state-asset effects do not bleed into the text chip area.
+- Slot grid, controls, RNG, RTP, payouts, cascades, free-spin rules, bonus-buy rules, and prize-frame tiers are unchanged.
