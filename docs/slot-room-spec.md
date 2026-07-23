@@ -653,3 +653,9 @@ QA gate for this pass:
 - The initial spin presentation now includes an old-grid exit phase: previous symbols travel downward through the bottom of the slot board before the new grid drops from above.
 - The genie scene gets distinct CSS reaction states for idle, spin, cascade, win/big/mega/legend, and free spins.
 - RNG, RTP, payouts, cascade math, free-spin rules, and bonus-buy rules are unchanged.
+
+`telegram165` note:
+
+- The initial Pharaoh reel transition now runs as a row wave: old rows sink through the lower edge with slight column lag, then new rows fall from above one line after another.
+- The genie panel becomes a richer mini-scene with state-specific dust, beam, glow, and win spark layers behind the same genie asset.
+- Lower controls, free-spins placement, RNG, RTP, payouts, cascade math, free-spin rules, and bonus-buy rules are unchanged.
