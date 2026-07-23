@@ -645,3 +645,11 @@ QA gate for this pass:
 - Free-spins status moves into the lower-left controls zone near the spin/stake controls, not between the slot board and genie scene.
 - The genie scene is widened into a more rectangular panel under the slot board.
 - RNG, RTP, payouts, cascade sequencing, free-spin rules, bonus-buy rules, and slot math are unchanged.
+
+`telegram164` note:
+
+- Free-spins status is corrected to sit under the left stake shortcuts: `СТАВКА -> [-] value [+] -> 2X/MAX -> FREE SPINS`.
+- The stake and mode control columns must stay parallel; the free-spins badge is positioned without pushing the stake column upward.
+- The initial spin presentation now includes an old-grid exit phase: previous symbols travel downward through the bottom of the slot board before the new grid drops from above.
+- The genie scene gets distinct CSS reaction states for idle, spin, cascade, win/big/mega/legend, and free spins.
+- RNG, RTP, payouts, cascade math, free-spin rules, and bonus-buy rules are unchanged.
