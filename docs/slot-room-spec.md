@@ -719,3 +719,9 @@ QA gate for this pass:
 - The genie reaction plaque is reduced to a safe height so it no longer overlaps the lower stake/mode controls.
 - Reaction variety is restored with state-specific CSS motion, lighting and text-pulse effects while still using the complete, uncropped genie sprite from `telegram174`.
 - Slot math, cascades, controls, RTP, payouts, free spins and bonus buy are unchanged.
+
+`telegram176` note:
+
+- The genie scene gets a final override at the end of the stylesheet, preventing older version blocks from overriding the current plaque geometry and reaction animations.
+- The plaque width is constrained inside the Telegram frame, and its visual background is replaced with darker premium stage lighting: gold beams, purple haze and depth instead of cheap dotted particles.
+- The complete genie sprite remains in use; reaction differences are handled by stronger state-specific scene motion and lighting. Slot math, cascades, controls, RTP, payouts, free spins and bonus buy are unchanged.
