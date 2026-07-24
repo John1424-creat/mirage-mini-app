@@ -713,3 +713,9 @@ QA gate for this pass:
 - Supersedes the `telegram173` genie cleanup: the "detached flecks" were actually valid parts of cropped generated pose images.
 - All genie reaction states now use one complete optimized sprite, `genie-reaction-full.webp`; the state is communicated through plaque lighting, effects and text instead of cropped pose swaps.
 - This fixes missing-hand/cut-hand artifacts in win and cascade states without changing slot math, cascades, controls, RTP, payouts, free spins or bonus buy.
+
+`telegram175` note:
+
+- The genie reaction plaque is reduced to a safe height so it no longer overlaps the lower stake/mode controls.
+- Reaction variety is restored with state-specific CSS motion, lighting and text-pulse effects while still using the complete, uncropped genie sprite from `telegram174`.
+- Slot math, cascades, controls, RTP, payouts, free spins and bonus buy are unchanged.
