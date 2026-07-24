@@ -1,0 +1,524 @@
+/* Telegram 177 polish: final Pharaoh UI sync loaded after the legacy room CSS. */
+
+#screen-pvp .pharaoh-title,
+body.local-telegram-frame #screen-pvp .pharaoh-title,
+body.is-telegram-webapp #screen-pvp .pharaoh-title {
+  display: block !important;
+  visibility: hidden !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
+}
+
+#screen-pvp .slot-topbar,
+body.local-telegram-frame #screen-pvp .slot-topbar,
+body.is-telegram-webapp #screen-pvp .slot-topbar {
+  height: 48px !important;
+  min-height: 48px !important;
+  margin: 4px 0 14px !important;
+  padding: 0 !important;
+  transform: translateY(53px) !important;
+  z-index: 80 !important;
+}
+
+#screen-pvp .pharaoh-screen .player-link .avatar,
+body.local-telegram-frame #screen-pvp .pharaoh-screen .player-link .avatar,
+body.is-telegram-webapp #screen-pvp .pharaoh-screen .player-link .avatar {
+  width: 36px !important;
+  height: 36px !important;
+  flex-basis: 36px !important;
+}
+
+#screen-pvp .pharaoh-screen .player-link strong,
+body.local-telegram-frame #screen-pvp .pharaoh-screen .player-link strong,
+body.is-telegram-webapp #screen-pvp .pharaoh-screen .player-link strong {
+  font: 800 15px/1 Inter, ui-sans-serif, system-ui, sans-serif !important;
+  letter-spacing: 0 !important;
+  color: #fff !important;
+}
+
+#screen-pvp .pharaoh-screen .balance-chip,
+body.local-telegram-frame #screen-pvp .pharaoh-screen .balance-chip,
+body.is-telegram-webapp #screen-pvp .pharaoh-screen .balance-chip {
+  min-width: 88px !important;
+  height: 38px !important;
+  padding: 0 10px !important;
+  border: 1px solid rgba(255, 218, 130, 0.78) !important;
+  border-radius: 8px !important;
+  background: linear-gradient(145deg, #ffe49a 0%, #f2c66e 42%, #b29a60 100%) !important;
+  box-shadow:
+    inset 0 1px 1px rgba(255, 255, 255, 0.46),
+    0 4px 10px rgba(42, 24, 18, 0.22) !important;
+  font: 800 12px/1 Inter, ui-sans-serif, system-ui, sans-serif !important;
+  letter-spacing: 0 !important;
+  color: #181016 !important;
+}
+
+#screen-pvp .slot-history,
+body.local-telegram-frame #screen-pvp .slot-history,
+body.is-telegram-webapp #screen-pvp .slot-history {
+  gap: 5px !important;
+}
+
+#screen-pvp .slot-history-chip,
+body.local-telegram-frame #screen-pvp .slot-history-chip,
+body.is-telegram-webapp #screen-pvp .slot-history-chip {
+  height: 22px !important;
+  min-width: 43px !important;
+  border: 1px solid rgba(255, 211, 126, 0.78) !important;
+  border-radius: 7px !important;
+  background: linear-gradient(145deg, rgba(225, 73, 159, 0.9), rgba(117, 45, 110, 0.86)) !important;
+  color: #fff4cc !important;
+  font: 800 9px/1 Inter, ui-sans-serif, system-ui, sans-serif !important;
+  letter-spacing: 0 !important;
+  box-shadow:
+    inset 0 1px 1px rgba(255, 255, 255, 0.24),
+    0 2px 8px rgba(56, 12, 45, 0.22) !important;
+}
+
+#screen-pvp .slot-history-chip.win,
+#screen-pvp .slot-history-chip.explain,
+body.local-telegram-frame #screen-pvp .slot-history-chip.win,
+body.local-telegram-frame #screen-pvp .slot-history-chip.explain,
+body.is-telegram-webapp #screen-pvp .slot-history-chip.win,
+body.is-telegram-webapp #screen-pvp .slot-history-chip.explain {
+  background: linear-gradient(120deg, rgba(255, 211, 126, 0.98), rgba(229, 74, 166, 0.88)) !important;
+  color: #281321 !important;
+}
+
+#screen-pvp .slot-genie-reaction,
+body.local-telegram-frame #screen-pvp .slot-genie-reaction,
+body.is-telegram-webapp #screen-pvp .slot-genie-reaction {
+  border: 1px solid rgba(255, 211, 126, 0.42) !important;
+  border-radius: 8px !important;
+}
+
+#screen-pvp .pharaoh-side h3,
+body.local-telegram-frame #screen-pvp .pharaoh-side h3,
+body.is-telegram-webapp #screen-pvp .pharaoh-side h3 {
+  font: 700 10px/13px Georgia, "Times New Roman", serif !important;
+  letter-spacing: 0 !important;
+  color: #fff4ce !important;
+  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.62), 0 0 7px rgba(255, 201, 91, 0.36) !important;
+}
+
+#screen-pvp .slot-mode,
+#screen-pvp .slot-bonus-row button,
+body.local-telegram-frame #screen-pvp .slot-mode,
+body.local-telegram-frame #screen-pvp .slot-bonus-row button,
+body.is-telegram-webapp #screen-pvp .slot-mode,
+body.is-telegram-webapp #screen-pvp .slot-bonus-row button {
+  height: 30px !important;
+  min-height: 30px !important;
+  border: 1px solid rgba(255, 211, 126, 0.86) !important;
+  border-radius: 5px !important;
+  padding: 0 6px !important;
+  font: 400 10px/1 Inter, ui-sans-serif, system-ui, sans-serif !important;
+  letter-spacing: 0 !important;
+  color: #251126 !important;
+  background: linear-gradient(90deg, rgba(255, 76, 175, 0.82), rgba(143, 63, 122, 0.68)) !important;
+  box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.28) !important;
+}
+
+#screen-pvp .slot-mode.selected,
+body.local-telegram-frame #screen-pvp .slot-mode.selected,
+body.is-telegram-webapp #screen-pvp .slot-mode.selected {
+  border-color: rgba(255, 111, 181, 0.96) !important;
+  background: linear-gradient(90deg, rgb(255, 215, 127), rgb(190, 158, 92)) !important;
+  color: #251126 !important;
+}
+
+#screen-pvp .slot-bonus-row button,
+body.local-telegram-frame #screen-pvp .slot-bonus-row button,
+body.is-telegram-webapp #screen-pvp .slot-bonus-row button {
+  font-weight: 700 !important;
+  color: #fff1d1 !important;
+}
+
+#screen-pvp .slot-bonus-row button.available,
+body.local-telegram-frame #screen-pvp .slot-bonus-row button.available,
+body.is-telegram-webapp #screen-pvp .slot-bonus-row button.available {
+  color: #251126 !important;
+  background: linear-gradient(90deg, rgb(255, 215, 127), rgba(226, 81, 167, 0.9)) !important;
+}
+
+#screen-pvp .slot-stake-panel,
+#screen-pvp .slot-auto-panel,
+body.local-telegram-frame #screen-pvp .slot-stake-panel,
+body.local-telegram-frame #screen-pvp .slot-auto-panel,
+body.is-telegram-webapp #screen-pvp .slot-stake-panel,
+body.is-telegram-webapp #screen-pvp .slot-auto-panel {
+  height: 30px !important;
+  min-height: 30px !important;
+  border: 1px solid rgba(255, 111, 181, 0.96) !important;
+  border-radius: 5px !important;
+  background: linear-gradient(90deg, rgba(255, 215, 127, 0.92), rgba(154, 128, 80, 0.72)) !important;
+  box-shadow:
+    inset 0 1px 1px rgba(255, 255, 255, 0.3),
+    0 2px 8px rgba(58, 12, 45, 0.24) !important;
+}
+
+#screen-pvp .slot-stake-panel strong,
+#screen-pvp .slot-auto-panel span,
+body.local-telegram-frame #screen-pvp .slot-stake-panel strong,
+body.local-telegram-frame #screen-pvp .slot-auto-panel span,
+body.is-telegram-webapp #screen-pvp .slot-stake-panel strong,
+body.is-telegram-webapp #screen-pvp .slot-auto-panel span {
+  font: 500 10px/1 Inter, ui-sans-serif, system-ui, sans-serif !important;
+  color: #23121f !important;
+  letter-spacing: 0 !important;
+}
+
+#screen-pvp .slot-spin-button,
+body.local-telegram-frame #screen-pvp .slot-spin-button,
+body.is-telegram-webapp #screen-pvp .slot-spin-button {
+  position: relative !important;
+  width: 100px !important;
+  height: 100px !important;
+  padding: 0 !important;
+  border: 0 !important;
+  border-radius: 50% !important;
+  display: grid !important;
+  place-items: center !important;
+  align-content: center !important;
+  gap: 4px !important;
+  overflow: visible !important;
+  isolation: isolate !important;
+  background: transparent !important;
+  box-shadow: none !important;
+  color: #291129 !important;
+  transform: translateY(0) scale(1) !important;
+}
+
+#screen-pvp .slot-spin-button::before,
+body.local-telegram-frame #screen-pvp .slot-spin-button::before,
+body.is-telegram-webapp #screen-pvp .slot-spin-button::before {
+  content: "" !important;
+  position: absolute !important;
+  inset: 0 !important;
+  z-index: 0 !important;
+  border-radius: 50% !important;
+  background:
+    radial-gradient(circle at 50% 46%, rgba(74, 48, 22, 0.64), rgba(74, 48, 22, 0.34) 46%, transparent 68%),
+    linear-gradient(145deg, #6f4a1e, #2c1d13) !important;
+  transform: translateY(7px) scale(0.985) !important;
+  box-shadow:
+    0 9px 13px rgba(21, 9, 2, 0.46),
+    0 0 0 1px rgba(255, 212, 118, 0.15) !important;
+}
+
+#screen-pvp .slot-spin-button::after,
+body.local-telegram-frame #screen-pvp .slot-spin-button::after,
+body.is-telegram-webapp #screen-pvp .slot-spin-button::after {
+  content: "" !important;
+  position: absolute !important;
+  inset: 0 !important;
+  z-index: 1 !important;
+  opacity: 1 !important;
+  transform: none !important;
+  border-radius: 50% !important;
+  background:
+    radial-gradient(circle at 32% 22%, rgba(255, 255, 255, 0.7), transparent 21%),
+    linear-gradient(145deg, #ffd37e 0%, #ffd086 42%, #f7a4ae 100%) !important;
+  border: 1px solid rgba(120, 77, 28, 0.18) !important;
+  box-shadow:
+    inset 0 2px 3px rgba(255, 255, 255, 0.42),
+    inset 0 -12px 17px rgba(169, 85, 97, 0.24),
+    0 0 17px rgba(255, 206, 119, 0.28) !important;
+}
+
+#screen-pvp .slot-spin-button:active,
+body.local-telegram-frame #screen-pvp .slot-spin-button:active,
+body.is-telegram-webapp #screen-pvp .slot-spin-button:active {
+  transform: translateY(3px) scale(0.99) !important;
+  filter: brightness(0.98) saturate(1.03) !important;
+}
+
+#screen-pvp .slot-spin-icon,
+#screen-pvp .slot-spin-icon img,
+body.local-telegram-frame #screen-pvp .slot-spin-icon,
+body.local-telegram-frame #screen-pvp .slot-spin-icon img,
+body.is-telegram-webapp #screen-pvp .slot-spin-icon,
+body.is-telegram-webapp #screen-pvp .slot-spin-icon img {
+  position: relative !important;
+  z-index: 2 !important;
+  width: 31px !important;
+  height: 31px !important;
+}
+
+#screen-pvp .slot-spin-button strong,
+body.local-telegram-frame #screen-pvp .slot-spin-button strong,
+body.is-telegram-webapp #screen-pvp .slot-spin-button strong {
+  position: relative !important;
+  z-index: 2 !important;
+  font: 400 12px/1 Georgia, "Times New Roman", serif !important;
+  letter-spacing: 0 !important;
+  color: #291129 !important;
+  text-shadow: none !important;
+}
+
+/* Telegram 178 final lock: exact cross-room UI tokens for Pharaoh controls. */
+#screen-pvp .slot-topbar,
+body.local-telegram-frame #screen-pvp .slot-topbar,
+body.is-telegram-webapp #screen-pvp .slot-topbar {
+  gap: 10px !important;
+  color: rgb(249, 244, 255) !important;
+}
+
+#screen-pvp .pharaoh-screen .balance-chip,
+body.local-telegram-frame #screen-pvp .pharaoh-screen .balance-chip,
+body.is-telegram-webapp #screen-pvp .pharaoh-screen .balance-chip {
+  width: 107px !important;
+  min-width: 107px !important;
+  height: 32px !important;
+  display: grid !important;
+  grid-template-columns: 1fr 14px 18px !important;
+  align-items: center !important;
+  justify-items: center !important;
+  gap: 0 1px !important;
+  padding: 0 5px 0 14px !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  background: url("./assets/balance-frame.svg") center / 100% 100% no-repeat !important;
+  box-shadow: none !important;
+  color: rgb(27, 16, 34) !important;
+  font: 500 10px/1 Inter, ui-sans-serif, system-ui, sans-serif !important;
+}
+
+#screen-pvp .slot-spin-button::before,
+body.local-telegram-frame #screen-pvp .slot-spin-button::before,
+body.is-telegram-webapp #screen-pvp .slot-spin-button::before {
+  border: 0 !important;
+  background:
+    radial-gradient(circle at 50% 72%, rgba(255, 224, 132, 0.26), transparent 38%),
+    linear-gradient(rgb(185, 135, 46) 0%, rgb(138, 95, 32) 58%, rgb(92, 57, 19) 100%) !important;
+  box-shadow:
+    rgba(30, 9, 18, 0.36) 0 10px 13px 0,
+    rgba(43, 22, 10, 0.34) 0 -10px 14px 0 inset,
+    rgba(255, 226, 142, 0.22) 0 2px 4px 0 inset !important;
+  transform: translateY(7px) scale(0.985) !important;
+}
+
+#screen-pvp .slot-spin-button::after,
+body.local-telegram-frame #screen-pvp .slot-spin-button::after,
+body.is-telegram-webapp #screen-pvp .slot-spin-button::after {
+  opacity: 1 !important;
+  background:
+    radial-gradient(circle at 33% 24%, rgba(255, 255, 255, 0.32), transparent 23%),
+    linear-gradient(145deg, rgb(255, 211, 126) 0%, rgb(255, 208, 134) 42%, rgb(247, 164, 174) 100%) !important;
+  border: 1px solid rgba(120, 77, 28, 0.18) !important;
+  box-shadow:
+    rgba(255, 255, 255, 0.28) 0 3px 5px 0 inset,
+    rgba(136, 71, 39, 0.18) 0 -9px 14px 0 inset,
+    rgba(255, 246, 207, 0.36) 0 1px 0 0 !important;
+}
+
+#screen-pvp .slot-mode,
+#screen-pvp .slot-bonus-row button,
+body.local-telegram-frame #screen-pvp .slot-mode,
+body.local-telegram-frame #screen-pvp .slot-bonus-row button,
+body.is-telegram-webapp #screen-pvp .slot-mode,
+body.is-telegram-webapp #screen-pvp .slot-bonus-row button {
+  border: 1px solid rgba(255, 211, 126, 0.78) !important;
+  border-radius: 5px !important;
+  background: linear-gradient(90deg, rgba(255, 76, 175, 0.78), rgba(143, 63, 122, 0.58)) !important;
+  box-shadow: rgba(255, 255, 255, 0.16) 0 1px 0 0 inset !important;
+  color: rgb(37, 17, 38) !important;
+  font: 500 10px/1 Inter, ui-sans-serif, system-ui, sans-serif !important;
+  text-shadow: none !important;
+}
+
+#screen-pvp .slot-mode::before,
+#screen-pvp .slot-bonus-row button::before,
+body.local-telegram-frame #screen-pvp .slot-mode::before,
+body.local-telegram-frame #screen-pvp .slot-bonus-row button::before,
+body.is-telegram-webapp #screen-pvp .slot-mode::before,
+body.is-telegram-webapp #screen-pvp .slot-bonus-row button::before {
+  content: none !important;
+}
+
+#screen-pvp .slot-mode::after,
+body.local-telegram-frame #screen-pvp .slot-mode::after,
+body.is-telegram-webapp #screen-pvp .slot-mode::after {
+  content: "" !important;
+  opacity: 0 !important;
+  background: linear-gradient(90deg, transparent, rgba(255, 244, 198, 0.48), transparent) !important;
+}
+
+#screen-pvp .slot-mode.selected,
+body.local-telegram-frame #screen-pvp .slot-mode.selected,
+body.is-telegram-webapp #screen-pvp .slot-mode.selected {
+  border-color: rgba(255, 92, 181, 0.96) !important;
+  background: linear-gradient(90deg, rgba(255, 210, 127, 0.98) 0%, rgba(238, 190, 96, 0.96) 45%, rgba(153, 126, 76, 0.98) 100%) !important;
+  box-shadow:
+    rgba(255, 250, 218, 0.42) 0 1px 1px 0 inset,
+    rgba(96, 62, 25, 0.12) 0 -8px 16px 0 inset,
+    rgba(255, 92, 181, 0.3) 0 0 8px 0 !important;
+  color: rgb(36, 19, 32) !important;
+}
+
+#screen-pvp .slot-bonus-row button,
+body.local-telegram-frame #screen-pvp .slot-bonus-row button,
+body.is-telegram-webapp #screen-pvp .slot-bonus-row button {
+  color: #fff1d1 !important;
+  font-weight: 700 !important;
+}
+
+#screen-pvp .slot-bonus-row button.available,
+body.local-telegram-frame #screen-pvp .slot-bonus-row button.available,
+body.is-telegram-webapp #screen-pvp .slot-bonus-row button.available {
+  color: rgb(36, 19, 32) !important;
+  background: linear-gradient(90deg, rgba(255, 210, 127, 0.98), rgba(226, 81, 167, 0.9)) !important;
+}
+
+#screen-pvp .slot-step,
+body.local-telegram-frame #screen-pvp .slot-step,
+body.is-telegram-webapp #screen-pvp .slot-step {
+  width: 30px !important;
+  min-width: 30px !important;
+  height: 27px !important;
+  min-height: 27px !important;
+  padding: 0 !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  background: transparent center / 100% 100% no-repeat !important;
+  background-image: url("./assets/stake-minus.svg") !important;
+  box-shadow: none !important;
+  color: transparent !important;
+  font-size: 0 !important;
+  line-height: 1 !important;
+  text-shadow: none !important;
+}
+
+#screen-pvp .slot-step::before,
+#screen-pvp .slot-step::after,
+body.local-telegram-frame #screen-pvp .slot-step::before,
+body.local-telegram-frame #screen-pvp .slot-step::after,
+body.is-telegram-webapp #screen-pvp .slot-step::before,
+body.is-telegram-webapp #screen-pvp .slot-step::after {
+  content: none !important;
+}
+
+#screen-pvp #slot-stake-plus,
+#screen-pvp #slot-auto-plus,
+body.local-telegram-frame #screen-pvp #slot-stake-plus,
+body.local-telegram-frame #screen-pvp #slot-auto-plus,
+body.is-telegram-webapp #screen-pvp #slot-stake-plus,
+body.is-telegram-webapp #screen-pvp #slot-auto-plus {
+  background-image: url("./assets/stake-plus.svg") !important;
+}
+
+#screen-pvp .slot-step:active,
+body.local-telegram-frame #screen-pvp .slot-step:active,
+body.is-telegram-webapp #screen-pvp .slot-step:active {
+  transform: translateY(-3px) scale(0.94) !important;
+  filter: brightness(0.9) saturate(1.18) !important;
+}
+
+#screen-pvp .slot-stake-panel,
+#screen-pvp .slot-auto-panel,
+body.local-telegram-frame #screen-pvp .slot-stake-panel,
+body.local-telegram-frame #screen-pvp .slot-auto-panel,
+body.is-telegram-webapp #screen-pvp .slot-stake-panel,
+body.is-telegram-webapp #screen-pvp .slot-auto-panel {
+  border: 1px solid rgba(255, 111, 181, 0.96) !important;
+  border-radius: 5px !important;
+  background: linear-gradient(90deg, rgba(255, 210, 127, 0.98) 0%, rgba(238, 190, 96, 0.96) 45%, rgba(153, 126, 76, 0.98) 100%) !important;
+  box-shadow:
+    rgba(255, 250, 218, 0.42) 0 1px 1px 0 inset,
+    rgba(96, 62, 25, 0.12) 0 -8px 16px 0 inset,
+    rgba(255, 92, 181, 0.3) 0 0 8px 0 !important;
+}
+
+#screen-pvp .slot-stake-panel strong,
+#screen-pvp .slot-stake-panel span,
+#screen-pvp .slot-auto-panel span,
+body.local-telegram-frame #screen-pvp .slot-stake-panel strong,
+body.local-telegram-frame #screen-pvp .slot-stake-panel span,
+body.local-telegram-frame #screen-pvp .slot-auto-panel span,
+body.is-telegram-webapp #screen-pvp .slot-stake-panel strong,
+body.is-telegram-webapp #screen-pvp .slot-stake-panel span,
+body.is-telegram-webapp #screen-pvp .slot-auto-panel span {
+  font: 500 10px/1 Inter, ui-sans-serif, system-ui, sans-serif !important;
+  color: rgb(59, 22, 51) !important;
+}
+
+#screen-pvp .slot-history,
+body.local-telegram-frame #screen-pvp .slot-history,
+body.is-telegram-webapp #screen-pvp .slot-history {
+  width: 260px !important;
+  gap: 5px !important;
+}
+
+#screen-pvp .slot-history-chip,
+body.local-telegram-frame #screen-pvp .slot-history-chip,
+body.is-telegram-webapp #screen-pvp .slot-history-chip {
+  width: 48px !important;
+  min-width: 48px !important;
+  height: 22px !important;
+  padding: 0 4px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  border: 1px solid rgba(255, 211, 126, 0.76) !important;
+  border-radius: 7px !important;
+  box-shadow:
+    inset 0 1px 1px rgba(255, 255, 255, 0.32),
+    0 0 7px rgba(255, 72, 176, 0.22) !important;
+  color: #221220 !important;
+  font: 700 9px/1 Inter, ui-sans-serif, system-ui, sans-serif !important;
+  letter-spacing: 0 !important;
+  background: linear-gradient(90deg, rgba(255, 76, 175, 0.76), rgba(126, 60, 132, 0.62)) !important;
+}
+
+#screen-pvp .slot-history-chip.win,
+#screen-pvp .slot-history-chip.explain,
+body.local-telegram-frame #screen-pvp .slot-history-chip.win,
+body.local-telegram-frame #screen-pvp .slot-history-chip.explain,
+body.is-telegram-webapp #screen-pvp .slot-history-chip.win,
+body.is-telegram-webapp #screen-pvp .slot-history-chip.explain {
+  color: #221220 !important;
+  background: linear-gradient(90deg, rgba(255, 210, 127, 0.98), rgba(226, 81, 167, 0.9)) !important;
+}
+
+#screen-pvp .slot-history-chip.miss,
+body.local-telegram-frame #screen-pvp .slot-history-chip.miss,
+body.is-telegram-webapp #screen-pvp .slot-history-chip.miss {
+  color: #fff0d6 !important;
+  background: linear-gradient(90deg, rgba(66, 33, 78, 0.86), rgba(151, 42, 109, 0.76)) !important;
+}
+
+/* Telegram 178 wallet correction: #screen-pvp itself owns .pharaoh-screen. */
+#screen-pvp.pharaoh-screen .slot-topbar .balance-chip,
+body.local-telegram-frame #screen-pvp.pharaoh-screen .slot-topbar .balance-chip,
+body.is-telegram-webapp #screen-pvp.pharaoh-screen .slot-topbar .balance-chip {
+  width: 107px !important;
+  min-width: 107px !important;
+  height: 32px !important;
+  display: grid !important;
+  grid-template-columns: 1fr 14px 18px !important;
+  align-items: center !important;
+  justify-items: center !important;
+  gap: 0 1px !important;
+  padding: 0 5px 0 14px !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  background: url("./assets/balance-frame.svg") center / 100% 100% no-repeat !important;
+  box-shadow: none !important;
+  color: rgb(27, 16, 34) !important;
+  font: 500 10px/1 Inter, ui-sans-serif, system-ui, sans-serif !important;
+  letter-spacing: 0 !important;
+}
+
+#screen-pvp.pharaoh-screen .slot-topbar .balance-ruby,
+body.local-telegram-frame #screen-pvp.pharaoh-screen .slot-topbar .balance-ruby,
+body.is-telegram-webapp #screen-pvp.pharaoh-screen .slot-topbar .balance-ruby {
+  width: 10px !important;
+  height: 10px !important;
+}
+
+#screen-pvp.pharaoh-screen .slot-topbar .balance-chip > span:last-child,
+body.local-telegram-frame #screen-pvp.pharaoh-screen .slot-topbar .balance-chip > span:last-child,
+body.is-telegram-webapp #screen-pvp.pharaoh-screen .slot-topbar .balance-chip > span:last-child {
+  font: 700 13px/1 Inter, ui-sans-serif, system-ui, sans-serif !important;
+  color: rgb(42, 25, 37) !important;
+}
