@@ -971,6 +971,7 @@ body.is-telegram-webapp #screen-pvp .slot-presentation.big.show,
 body.is-telegram-webapp #screen-pvp .slot-presentation.mega.show,
 body.is-telegram-webapp #screen-pvp .slot-presentation.legend.show,
 body.is-telegram-webapp #screen-pvp .slot-presentation.free-win.show {
+  opacity: 1 !important;
   transform: translateX(-50%) scale(1) !important;
   animation: pharaohCeremonyPanelIn182 420ms cubic-bezier(0.18, 0.92, 0.2, 1) both !important;
 }
@@ -1135,8 +1136,8 @@ body.is-telegram-webapp > .slot-win-ceremony.slot-win-ceremony-viewport::before 
   position: absolute !important;
   inset: 0 !important;
   background:
-    radial-gradient(ellipse at 50% 33%, rgba(255, 215, 112, 0.18), transparent 34%),
-    radial-gradient(ellipse at 50% 48%, rgba(190, 53, 187, 0.16), transparent 54%),
+    radial-gradient(ellipse at 50% 33%, rgba(255, 215, 112, 0.14), transparent 76%),
+    radial-gradient(ellipse at 50% 48%, rgba(190, 53, 187, 0.12), transparent 82%),
     linear-gradient(180deg, rgba(5, 4, 10, 0.08), rgba(5, 4, 10, 0.18)) !important;
   opacity: 0.72 !important;
 }
@@ -1151,8 +1152,8 @@ body > .slot-win-ceremony.slot-win-ceremony-viewport[data-tier="legend"]::before
 body.local-telegram-frame > .slot-win-ceremony.slot-win-ceremony-viewport[data-tier="legend"]::before,
 body.is-telegram-webapp > .slot-win-ceremony.slot-win-ceremony-viewport[data-tier="legend"]::before {
   background:
-    radial-gradient(ellipse at 50% 30%, rgba(255, 237, 163, 0.25), transparent 34%),
-    radial-gradient(ellipse at 50% 50%, rgba(222, 67, 209, 0.22), transparent 56%),
+    radial-gradient(ellipse at 50% 30%, rgba(255, 237, 163, 0.18), transparent 78%),
+    radial-gradient(ellipse at 50% 50%, rgba(222, 67, 209, 0.16), transparent 84%),
     linear-gradient(180deg, rgba(5, 4, 10, 0.08), rgba(5, 4, 10, 0.24)) !important;
   animation: pharaohCeremonyStorm182 900ms ease-in-out infinite !important;
 }
