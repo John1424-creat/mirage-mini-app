@@ -1,6 +1,7 @@
 const config = {
   targetRtp: 0.95,
-  payoutScale: 7.9,
+  payoutScale: 8.5,
+  freeSpinPayoutScale: 1.25,
   columns: 6,
   rows: 5,
   minWinCount: 8,
@@ -8,8 +9,20 @@ const config = {
   stake: 10,
   maxBonusSpinsPerRound: 100,
   bonusBuy: {
-    costMultiplier: 100,
+    costMultiplier: 10,
     freeSpins: 15,
+  },
+  freeSpinMultiplier: {
+    maxBank: 10,
+    values: [
+      { value: 1, weight: 38 },
+      { value: 2, weight: 30 },
+      { value: 3, weight: 18 },
+      { value: 5, weight: 9 },
+      { value: 10, weight: 4 },
+      { value: 25, weight: 0.9 },
+      { value: 50, weight: 0.1 },
+    ],
   },
   symbols: [
     { id: "pharaoh", weight: 4.4 },
@@ -21,7 +34,7 @@ const config = {
     { id: "coin", weight: 12.5 },
     { id: "blue", weight: 12.8 },
     { id: "green", weight: 13.2 },
-    { id: "scatter", weight: 1.05 },
+    { id: "scatter", weight: 2.4 },
     { id: "multi", weight: 0.55 },
   ],
   payouts: {
@@ -37,13 +50,38 @@ const config = {
   },
 };
 
+const numericOverride = (name, fallback) => {
+  const value = Number(process.env[name]);
+  return Number.isFinite(value) && value > 0 ? value : fallback;
+};
+
+config.payoutScale = numericOverride("SIM_PAYOUT_SCALE", config.payoutScale);
+config.freeSpinPayoutScale = numericOverride("SIM_FREE_PAYOUT_SCALE", config.freeSpinPayoutScale);
+config.symbols.find((symbol) => symbol.id === "scatter").weight = numericOverride(
+  "SIM_SCATTER_WEIGHT",
+  config.symbols.find((symbol) => symbol.id === "scatter").weight
+);
+
+let random = Math.random;
+
+function createSeededRandom(seed) {
+  let value = seed >>> 0;
+  return () => {
+    value += 0x6d2b79f5;
+    let next = value;
+    next = Math.imul(next ^ (next >>> 15), next | 1);
+    next ^= next + Math.imul(next ^ (next >>> 7), next | 61);
+    return ((next ^ (next >>> 14)) >>> 0) / 4294967296;
+  };
+}
+
 function weightedSymbol(context = "base") {
   const boost = context === "free" ? 1.7 : 1;
   const symbols = config.symbols.map((symbol) =>
     symbol.id === "multi" ? { ...symbol, weight: symbol.weight * boost } : symbol
   );
   const total = symbols.reduce((sum, symbol) => sum + symbol.weight, 0);
-  let roll = Math.random() * total;
+  let roll = random() * total;
   for (const symbol of symbols) {
     roll -= symbol.weight;
     if (roll <= 0) return symbol.id;
@@ -57,16 +95,27 @@ function createGrid(context = "base") {
   );
 }
 
-function payoutMultiplier(symbolId, count) {
+function freeSpinMultiplierValue() {
+  const table = config.freeSpinMultiplier.values;
+  const total = table.reduce((sum, item) => sum + item.weight, 0);
+  let roll = random() * total;
+  for (const item of table) {
+    roll -= item.weight;
+    if (roll <= 0) return item.value;
+  }
+  return table[table.length - 1].value;
+}
+
+function payoutMultiplier(symbolId, count, payoutScale = config.payoutScale) {
   const table = config.payouts[symbolId];
   if (!table) return 0;
   return Object.keys(table)
     .map(Number)
     .sort((a, b) => a - b)
-    .reduce((value, threshold) => (count >= threshold ? table[threshold] : value), 0) * config.payoutScale;
+    .reduce((value, threshold) => (count >= threshold ? table[threshold] : value), 0) * payoutScale;
 }
 
-function evaluate(grid) {
+function evaluate(grid, payoutScale = config.payoutScale) {
   const counts = new Map();
   const positions = new Map();
   let scatterCount = 0;
@@ -91,7 +140,7 @@ function evaluate(grid) {
   const wins = [];
   counts.forEach((count, symbolId) => {
     if (count < config.minWinCount) return;
-    const multiplier = payoutMultiplier(symbolId, count);
+    const multiplier = payoutMultiplier(symbolId, count, payoutScale);
     if (multiplier <= 0) return;
     wins.push({ symbolId, count, multiplier, keys: positions.get(symbolId) || [] });
   });
@@ -113,21 +162,29 @@ function cascade(grid, winningKeys, context) {
   return next;
 }
 
-function spin(stake, context = "base") {
+function spin(stake, context = "base", freeMultiplierBank = 0) {
   let grid = createGrid(context);
   let totalWin = 0;
   let freeSpinsAwarded = 0;
   let cascades = 0;
 
   while (cascades < 10) {
-    const result = evaluate(grid);
+    const payoutScale = context === "free" ? config.freeSpinPayoutScale : config.payoutScale;
+    const result = evaluate(grid, payoutScale);
     const keys = new Set(result.wins.flatMap((win) => win.keys));
     const baseMultiplier = result.wins.reduce((sum, win) => sum + win.multiplier, 0);
-    const randomMultiplier =
-      result.wins.length > 0 && result.multiplierCount > 0
-        ? result.multiplierCount * (2 + Math.floor(Math.random() * (context === "free" ? 10 : 4)))
-        : 0;
-    const appliedMultiplier = randomMultiplier > 0 ? randomMultiplier : 1;
+    if (context === "free" && result.multiplierCount > 0) {
+      for (let index = 0; index < result.multiplierCount; index += 1) {
+        freeMultiplierBank += freeSpinMultiplierValue();
+      }
+      freeMultiplierBank = Math.min(freeMultiplierBank, config.freeSpinMultiplier.maxBank);
+    }
+    const randomMultiplier = result.wins.length > 0 && result.multiplierCount > 0 && context !== "free"
+      ? result.multiplierCount * (2 + Math.floor(random() * 4))
+      : 0;
+    const appliedMultiplier = context === "free" && result.wins.length > 0
+      ? Math.max(1, freeMultiplierBank)
+      : randomMultiplier > 0 ? randomMultiplier : 1;
 
     if (cascades === 0 && result.scatterCount >= 4) {
       freeSpinsAwarded = result.scatterCount >= 6 ? 15 : result.scatterCount === 5 ? 12 : 10;
@@ -143,6 +200,7 @@ function spin(stake, context = "base") {
     totalWin: Math.min(totalWin, stake * config.maxWinMultiplier),
     freeSpinsAwarded,
     cascades,
+    freeMultiplierBank,
   };
 }
 
@@ -151,11 +209,13 @@ function playFreeSpinSeries(stake, initialFreeSpins) {
   let played = 0;
   let remaining = initialFreeSpins;
   let retriggers = 0;
+  let freeMultiplierBank = 0;
 
   while (remaining > 0 && played < config.maxBonusSpinsPerRound) {
     remaining -= 1;
     played += 1;
-    const result = spin(stake, "free");
+    const result = spin(stake, "free", freeMultiplierBank);
+    freeMultiplierBank = result.freeMultiplierBank;
     paid += result.totalWin;
     if (result.freeSpinsAwarded > 0) {
       retriggers += 1;
@@ -163,7 +223,7 @@ function playFreeSpinSeries(stake, initialFreeSpins) {
     }
   }
 
-  return { paid, played, retriggers };
+  return { paid, played, retriggers, freeMultiplierBank };
 }
 
 function playPaidBaseRound(stake) {
@@ -203,6 +263,7 @@ function run(spins = 100000) {
   let freeSpinsPlayed = 0;
   let retriggers = 0;
   let maxWin = 0;
+  const wins = [];
   const buckets = new Map();
 
   for (let index = 0; index < spins; index += 1) {
@@ -216,10 +277,13 @@ function run(spins = 100000) {
     if (result.paid > 0) hits += 1;
     if (result.freeSpinsAwarded > 0) freeSpinTriggers += 1;
     if (result.paid > maxWin) maxWin = result.paid;
+    wins.push(result.paid / config.stake);
     const bucket = result.paid === 0 ? "0x" : `${Math.floor(result.paid / config.stake)}x`;
     buckets.set(bucket, (buckets.get(bucket) || 0) + 1);
   }
 
+  wins.sort((a, b) => a - b);
+  const percentile = (value) => wins[Math.min(wins.length - 1, Math.floor(wins.length * value))] || 0;
   return {
     spins,
     rtp: paid / bet,
@@ -231,6 +295,9 @@ function run(spins = 100000) {
     averageFreeSpinsPlayedPerTrigger: freeSpinTriggers > 0 ? freeSpinsPlayed / freeSpinTriggers : 0,
     retriggers,
     maxWinMultiplierObserved: maxWin / config.stake,
+    p95WinMultiplier: percentile(0.95),
+    p99WinMultiplier: percentile(0.99),
+    p999WinMultiplier: percentile(0.999),
     paid,
     bet,
     topBuckets: [...buckets.entries()].sort((a, b) => b[1] - a[1]).slice(0, 12),
@@ -267,4 +334,6 @@ function runBonusBuy(buys = 100000) {
 
 const spins = Number(process.argv[2] || 100000);
 const mode = process.argv[3] || "base";
+const seed = Number(process.argv[4] || 225);
+random = createSeededRandom(seed);
 console.log(JSON.stringify(mode === "bonus-buy" ? runBonusBuy(spins) : run(spins), null, 2));
