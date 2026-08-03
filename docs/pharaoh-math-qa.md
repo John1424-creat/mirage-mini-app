@@ -43,6 +43,25 @@ node tools/slot-simulator.mjs 100000 bonus-buy 226
 - Retriggers: `15,625`
 - Maximum observed win: `80.1 x stake`
 
+## Telegram 227 transparent multiplier pass
+
+The visible multiplier mechanic now matches the calculation contract:
+
+- multiplier symbols display one of `x2`, `x3`, `x5` or `x10`;
+- a multiplier is added only when the same cascade contains a paying cluster;
+- the free-spin bank starts at `x1`, persists between free spins and is capped
+  at `x10`;
+- the current bank is shown in the existing status line, so the grid and genie
+  panel keep their approved dimensions;
+- base payout scale: `8.54`;
+- free-spin payout scale: `2.47`.
+
+The final calibration used several independent seeded runs because the bonus
+round has high variance. Across approximately 2.5 million paid rounds the
+normalized total RTP was about `95.05%`. Across at least 150,000 bonus-buy
+sessions the normalized bonus-buy RTP was about `95.1%`. These browser results
+are regression targets, not a substitute for certified server-side math.
+
 ## UI lifecycle check
 
 At stake 10, a bonus buy charged 100 once, then played the sequence as

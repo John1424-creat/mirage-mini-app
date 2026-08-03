@@ -1,7 +1,7 @@
 const config = {
   targetRtp: 0.95,
-  payoutScale: 8.5,
-  freeSpinPayoutScale: 1.25,
+  payoutScale: 8.54,
+  freeSpinPayoutScale: 2.47,
   columns: 6,
   rows: 5,
   minWinCount: 8,
@@ -14,14 +14,12 @@ const config = {
   },
   freeSpinMultiplier: {
     maxBank: 10,
+    requiresWinningCascade: true,
     values: [
-      { value: 1, weight: 38 },
-      { value: 2, weight: 30 },
+      { value: 2, weight: 68 },
       { value: 3, weight: 18 },
       { value: 5, weight: 9 },
-      { value: 10, weight: 4 },
-      { value: 25, weight: 0.9 },
-      { value: 50, weight: 0.1 },
+      { value: 10, weight: 5 },
     ],
   },
   symbols: [
@@ -61,6 +59,9 @@ config.symbols.find((symbol) => symbol.id === "scatter").weight = numericOverrid
   "SIM_SCATTER_WEIGHT",
   config.symbols.find((symbol) => symbol.id === "scatter").weight
 );
+if (process.env.SIM_MULTI_REQUIRES_WIN) {
+  config.freeSpinMultiplier.requiresWinningCascade = process.env.SIM_MULTI_REQUIRES_WIN === "1";
+}
 
 let random = Math.random;
 
@@ -91,7 +92,7 @@ function weightedSymbol(context = "base") {
 
 function createGrid(context = "base") {
   return Array.from({ length: config.rows }, () =>
-    Array.from({ length: config.columns }, () => weightedSymbol(context))
+    Array.from({ length: config.columns }, () => createCell(context))
   );
 }
 
@@ -104,6 +105,27 @@ function freeSpinMultiplierValue() {
     if (roll <= 0) return item.value;
   }
   return table[table.length - 1].value;
+}
+
+function baseMultiplierValue() {
+  return 2 + Math.floor(random() * 4);
+}
+
+function cellSymbolId(cellValue) {
+  return String(cellValue || "").split(":", 1)[0];
+}
+
+function cellMultiplierValue(cellValue) {
+  if (cellSymbolId(cellValue) !== "multi") return 0;
+  const value = Number(String(cellValue).split(":")[1]);
+  return Number.isFinite(value) ? value : 0;
+}
+
+function createCell(context = "base") {
+  const symbolId = weightedSymbol(context);
+  if (symbolId !== "multi") return symbolId;
+  const value = context === "free" ? freeSpinMultiplierValue() : baseMultiplierValue();
+  return `multi:${value}`;
 }
 
 function payoutMultiplier(symbolId, count, payoutScale = config.payoutScale) {
@@ -120,15 +142,18 @@ function evaluate(grid, payoutScale = config.payoutScale) {
   const positions = new Map();
   let scatterCount = 0;
   let multiplierCount = 0;
+  const multiplierValues = [];
 
   grid.forEach((row, rowIndex) => {
-    row.forEach((symbolId, colIndex) => {
+    row.forEach((cellValue, colIndex) => {
+      const symbolId = cellSymbolId(cellValue);
       if (symbolId === "scatter") {
         scatterCount += 1;
         return;
       }
       if (symbolId === "multi") {
         multiplierCount += 1;
+        multiplierValues.push({ key: `${rowIndex}-${colIndex}`, value: cellMultiplierValue(cellValue) });
         return;
       }
       counts.set(symbolId, (counts.get(symbolId) || 0) + 1);
@@ -145,7 +170,7 @@ function evaluate(grid, payoutScale = config.payoutScale) {
     wins.push({ symbolId, count, multiplier, keys: positions.get(symbolId) || [] });
   });
 
-  return { wins, scatterCount, multiplierCount };
+  return { wins, scatterCount, multiplierCount, multiplierValues };
 }
 
 function cascade(grid, winningKeys, context) {
@@ -156,7 +181,7 @@ function cascade(grid, winningKeys, context) {
       if (!winningKeys.has(`${row}-${col}`)) remaining.push(next[row][col]);
     }
     for (let row = config.rows - 1; row >= 0; row -= 1) {
-      next[row][col] = remaining.length ? remaining.shift() : weightedSymbol(context);
+      next[row][col] = remaining.length ? remaining.shift() : createCell(context);
     }
   }
   return next;
@@ -173,14 +198,16 @@ function spin(stake, context = "base", freeMultiplierBank = 0) {
     const result = evaluate(grid, payoutScale);
     const keys = new Set(result.wins.flatMap((win) => win.keys));
     const baseMultiplier = result.wins.reduce((sum, win) => sum + win.multiplier, 0);
-    if (context === "free" && result.multiplierCount > 0) {
-      for (let index = 0; index < result.multiplierCount; index += 1) {
-        freeMultiplierBank += freeSpinMultiplierValue();
-      }
+    if (
+      context === "free"
+      && result.multiplierCount > 0
+      && (!config.freeSpinMultiplier.requiresWinningCascade || result.wins.length > 0)
+    ) {
+      freeMultiplierBank += result.multiplierValues.reduce((sum, item) => sum + item.value, 0);
       freeMultiplierBank = Math.min(freeMultiplierBank, config.freeSpinMultiplier.maxBank);
     }
     const randomMultiplier = result.wins.length > 0 && result.multiplierCount > 0 && context !== "free"
-      ? result.multiplierCount * (2 + Math.floor(random() * 4))
+      ? result.multiplierValues.reduce((sum, item) => sum + item.value, 0)
       : 0;
     const appliedMultiplier = context === "free" && result.wins.length > 0
       ? Math.max(1, freeMultiplierBank)
