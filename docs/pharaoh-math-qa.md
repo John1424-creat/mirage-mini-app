@@ -49,3 +49,47 @@ At stake 10, a bonus buy charged 100 once, then played the sequence as
 `15 -> 14 -> ... -> 0`. The buy control remained disabled while the session
 was active, the persistent multiplier bank survived between free spins, the
 session result was credited once, and controls returned to the ready state.
+
+## Production backend gate
+
+The current browser implementation is a prototype. Real-money release is
+blocked until the following logic becomes server-authoritative:
+
+- authenticated round creation and an idempotent wallet debit;
+- cryptographically secure or independently certified RNG;
+- versioned math configuration and immutable mapping from RNG input to outcome;
+- server-side cascade, scatter, multiplier, retrigger and max-win calculation;
+- signed round response consumed by the client only as an animation script;
+- atomic settlement, round ledger, audit identifiers and reconciliation;
+- interrupted-round recovery, including an unfinished free-spin session;
+- statistical RNG and game-math certification for the target jurisdiction.
+
+The client must never be authoritative for the outcome, balance, payout or
+remaining bonus spins.
+
+## Competitive gap audit
+
+### Required before closing Pharaoh
+
+- Show the numeric value on every multiplier symbol instead of a generic `X`.
+- Add a persistent total-multiplier meter during free spins.
+- Resolve the current presentation mismatch: the multiplier table contains
+  `x25` and `x50`, while the accumulated bank is capped at `x10`.
+- Explain retriggers and the persistent multiplier in the rules panel.
+- Add scatter anticipation before the fourth triggering symbol.
+
+### Product polish
+
+- Layered sound design and Telegram haptics for drop, cascade, multiplier,
+  scatter, retrigger and win tiers, with independent mute controls.
+- A speed mode and a safe tap-to-skip option for long win ceremonies without
+  changing the result or settlement timing.
+- A readable round-history entry with stake, cascades, multiplier, payout and
+  round identifier.
+- Reduced-motion and low-power modes that preserve information hierarchy.
+
+### Backend phase
+
+- Persist balance, current room, auto-play state and unfinished bonus sessions.
+- Add round IDs, transaction IDs, server timestamps and replayable outcomes.
+- Enforce stake, bonus-buy and exposure limits on the server.
