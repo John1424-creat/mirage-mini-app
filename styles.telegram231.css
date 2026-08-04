@@ -1,0 +1,16 @@
+/* Telegram 231: one engine anchor for the Carpet sprite, sparks and SVG trail. */
+
+#screen-solo .carpet-magic-sparks,
+body.local-telegram-frame #screen-solo .carpet-magic-sparks,
+body.is-telegram-webapp #screen-solo .carpet-magic-sparks {
+  --spark-x: 18.36px;
+  --spark-y: 111.69px;
+}
+
+#screen-solo .carpet-hero-wrap,
+body.local-telegram-frame #screen-solo .carpet-hero-wrap,
+body.is-telegram-webapp #screen-solo .carpet-hero-wrap {
+  width: 102px !important;
+  height: 153px !important;
+  transform-origin: 56% 62% !important;
+}
