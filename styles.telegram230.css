@@ -1,0 +1,71 @@
+/* Telegram 230: native curved Carpet motion path and shared magic trail. */
+
+#screen-solo .carpet-motion-guide,
+body.local-telegram-frame #screen-solo .carpet-motion-guide,
+body.is-telegram-webapp #screen-solo .carpet-motion-guide {
+  position: absolute;
+  inset: 0;
+  z-index: 9;
+  width: 377px;
+  height: 418px;
+  overflow: visible;
+  pointer-events: none;
+}
+
+#screen-solo #carpet-motion-geometry,
+body.local-telegram-frame #screen-solo #carpet-motion-geometry,
+body.is-telegram-webapp #screen-solo #carpet-motion-geometry {
+  fill: none;
+  stroke: none;
+}
+
+#screen-solo .carpet-motion-trail,
+body.local-telegram-frame #screen-solo .carpet-motion-trail,
+body.is-telegram-webapp #screen-solo .carpet-motion-trail {
+  fill: none;
+  stroke: url("#carpet-motion-gradient");
+  stroke-linecap: round;
+  stroke-dasharray: var(--carpet-path-progress, 0) 1;
+  opacity: 0;
+  transition: opacity 120ms linear;
+}
+
+#screen-solo .carpet-motion-trail-glow,
+body.local-telegram-frame #screen-solo .carpet-motion-trail-glow,
+body.is-telegram-webapp #screen-solo .carpet-motion-trail-glow {
+  stroke-width: 10;
+  filter: blur(5px);
+}
+
+#screen-solo .carpet-motion-trail-core,
+body.local-telegram-frame #screen-solo .carpet-motion-trail-core,
+body.is-telegram-webapp #screen-solo .carpet-motion-trail-core {
+  stroke-width: 2.2;
+  filter: drop-shadow(0 0 4px rgba(222, 108, 255, 0.7));
+}
+
+#screen-solo .carpet-stage.flying .carpet-motion-trail-glow,
+#screen-solo .carpet-stage.cashed .carpet-motion-trail-glow,
+body.local-telegram-frame #screen-solo .carpet-stage.flying .carpet-motion-trail-glow,
+body.local-telegram-frame #screen-solo .carpet-stage.cashed .carpet-motion-trail-glow,
+body.is-telegram-webapp #screen-solo .carpet-stage.flying .carpet-motion-trail-glow,
+body.is-telegram-webapp #screen-solo .carpet-stage.cashed .carpet-motion-trail-glow {
+  opacity: calc(0.18 + var(--carpet-speed, 0) * 0.25);
+}
+
+#screen-solo .carpet-stage.flying .carpet-motion-trail-core,
+#screen-solo .carpet-stage.cashed .carpet-motion-trail-core,
+body.local-telegram-frame #screen-solo .carpet-stage.flying .carpet-motion-trail-core,
+body.local-telegram-frame #screen-solo .carpet-stage.cashed .carpet-motion-trail-core,
+body.is-telegram-webapp #screen-solo .carpet-stage.flying .carpet-motion-trail-core,
+body.is-telegram-webapp #screen-solo .carpet-stage.cashed .carpet-motion-trail-core {
+  opacity: calc(0.42 + var(--carpet-speed, 0) * 0.42);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  #screen-solo .carpet-motion-trail,
+  body.local-telegram-frame #screen-solo .carpet-motion-trail,
+  body.is-telegram-webapp #screen-solo .carpet-motion-trail {
+    filter: none !important;
+  }
+}
