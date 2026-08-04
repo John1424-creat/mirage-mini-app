@@ -1,0 +1,277 @@
+/* Telegram 228: shared room rules and Carpet launch phase. */
+
+.room-rules-open {
+  position: absolute;
+  z-index: 110;
+  width: 26px;
+  height: 26px;
+  display: grid;
+  place-items: center;
+  padding: 0;
+  border: 1px solid rgba(255, 220, 137, 0.78);
+  border-radius: 50%;
+  background: linear-gradient(180deg, rgba(202, 69, 158, 0.96), rgba(94, 31, 103, 0.96));
+  color: #fff0bd;
+  font: 900 13px/1 Inter, ui-sans-serif, system-ui, sans-serif;
+  box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.24), 0 0 9px rgba(244, 86, 190, 0.3);
+  cursor: pointer;
+}
+
+#home-rules-open {
+  right: 20px;
+  top: 154px;
+}
+
+#carpet-rules-open {
+  right: 18px;
+  top: 616px;
+}
+
+.room-rules-backdrop {
+  position: absolute;
+  inset: 0;
+  z-index: 300;
+  display: none;
+  padding: 0;
+  border: 0;
+  background:
+    radial-gradient(circle at 50% 30%, rgba(255, 213, 126, 0.13), transparent 34%),
+    rgba(8, 3, 18, 0.78);
+  backdrop-filter: blur(3px);
+  cursor: default;
+}
+
+.room-rules-backdrop.open {
+  display: block;
+}
+
+.room-rules-panel {
+  position: absolute;
+  left: 50%;
+  top: clamp(90px, 15vh, 136px);
+  z-index: 310;
+  width: min(352px, calc(100% - 32px));
+  max-height: min(530px, calc(100% - 190px));
+  display: none;
+  transform: translateX(-50%);
+  padding: 15px 13px 14px;
+  overflow: auto;
+  scrollbar-width: none;
+  border: 1px solid rgba(255, 214, 132, 0.72);
+  border-radius: 8px;
+  background:
+    radial-gradient(circle at 52% 0%, rgba(255, 202, 112, 0.18), transparent 34%),
+    linear-gradient(180deg, rgba(67, 19, 68, 0.985), rgba(14, 7, 32, 0.99));
+  box-shadow: 0 20px 48px rgba(0, 0, 0, 0.55), inset 0 0 24px rgba(255, 211, 126, 0.1);
+  color: #fff4cc;
+}
+
+.room-rules-panel::-webkit-scrollbar {
+  width: 0;
+  height: 0;
+}
+
+.room-rules-panel.open {
+  display: block;
+}
+
+.room-rules-close {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  width: 26px;
+  height: 26px;
+  display: grid;
+  place-items: center;
+  padding: 0 0 2px;
+  border: 1px solid rgba(255, 216, 132, 0.65);
+  border-radius: 50%;
+  background: linear-gradient(180deg, #cf4ca4, #862b7c);
+  color: #fff;
+  font: 700 18px/1 Inter, ui-sans-serif, system-ui, sans-serif;
+}
+
+.room-rules-heading h3 {
+  margin: 0 36px 6px 0;
+  color: #ffe69a;
+  font: 700 19px/1 Georgia, "Times New Roman", serif;
+  text-shadow: 0 2px 7px rgba(0, 0, 0, 0.5);
+}
+
+.room-rules-heading p,
+.room-rules-copy p,
+.room-rules-note {
+  margin: 0;
+  color: rgba(255, 244, 211, 0.91);
+  font: 600 10px/1.4 Inter, ui-sans-serif, system-ui, sans-serif;
+}
+
+.room-rules-summary {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 5px;
+  margin: 12px 0 10px;
+}
+
+.room-rules-summary span {
+  min-height: 42px;
+  display: grid;
+  place-content: center;
+  gap: 3px;
+  padding: 5px 3px;
+  border: 1px solid rgba(255, 211, 126, 0.3);
+  border-radius: 6px;
+  background: linear-gradient(180deg, rgba(225, 79, 168, 0.23), rgba(61, 25, 84, 0.42));
+  text-align: center;
+}
+
+.room-rules-summary b {
+  color: #ffe18b;
+  font: 900 11px/1 Inter, ui-sans-serif, system-ui, sans-serif;
+}
+
+.room-rules-summary em {
+  color: rgba(255, 238, 190, 0.75);
+  font: normal 700 7.5px/1 Inter, ui-sans-serif, system-ui, sans-serif;
+  text-transform: uppercase;
+}
+
+.room-rules-copy {
+  display: grid;
+  gap: 7px;
+  padding: 9px;
+  border: 1px solid rgba(255, 211, 126, 0.18);
+  border-radius: 7px;
+  background: rgba(5, 3, 16, 0.26);
+}
+
+.room-rules-copy b {
+  color: #ffe39a;
+}
+
+.room-rules-formula {
+  margin: 10px 0 8px;
+  padding: 9px 10px;
+  border-left: 2px solid #ffcf69;
+  border-radius: 0 6px 6px 0;
+  background: linear-gradient(90deg, rgba(255, 196, 86, 0.15), rgba(255, 103, 191, 0.08));
+  color: #fff0b6;
+  font: 800 10px/1.35 Inter, ui-sans-serif, system-ui, sans-serif;
+}
+
+.room-rules-note {
+  color: rgba(255, 238, 198, 0.7);
+  font-size: 9px;
+}
+
+.carpet-launch-burst,
+.carpet-launch-wake {
+  position: absolute;
+  z-index: 3;
+  display: block;
+  pointer-events: none;
+  opacity: 0;
+}
+
+.carpet-launch-burst {
+  left: 50%;
+  top: 72%;
+  width: 150px;
+  height: 150px;
+  transform: translate(-50%, -50%) scale(0.25);
+  border-radius: 50%;
+  background:
+    radial-gradient(circle, rgba(255, 247, 192, 0.92) 0 4%, rgba(255, 202, 91, 0.58) 12%, rgba(220, 77, 255, 0.24) 34%, transparent 66%);
+  filter: blur(1px) drop-shadow(0 0 14px rgba(255, 205, 101, 0.55));
+}
+
+.carpet-launch-wake {
+  left: 8%;
+  top: 58%;
+  width: 45%;
+  height: 92px;
+  transform: rotate(-18deg) scaleX(0.35);
+  transform-origin: right center;
+  background:
+    linear-gradient(90deg, transparent, rgba(136, 86, 255, 0.2) 24%, rgba(255, 85, 209, 0.58) 62%, rgba(255, 230, 139, 0.86));
+  clip-path: polygon(0 48%, 70% 14%, 100% 45%, 100% 57%, 66% 86%, 0 54%);
+  filter: blur(7px) saturate(1.25);
+}
+
+#screen-solo .carpet-stage.launching .carpet-hero-wrap,
+body.local-telegram-frame #screen-solo .carpet-stage.launching .carpet-hero-wrap,
+body.is-telegram-webapp #screen-solo .carpet-stage.launching .carpet-hero-wrap {
+  animation: carpetLaunchHero 720ms cubic-bezier(0.16, 0.82, 0.22, 1) both !important;
+}
+
+#screen-solo .carpet-stage.launching .carpet-flight-fx,
+body.local-telegram-frame #screen-solo .carpet-stage.launching .carpet-flight-fx,
+body.is-telegram-webapp #screen-solo .carpet-stage.launching .carpet-flight-fx {
+  opacity: 0.9 !important;
+  animation: carpetLaunchFx 720ms cubic-bezier(0.16, 0.82, 0.22, 1) both !important;
+}
+
+.carpet-stage.launching .carpet-launch-burst {
+  animation: carpetLaunchBurst 720ms ease-out both;
+}
+
+.carpet-stage.launching .carpet-launch-wake {
+  animation: carpetLaunchWake 720ms cubic-bezier(0.15, 0.75, 0.22, 1) both;
+}
+
+.carpet-stage.launching {
+  animation: carpetLaunchStage 720ms ease-out both;
+}
+
+@keyframes carpetLaunchHero {
+  0% { transform: translate3d(0, 0, 0) scale(1) rotate(-8deg); }
+  16% { transform: translate3d(-5px, 7px, 0) scale(0.97, 1.03) rotate(-5deg); }
+  57% { transform: translate3d(40px, -77px, 0) scale(1.075) rotate(-12deg); }
+  78% { transform: translate3d(31px, -64px, 0) scale(1.015) rotate(-9deg); }
+  100% { transform: translate3d(34px, -68px, 0) scale(1.02) rotate(-10deg); }
+}
+
+@keyframes carpetLaunchFx {
+  0% { transform: translate3d(0, 0, 0) scale(0.7) rotate(-8deg); opacity: 0.12; }
+  18% { transform: translate3d(-7px, 8px, 0) scale(0.58) rotate(-5deg); opacity: 0.3; }
+  60% { transform: translate3d(40px, -77px, 0) scale(1.2, 0.96) rotate(-12deg); opacity: 1; }
+  100% { transform: translate3d(34px, -68px, 0) scale(1.02) rotate(-10deg); opacity: 0.84; }
+}
+
+@keyframes carpetLaunchBurst {
+  0%, 12% { opacity: 0; transform: translate(-50%, -50%) scale(0.2); }
+  28% { opacity: 1; transform: translate(-50%, -50%) scale(0.88); }
+  58% { opacity: 0.72; transform: translate(-50%, -50%) scale(1.3); }
+  100% { opacity: 0; transform: translate(-50%, -50%) scale(1.75); }
+}
+
+@keyframes carpetLaunchWake {
+  0%, 14% { opacity: 0; transform: rotate(-18deg) scaleX(0.22); }
+  34% { opacity: 0.95; transform: rotate(-18deg) scaleX(0.82); }
+  72% { opacity: 0.68; transform: translate3d(12px, -34px, 0) rotate(-22deg) scaleX(1.05); }
+  100% { opacity: 0; transform: translate3d(25px, -57px, 0) rotate(-24deg) scaleX(1.18); }
+}
+
+@keyframes carpetLaunchStage {
+  0%, 28%, 100% { filter: brightness(1); }
+  38% { filter: brightness(1.15); }
+}
+
+@media (max-height: 740px) {
+  #home-rules-open { top: 139px; }
+  #carpet-rules-open { top: 552px; }
+  .room-rules-panel {
+    top: 72px;
+    max-height: calc(100% - 156px);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  #screen-solo .carpet-stage.launching .carpet-hero-wrap,
+  #screen-solo .carpet-stage.launching .carpet-flight-fx,
+  .carpet-stage.launching .carpet-launch-burst,
+  .carpet-stage.launching .carpet-launch-wake,
+  .carpet-stage.launching {
+    animation-duration: 1ms !important;
+  }
+}
