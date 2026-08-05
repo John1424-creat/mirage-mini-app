@@ -3,12 +3,12 @@
 body.local-telegram-frame #screen-home .auto-scale,
 body.is-telegram-webapp #screen-home .auto-scale {
   position: absolute !important;
-  left: auto !important;
-  right: 8px !important;
-  top: 622px !important;
+  left: 28px !important;
+  right: auto !important;
+  top: 530px !important;
   z-index: 1000 !important;
   display: none !important;
-  width: 174px !important;
+  width: 337px !important;
   height: auto !important;
   margin: 0 !important;
   padding: 10px !important;
@@ -29,7 +29,20 @@ body.is-telegram-webapp #screen-home .auto-scale {
 #screen-home .auto-scale.show,
 body.local-telegram-frame #screen-home .auto-scale.show,
 body.is-telegram-webapp #screen-home .auto-scale.show {
+  left: 28px !important;
+  right: auto !important;
+  top: 530px !important;
   display: block !important;
+  width: 337px !important;
+  height: auto !important;
+  margin: 0 !important;
+  padding: 10px !important;
+  border: 1px solid rgba(255, 214, 132, 0.78) !important;
+  border-radius: 8px !important;
+  background: linear-gradient(180deg, rgba(93, 29, 73, 0.98), rgba(37, 17, 43, 0.98)) !important;
+  box-shadow:
+    0 10px 22px rgba(17, 5, 17, 0.46),
+    inset 0 1px 0 rgba(255, 238, 184, 0.22) !important;
   opacity: 1 !important;
   overflow: visible !important;
   pointer-events: auto !important;
@@ -50,7 +63,9 @@ body.is-telegram-webapp #screen-home .auto-scale-stepper {
   grid-template-columns: 32px minmax(0, 1fr) 32px !important;
   align-items: center !important;
   gap: 5px !important;
+  width: 184px !important;
   height: 32px !important;
+  margin: 0 auto !important;
 }
 
 #screen-home .auto-scale-step,
@@ -104,7 +119,7 @@ body.is-telegram-webapp #screen-home .auto-scale-value {
 body.local-telegram-frame #screen-home .auto-scale-quick,
 body.is-telegram-webapp #screen-home .auto-scale-quick {
   display: grid !important;
-  grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+  grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
   gap: 6px !important;
   width: 100% !important;
   height: auto !important;
@@ -131,12 +146,6 @@ body.is-telegram-webapp #screen-home .auto-scale-chip {
   touch-action: manipulation !important;
 }
 
-#screen-home .auto-scale-chip:nth-child(8),
-body.local-telegram-frame #screen-home .auto-scale-chip:nth-child(8),
-body.is-telegram-webapp #screen-home .auto-scale-chip:nth-child(8) {
-  grid-column: span 2 !important;
-}
-
 #screen-home .auto-scale-chip.selected,
 body.local-telegram-frame #screen-home .auto-scale-chip.selected,
 body.is-telegram-webapp #screen-home .auto-scale-chip.selected {
@@ -156,4 +165,14 @@ body.local-telegram-frame #screen-home .auto-scale-labels,
 body.is-telegram-webapp #screen-home .auto-scale-track,
 body.is-telegram-webapp #screen-home .auto-scale-labels {
   display: none !important;
+}
+
+#screen-home .auto-run-counter,
+body.local-telegram-frame #screen-home .auto-run-counter,
+body.is-telegram-webapp #screen-home .auto-run-counter {
+  left: 16px !important;
+  top: 48px !important;
+  min-width: 100px !important;
+  height: 26px !important;
+  font-size: 10px !important;
 }

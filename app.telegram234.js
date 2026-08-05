@@ -5172,6 +5172,8 @@ function playHomeAutoPyramid(runs, totalStake) {
 
   homeAutoRunning = true;
   homeAutoCancelRequested = false;
+  const autoScale = $("#home-auto-scale");
+  if (autoScale) autoScale.classList.remove("show");
   resetHomePerformance("auto", runs);
   if (winbar) {
     if (homeWinbarTimer) clearTimeout(homeWinbarTimer);
