@@ -89,9 +89,9 @@ const HOME_ROWS_MAX = 16;
 const HOME_STAKE_MIN = 5;
 const HOME_STAKE_STEP = 5;
 const HOME_STAKE_MAX = 10000;
-const HOME_AUTO_BALL_MIN = 10;
-const HOME_AUTO_BALL_MAX = 1000;
-const HOME_AUTO_BALL_OPTIONS = [10, 20, 50, 100, 1000];
+const HOME_AUTO_BALL_MIN = 1;
+const HOME_AUTO_BALL_MAX = 100;
+const HOME_AUTO_BALL_OPTIONS = [1, 2, 3, 5, 10, 25, 50, 100];
 const HOME_AUTO_MAX_ACTIVE_BALLS = 34;
 const HOME_MANUAL_MAX_ACTIVE_BALLS = 40;
 const HOME_AUTO_BALL_DURATION = 5400;
@@ -211,6 +211,27 @@ function getHomeAutoBallsFromProgress(progress) {
   const localProgress = segment - index;
   const value = marks[index] + (marks[index + 1] - marks[index]) * localProgress;
   return Math.max(HOME_AUTO_BALL_MIN, Math.min(HOME_AUTO_BALL_MAX, Math.round(value)));
+}
+
+function getHomeAutoStep(value, direction) {
+  if (direction < 0) {
+    for (let index = HOME_AUTO_BALL_OPTIONS.length - 1; index >= 0; index -= 1) {
+      if (HOME_AUTO_BALL_OPTIONS[index] < value) return HOME_AUTO_BALL_OPTIONS[index];
+    }
+    return HOME_AUTO_BALL_MIN;
+  }
+  for (let index = 0; index < HOME_AUTO_BALL_OPTIONS.length; index += 1) {
+    if (HOME_AUTO_BALL_OPTIONS[index] > value) return HOME_AUTO_BALL_OPTIONS[index];
+  }
+  return HOME_AUTO_BALL_MAX;
+}
+
+function formatHomeAutoBalls(value) {
+  const normalized = Math.abs(Math.round(value));
+  const lastTwo = normalized % 100;
+  const last = normalized % 10;
+  const suffix = lastTwo >= 11 && lastTwo <= 14 ? "шаров" : last === 1 ? "шар" : last >= 2 && last <= 4 ? "шара" : "шаров";
+  return `${format(normalized)} ${suffix}`;
 }
 
 function getHomeAutoSpawnInterval(total) {
@@ -2940,10 +2961,10 @@ function renderHomeControls() {
   const autoRange = $("#home-auto-range");
   if (autoRange) autoRange.value = state.homeAutoBalls;
   const autoValue = $("#home-auto-value");
-  if (autoValue) autoValue.textContent = `${format(state.homeAutoBalls)} шариков`;
+  if (autoValue) autoValue.textContent = formatHomeAutoBalls(state.homeAutoBalls);
   $$("[data-auto-balls]").forEach((button) => {
     const autoBalls = Number(button.dataset.autoBalls);
-    button.classList.toggle("selected", Math.abs(getHomeAutoProgress(autoBalls) - autoProgress) <= 0.018);
+    button.classList.toggle("selected", autoBalls === state.homeAutoBalls);
   });
 }
 
@@ -3625,6 +3646,16 @@ const HOME_COEFFICIENT_PALETTES = {
     text: "#fff4d2",
     glow: "rgba(255, 59, 139, 0.94)",
   },
+  amethyst: {
+    id: "amethyst",
+    top: "#d49aff",
+    middle: "#963fd1",
+    bottom: "#4b216f",
+    rim: "#f5d4ff",
+    shine: "rgba(253, 240, 255, 0.94)",
+    text: "#fff0ff",
+    glow: "rgba(190, 86, 255, 0.92)",
+  },
   coral: {
     id: "coral",
     top: "#ff9b8f",
@@ -3804,13 +3835,15 @@ function drawHomeLauncher(ctx, width, isLaunching = false, timestamp = performan
   ctx.restore();
 }
 
-function getHomeCoefficientPalette(multiplier, maximum) {
-  const ratio = maximum > 0 ? multiplier / maximum : 0;
-  if (ratio >= 0.32) return HOME_COEFFICIENT_PALETTES.ruby;
-  if (ratio >= 0.12) return HOME_COEFFICIENT_PALETTES.coral;
-  if (ratio >= 0.055) return HOME_COEFFICIENT_PALETTES.gold;
-  if (ratio >= 0.02) return HOME_COEFFICIENT_PALETTES.emerald;
-  return HOME_COEFFICIENT_PALETTES.teal;
+function getHomeCoefficientPalette(index, total) {
+  const distanceFromEdge = Math.min(index, total - 1 - index);
+  const centerDepth = Math.floor((total - 1) / 2);
+  if (distanceFromEdge === 0) return HOME_COEFFICIENT_PALETTES.ruby;
+  if (distanceFromEdge === 1) return HOME_COEFFICIENT_PALETTES.amethyst;
+  if (distanceFromEdge === 2) return HOME_COEFFICIENT_PALETTES.coral;
+  if (distanceFromEdge === 3) return HOME_COEFFICIENT_PALETTES.gold;
+  if (distanceFromEdge >= 5 || distanceFromEdge === centerDepth) return HOME_COEFFICIENT_PALETTES.teal;
+  return HOME_COEFFICIENT_PALETTES.emerald;
 }
 
 function getHomeCoefficientSprite(width, height, palette, active) {
@@ -3846,20 +3879,10 @@ function getHomeCoefficientSprite(width, height, palette, active) {
   spriteCtx.lineWidth = active ? 0.82 : 0.58;
   spriteCtx.stroke(coefficientSlotPath);
 
-  spriteCtx.lineCap = "round";
-  spriteCtx.strokeStyle = palette.shine;
-  spriteCtx.lineWidth = 0.42;
+  spriteCtx.fillStyle = palette.shine;
   spriteCtx.beginPath();
-  spriteCtx.moveTo(2.1, 1.15);
-  spriteCtx.bezierCurveTo(5.4, 0.62, 12.8, 0.62, 15.9, 1.12);
-  spriteCtx.stroke();
-
-  spriteCtx.strokeStyle = "rgba(31, 11, 35, 0.46)";
-  spriteCtx.lineWidth = 0.5;
-  spriteCtx.beginPath();
-  spriteCtx.moveTo(2.4, 6.75);
-  spriteCtx.bezierCurveTo(6, 7.28, 12.1, 7.28, 15.6, 6.72);
-  spriteCtx.stroke();
+  spriteCtx.ellipse(4.3, 1.55, 2.25, 0.48, -0.08, 0, Math.PI * 2);
+  spriteCtx.fill();
 
   if (active) {
     const flare = spriteCtx.createRadialGradient(9, 3.4, 0.5, 9, 3.4, 7.4);
@@ -4942,12 +4965,11 @@ function drawHomeBoard(ball = null, hotSlot = -1, slotDrop = 0, activePeg = null
   ctx.restore();
 
   const labels = getMultipliers(rows, state.homeRisk);
-  const maximumMultiplier = Math.max(...labels, 1);
   labels.forEach((multiplier, index) => {
     const x = centerX(index) - slotWidth / 2;
     const impactOffset = index === hotSlot ? slotDrop : 0;
     const active = index === hotSlot;
-    const palette = getHomeCoefficientPalette(multiplier, maximumMultiplier);
+    const palette = getHomeCoefficientPalette(index, labels.length);
     drawCoefficientSlot(ctx, x, slotY + impactOffset, slotWidth, slotHeight, palette, active);
     ctx.fillStyle = palette.text;
     ctx.font = "700 7px Inter, system-ui, sans-serif";
@@ -6753,7 +6775,7 @@ function initEvents() {
   if (autoMinus) {
     autoMinus.addEventListener("click", () => {
       if (cancelHomeAutoPyramid()) return;
-      state.homeAutoBalls = Math.max(HOME_AUTO_BALL_MIN, state.homeAutoBalls - 1);
+      state.homeAutoBalls = getHomeAutoStep(state.homeAutoBalls, -1);
       if (state.homeMode === "auto") state.homeRuns = state.homeAutoBalls;
       render();
     });
@@ -6763,7 +6785,7 @@ function initEvents() {
   if (autoPlus) {
     autoPlus.addEventListener("click", () => {
       if (cancelHomeAutoPyramid()) return;
-      state.homeAutoBalls = Math.min(HOME_AUTO_BALL_MAX, state.homeAutoBalls + 1);
+      state.homeAutoBalls = getHomeAutoStep(state.homeAutoBalls, 1);
       if (state.homeMode === "auto") state.homeRuns = state.homeAutoBalls;
       render();
     });

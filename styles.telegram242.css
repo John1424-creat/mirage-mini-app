@@ -1,0 +1,159 @@
+/* Telegram 242: coefficient cleanup and touch-friendly Plinko auto-run picker. */
+#screen-home .auto-scale,
+body.local-telegram-frame #screen-home .auto-scale,
+body.is-telegram-webapp #screen-home .auto-scale {
+  position: absolute !important;
+  left: auto !important;
+  right: 8px !important;
+  top: 622px !important;
+  z-index: 1000 !important;
+  display: none !important;
+  width: 174px !important;
+  height: auto !important;
+  margin: 0 !important;
+  padding: 10px !important;
+  border: 1px solid rgba(255, 214, 132, 0.78) !important;
+  border-radius: 8px !important;
+  background:
+    linear-gradient(180deg, rgba(93, 29, 73, 0.98), rgba(37, 17, 43, 0.98)) !important;
+  box-shadow:
+    0 10px 22px rgba(17, 5, 17, 0.46),
+    inset 0 1px 0 rgba(255, 238, 184, 0.22) !important;
+  opacity: 0 !important;
+  overflow: hidden !important;
+  pointer-events: none !important;
+  transform: translateY(-100%) !important;
+  transition: opacity 140ms ease !important;
+}
+
+#screen-home .auto-scale.show,
+body.local-telegram-frame #screen-home .auto-scale.show,
+body.is-telegram-webapp #screen-home .auto-scale.show {
+  display: block !important;
+  opacity: 1 !important;
+  overflow: visible !important;
+  pointer-events: auto !important;
+  transform: translateY(-100%) !important;
+}
+
+#screen-home .auto-scale.show + .stake-strip,
+body.local-telegram-frame #screen-home .auto-scale.show + .stake-strip,
+body.is-telegram-webapp #screen-home .auto-scale.show + .stake-strip {
+  margin-top: 0 !important;
+  pointer-events: none !important;
+}
+
+#screen-home .auto-scale-stepper,
+body.local-telegram-frame #screen-home .auto-scale-stepper,
+body.is-telegram-webapp #screen-home .auto-scale-stepper {
+  display: grid !important;
+  grid-template-columns: 32px minmax(0, 1fr) 32px !important;
+  align-items: center !important;
+  gap: 5px !important;
+  height: 32px !important;
+}
+
+#screen-home .auto-scale-step,
+body.local-telegram-frame #screen-home .auto-scale-step,
+body.is-telegram-webapp #screen-home .auto-scale-step {
+  display: block !important;
+  width: 32px !important;
+  height: 30px !important;
+  min-width: 32px !important;
+  min-height: 30px !important;
+  padding: 0 !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  background: url("./assets/stake-minus.svg") center / 100% 100% no-repeat !important;
+  color: transparent !important;
+  font-size: 0 !important;
+  box-shadow: 0 3px 8px rgba(35, 8, 31, 0.34) !important;
+  touch-action: manipulation !important;
+}
+
+#screen-home #home-auto-plus,
+body.local-telegram-frame #screen-home #home-auto-plus,
+body.is-telegram-webapp #screen-home #home-auto-plus {
+  background-image: url("./assets/stake-plus.svg") !important;
+}
+
+#screen-home .auto-scale-value,
+body.local-telegram-frame #screen-home .auto-scale-value,
+body.is-telegram-webapp #screen-home .auto-scale-value {
+  position: static !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  width: auto !important;
+  min-width: 0 !important;
+  height: 28px !important;
+  padding: 0 5px !important;
+  border: 1px solid rgba(255, 221, 145, 0.82) !important;
+  border-radius: 7px !important;
+  background: linear-gradient(90deg, #ffe08d, #c7a55c) !important;
+  color: #32192b !important;
+  font: 800 10px/1 Inter, ui-sans-serif, system-ui, sans-serif !important;
+  letter-spacing: 0 !important;
+  text-align: center !important;
+  text-shadow: none !important;
+  white-space: nowrap !important;
+  transform: none !important;
+}
+
+#screen-home .auto-scale-quick,
+body.local-telegram-frame #screen-home .auto-scale-quick,
+body.is-telegram-webapp #screen-home .auto-scale-quick {
+  display: grid !important;
+  grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+  gap: 6px !important;
+  width: 100% !important;
+  height: auto !important;
+  margin-top: 8px !important;
+}
+
+#screen-home .auto-scale-chip,
+body.local-telegram-frame #screen-home .auto-scale-chip,
+body.is-telegram-webapp #screen-home .auto-scale-chip {
+  display: grid !important;
+  place-items: center !important;
+  width: 100% !important;
+  min-width: 0 !important;
+  min-height: 38px !important;
+  padding: 0 4px !important;
+  border: 1px solid rgba(255, 215, 132, 0.72) !important;
+  border-radius: 8px !important;
+  background: linear-gradient(180deg, #c83d98, #7d2e75) !important;
+  color: #fff1c9 !important;
+  font: 800 12px/1 Inter, ui-sans-serif, system-ui, sans-serif !important;
+  letter-spacing: 0 !important;
+  text-shadow: 0 1px 2px rgba(34, 8, 26, 0.5) !important;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.16) !important;
+  touch-action: manipulation !important;
+}
+
+#screen-home .auto-scale-chip:nth-child(8),
+body.local-telegram-frame #screen-home .auto-scale-chip:nth-child(8),
+body.is-telegram-webapp #screen-home .auto-scale-chip:nth-child(8) {
+  grid-column: span 2 !important;
+}
+
+#screen-home .auto-scale-chip.selected,
+body.local-telegram-frame #screen-home .auto-scale-chip.selected,
+body.is-telegram-webapp #screen-home .auto-scale-chip.selected {
+  border-color: rgba(255, 236, 177, 0.96) !important;
+  background: linear-gradient(90deg, #ffe08d, #bfa057) !important;
+  color: #2e1728 !important;
+  text-shadow: none !important;
+  box-shadow:
+    0 0 0 1px rgba(255, 100, 187, 0.5),
+    inset 0 1px 0 rgba(255, 255, 255, 0.34) !important;
+}
+
+#screen-home .auto-scale-track,
+#screen-home .auto-scale-labels,
+body.local-telegram-frame #screen-home .auto-scale-track,
+body.local-telegram-frame #screen-home .auto-scale-labels,
+body.is-telegram-webapp #screen-home .auto-scale-track,
+body.is-telegram-webapp #screen-home .auto-scale-labels {
+  display: none !important;
+}
