@@ -1,0 +1,17 @@
+/* Telegram 235: dedicated room art with a storybook market for Pharaoh. */
+
+body[data-active-tab="home"]::before,
+body.local-telegram-frame[data-active-tab="home"]::before,
+body.is-telegram-webapp[data-active-tab="home"]::before {
+  background:
+    linear-gradient(180deg, rgba(3, 8, 28, 0.05), rgba(3, 8, 28, 0.12) 58%, rgba(7, 5, 21, 0.18)),
+    url("./assets/pyramid-room-bg-eastern-v2.webp") center / cover no-repeat !important;
+}
+
+body[data-active-tab="pvp"]::before,
+body.local-telegram-frame[data-active-tab="pvp"]::before,
+body.is-telegram-webapp[data-active-tab="pvp"]::before {
+  background:
+    linear-gradient(180deg, rgba(25, 11, 19, 0.22), rgba(35, 14, 19, 0.12) 56%, rgba(24, 10, 18, 0.22)),
+    url("./assets/pharaoh-room-bg-market-storybook-v2.webp") center / cover no-repeat !important;
+}
