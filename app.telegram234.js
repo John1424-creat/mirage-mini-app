@@ -3632,7 +3632,7 @@ function getHomeCanvasProfile() {
       activeGlowRadius: 4.35,
       activeGlowBlur: 7,
       idleGlowBlur: 3.8,
-      activeDuration: 82,
+      activeDuration: 140,
       collisionPadding: 0.55,
       ballRadius: HOME_BALL_RADIUS,
     };
@@ -3646,7 +3646,7 @@ function getHomeCanvasProfile() {
     activeGlowRadius: 5.4,
     activeGlowBlur: 14,
     idleGlowBlur: 6,
-    activeDuration: 150,
+    activeDuration: 170,
     collisionPadding: 0.9,
     ballRadius: HOME_BALL_RADIUS,
   };
@@ -4485,6 +4485,99 @@ function drawHomeWinEffects(ctx, timestamp) {
   ctx.restore();
 }
 
+const homePegSpriteCache = new Map();
+
+function getHomePegSprite(profile, active) {
+  const key = [
+    active ? "active" : "idle",
+    profile.pegRadius,
+    profile.activePegRadius,
+    profile.activeGlowRadius,
+  ].join(":");
+  if (homePegSpriteCache.has(key)) return homePegSpriteCache.get(key);
+
+  const pegRadius = active ? profile.activePegRadius : profile.pegRadius;
+  const glowRadius = active ? profile.activeGlowRadius + 2.1 : pegRadius + 2.15;
+  const cssSize = Math.ceil(glowRadius * 2 + 2);
+  const renderScale = 4;
+  const sprite = document.createElement("canvas");
+  sprite.width = cssSize * renderScale;
+  sprite.height = cssSize * renderScale;
+
+  const spriteCtx = sprite.getContext("2d");
+  spriteCtx.scale(renderScale, renderScale);
+  const center = cssSize / 2;
+
+  const halo = spriteCtx.createRadialGradient(center, center, pegRadius * 0.35, center, center, glowRadius);
+  halo.addColorStop(0, active ? "rgba(255, 252, 195, 0.92)" : "rgba(255, 224, 108, 0.42)");
+  halo.addColorStop(0.42, active ? "rgba(255, 205, 69, 0.48)" : "rgba(255, 188, 57, 0.16)");
+  halo.addColorStop(1, "rgba(255, 166, 35, 0)");
+  spriteCtx.beginPath();
+  spriteCtx.fillStyle = halo;
+  spriteCtx.arc(center, center, glowRadius, 0, Math.PI * 2);
+  spriteCtx.fill();
+
+  const rim = spriteCtx.createRadialGradient(
+    center - pegRadius * 0.38,
+    center - pegRadius * 0.46,
+    pegRadius * 0.08,
+    center,
+    center,
+    pegRadius
+  );
+  rim.addColorStop(0, active ? "#fffef0" : "#fff3b2");
+  rim.addColorStop(0.32, active ? "#ffe56f" : "#f7c84c");
+  rim.addColorStop(0.72, "#bf6a12");
+  rim.addColorStop(1, "#5d2708");
+  spriteCtx.beginPath();
+  spriteCtx.fillStyle = rim;
+  spriteCtx.arc(center, center, pegRadius, 0, Math.PI * 2);
+  spriteCtx.fill();
+
+  spriteCtx.beginPath();
+  spriteCtx.strokeStyle = active ? "rgba(255, 255, 222, 0.98)" : "rgba(255, 226, 126, 0.82)";
+  spriteCtx.lineWidth = Math.max(0.42, pegRadius * 0.16);
+  spriteCtx.arc(center, center, pegRadius - spriteCtx.lineWidth * 0.52, 0, Math.PI * 2);
+  spriteCtx.stroke();
+
+  const coreRadius = pegRadius * 0.47;
+  const core = spriteCtx.createRadialGradient(
+    center - coreRadius * 0.42,
+    center - coreRadius * 0.48,
+    coreRadius * 0.05,
+    center,
+    center,
+    coreRadius
+  );
+  core.addColorStop(0, "#fffde8");
+  core.addColorStop(0.4, active ? "#fff39b" : "#ffd966");
+  core.addColorStop(1, active ? "#e99a1f" : "#a8520d");
+  spriteCtx.beginPath();
+  spriteCtx.fillStyle = core;
+  spriteCtx.arc(center, center, coreRadius, 0, Math.PI * 2);
+  spriteCtx.fill();
+
+  spriteCtx.beginPath();
+  spriteCtx.fillStyle = active ? "rgba(255, 255, 255, 1)" : "rgba(255, 255, 230, 0.9)";
+  spriteCtx.arc(
+    center - pegRadius * 0.32,
+    center - pegRadius * 0.37,
+    Math.max(0.34, pegRadius * 0.13),
+    0,
+    Math.PI * 2
+  );
+  spriteCtx.fill();
+
+  const cached = { canvas: sprite, size: cssSize };
+  homePegSpriteCache.set(key, cached);
+  return cached;
+}
+
+function drawHomePeg(ctx, x, y, profile, active) {
+  const sprite = getHomePegSprite(profile, active);
+  ctx.drawImage(sprite.canvas, x - sprite.size / 2, y - sprite.size / 2, sprite.size, sprite.size);
+}
+
 function drawHomeBoard(ball = null, hotSlot = -1, slotDrop = 0, activePeg = null, ballTrail = [], effectTimestamp = performance.now()) {
   if (!homeCtx) return;
   const ctx = homeCtx;
@@ -4517,24 +4610,7 @@ function drawHomeBoard(ball = null, hotSlot = -1, slotDrop = 0, activePeg = null
     for (let col = 0; col < count; col += 1) {
       const x = width / 2 + (col - (count - 1) / 2) * pegGap;
       const isActivePeg = activePegs.some((peg) => peg && peg.row === row && peg.col === col);
-      if (isActivePeg) {
-        const activeGlow = ctx.createRadialGradient(x - 1, y - 1, 0.5, x, y, canvasProfile.activeGlowRadius + 0.8);
-        activeGlow.addColorStop(0, "rgba(255, 255, 205, 1)");
-        activeGlow.addColorStop(0.48, "rgba(255, 244, 116, 0.82)");
-        activeGlow.addColorStop(1, "rgba(255, 213, 68, 0.1)");
-        ctx.beginPath();
-        ctx.fillStyle = activeGlow;
-        ctx.shadowColor = "rgba(255, 239, 104, 0.76)";
-        ctx.shadowBlur = canvasProfile.activeGlowBlur;
-        ctx.arc(x, y, canvasProfile.activeGlowRadius, 0, Math.PI * 2);
-        ctx.fill();
-      }
-      ctx.beginPath();
-      ctx.fillStyle = isActivePeg ? "#fff58c" : "#ffd95c";
-      ctx.shadowColor = isActivePeg ? "rgba(255, 225, 92, 0.82)" : "rgba(255, 203, 68, 0.76)";
-      ctx.shadowBlur = isActivePeg ? canvasProfile.activeGlowBlur : canvasProfile.idleGlowBlur;
-      ctx.arc(x, y, isActivePeg ? canvasProfile.activePegRadius : canvasProfile.pegRadius, 0, Math.PI * 2);
-      ctx.fill();
+      drawHomePeg(ctx, x, y, canvasProfile, isActivePeg);
     }
   }
   ctx.restore();
