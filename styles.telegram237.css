@@ -1,0 +1,156 @@
+/* Telegram 237: lamp temple plus a warm jewel-tone Pharaoh game surface. */
+
+body[data-active-tab="home"]::before,
+body.local-telegram-frame[data-active-tab="home"]::before,
+body.is-telegram-webapp[data-active-tab="home"]::before {
+  background:
+    linear-gradient(180deg, rgba(3, 8, 28, 0.05), rgba(3, 8, 28, 0.12) 58%, rgba(7, 5, 21, 0.18)),
+    url("./assets/pyramid-room-bg-lamp-v3.webp") center / cover no-repeat !important;
+}
+
+body[data-active-tab="pvp"]::before,
+body.local-telegram-frame[data-active-tab="pvp"]::before,
+body.is-telegram-webapp[data-active-tab="pvp"]::before {
+  background:
+    linear-gradient(180deg, rgba(25, 11, 19, 0.22), rgba(35, 14, 19, 0.12) 56%, rgba(24, 10, 18, 0.22)),
+    url("./assets/pharaoh-room-bg-market-storybook-v2.webp") center / cover no-repeat !important;
+}
+
+/* The daylight market needs a warmer, lighter game surface without losing symbol contrast. */
+#screen-pvp .slot-grid,
+body.local-telegram-frame #screen-pvp .slot-grid,
+body.is-telegram-webapp #screen-pvp .slot-grid {
+  border: 1.5px solid rgba(246, 211, 126, 0.82) !important;
+  background:
+    radial-gradient(circle at 48% 9%, rgba(255, 228, 158, 0.2), transparent 34%),
+    radial-gradient(circle at 92% 88%, rgba(60, 205, 192, 0.12), transparent 36%),
+    linear-gradient(155deg, rgba(119, 45, 82, 0.96), rgba(52, 19, 43, 0.97)) !important;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 244, 196, 0.3),
+    inset 0 -12px 24px rgba(31, 7, 24, 0.32),
+    0 10px 22px rgba(68, 20, 42, 0.24),
+    0 0 0 1px rgba(255, 136, 191, 0.09) !important;
+}
+
+#screen-pvp .slot-symbol,
+body.local-telegram-frame #screen-pvp .slot-symbol,
+body.is-telegram-webapp #screen-pvp .slot-symbol {
+  border-color: rgba(244, 207, 119, 0.74) !important;
+  background:
+    radial-gradient(circle at 34% 19%, rgba(255, 246, 211, 0.24), transparent 26%),
+    radial-gradient(circle at 74% 82%, rgba(255, 105, 171, 0.13), transparent 42%),
+    linear-gradient(145deg, rgba(139, 55, 96, 0.96), rgba(67, 24, 55, 0.98)) !important;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 243, 197, 0.2),
+    inset 0 -7px 12px rgba(30, 6, 23, 0.25),
+    0 1px 2px rgba(59, 16, 38, 0.25) !important;
+}
+
+#screen-pvp .slot-symbol::before,
+body.local-telegram-frame #screen-pvp .slot-symbol::before,
+body.is-telegram-webapp #screen-pvp .slot-symbol::before {
+  border-color: rgba(255, 228, 151, 0.18) !important;
+  background:
+    radial-gradient(circle at 50% 28%, rgba(255, 239, 191, 0.16), transparent 36%),
+    linear-gradient(180deg, rgba(255, 200, 223, 0.1), rgba(65, 19, 49, 0.08)) !important;
+}
+
+#screen-pvp .slot-symbol.high,
+body.local-telegram-frame #screen-pvp .slot-symbol.high,
+body.is-telegram-webapp #screen-pvp .slot-symbol.high {
+  background:
+    radial-gradient(circle at 34% 19%, rgba(255, 246, 204, 0.28), transparent 27%),
+    linear-gradient(145deg, rgba(164, 65, 106, 0.96), rgba(77, 27, 58, 0.98)) !important;
+}
+
+#screen-pvp .slot-symbol.mid,
+body.local-telegram-frame #screen-pvp .slot-symbol.mid,
+body.is-telegram-webapp #screen-pvp .slot-symbol.mid {
+  background:
+    radial-gradient(circle at 34% 19%, rgba(255, 221, 190, 0.22), transparent 27%),
+    linear-gradient(145deg, rgba(131, 55, 103, 0.96), rgba(61, 27, 61, 0.98)) !important;
+}
+
+#screen-pvp .slot-symbol.low,
+body.local-telegram-frame #screen-pvp .slot-symbol.low,
+body.is-telegram-webapp #screen-pvp .slot-symbol.low {
+  background:
+    radial-gradient(circle at 34% 19%, rgba(177, 255, 227, 0.16), transparent 27%),
+    linear-gradient(145deg, rgba(98, 53, 88, 0.96), rgba(48, 27, 58, 0.98)) !important;
+}
+
+#screen-pvp .slot-symbol.scatter,
+#screen-pvp .slot-symbol.multi,
+body.local-telegram-frame #screen-pvp .slot-symbol.scatter,
+body.local-telegram-frame #screen-pvp .slot-symbol.multi,
+body.is-telegram-webapp #screen-pvp .slot-symbol.scatter,
+body.is-telegram-webapp #screen-pvp .slot-symbol.multi {
+  border-color: rgba(255, 228, 145, 0.94) !important;
+  background:
+    radial-gradient(circle at 50% 32%, rgba(255, 229, 148, 0.28), transparent 36%),
+    linear-gradient(145deg, rgba(166, 55, 111, 0.97), rgba(62, 21, 58, 0.99)) !important;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 246, 199, 0.28),
+    inset 0 -7px 12px rgba(39, 7, 30, 0.24),
+    0 0 11px rgba(255, 181, 96, 0.28) !important;
+}
+
+#screen-pvp .slot-symbol-image,
+body.local-telegram-frame #screen-pvp .slot-symbol-image,
+body.is-telegram-webapp #screen-pvp .slot-symbol-image {
+  filter:
+    saturate(1.12)
+    brightness(1.05)
+    drop-shadow(0 2px 3px rgba(34, 8, 24, 0.42))
+    drop-shadow(0 0 5px rgba(255, 215, 127, 0.2)) !important;
+}
+
+/* A warm market alcove replaces the old black genie chamber. */
+#screen-pvp .slot-genie-reaction[data-reaction],
+body.local-telegram-frame #screen-pvp .slot-genie-reaction[data-reaction],
+body.is-telegram-webapp #screen-pvp .slot-genie-reaction[data-reaction] {
+  border: 1px solid rgba(239, 205, 125, 0.7) !important;
+  background-image:
+    linear-gradient(90deg, rgba(75, 22, 48, 0.08), rgba(8, 73, 74, 0.04) 55%, rgba(99, 48, 18, 0.06)),
+    url("./assets/pharaoh-genie-panel-market-v2.webp") !important;
+  background-size: 100% 100%, cover !important;
+  background-position: center, center !important;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 238, 183, 0.22),
+    0 8px 18px rgba(72, 20, 37, 0.24),
+    0 0 13px rgba(220, 170, 71, 0.16) !important;
+}
+
+#screen-pvp .slot-genie-reaction[data-reaction]::before,
+body.local-telegram-frame #screen-pvp .slot-genie-reaction[data-reaction]::before,
+body.is-telegram-webapp #screen-pvp .slot-genie-reaction[data-reaction]::before {
+  background:
+    radial-gradient(ellipse at 18% 50%, rgba(220, 76, 192, 0.2), transparent 58%),
+    radial-gradient(ellipse at 58% 46%, rgba(59, 220, 204, 0.18), transparent 56%),
+    linear-gradient(90deg, transparent, rgba(122, 224, 210, 0.18), rgba(255, 210, 108, 0.2), transparent) !important;
+  opacity: 0.48 !important;
+}
+
+#screen-pvp .slot-genie-reaction[data-reaction]::after,
+body.local-telegram-frame #screen-pvp .slot-genie-reaction[data-reaction]::after,
+body.is-telegram-webapp #screen-pvp .slot-genie-reaction[data-reaction]::after {
+  background:
+    radial-gradient(ellipse at 52% 50%, rgba(255, 222, 126, 0.34), transparent 50%),
+    radial-gradient(ellipse at 45% 45%, rgba(62, 224, 204, 0.16), transparent 60%) !important;
+  opacity: 0.54 !important;
+}
+
+#screen-pvp .slot-genie-reaction[data-reaction] .slot-genie-copy,
+body.local-telegram-frame #screen-pvp .slot-genie-reaction[data-reaction] .slot-genie-copy,
+body.is-telegram-webapp #screen-pvp .slot-genie-reaction[data-reaction] .slot-genie-copy {
+  left: 43% !important;
+  top: 14% !important;
+  width: 32% !important;
+  border-color: rgba(248, 217, 134, 0.88) !important;
+  background:
+    radial-gradient(ellipse at 50% 0%, rgba(255, 231, 166, 0.2), transparent 56%),
+    linear-gradient(180deg, rgba(102, 36, 66, 0.96), rgba(62, 25, 54, 0.96)) !important;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 244, 200, 0.28),
+    0 0 9px rgba(238, 191, 85, 0.2) !important;
+}
