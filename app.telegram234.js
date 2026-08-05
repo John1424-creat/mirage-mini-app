@@ -3614,6 +3614,59 @@ homeBallImage.onload = () => drawHomeBoard();
 const coefficientSlotPath = new Path2D(
   "M3.83726 0H0C0 1.49347 0 5.9736 0.21799 6.544C0.40973 7.04573 0.71569 7.45373 1.09202 7.70933C1.51984 8 2.07989 8 3.2 8H14.8C15.9201 8 16.4802 8 16.908 7.70933C17.2843 7.45373 17.5903 7.04573 17.782 6.544C18 5.9736 18 1.49347 18 0H14.1627C13.9182 0 13.7959 0 13.6808 0.0368005C13.5787 0.0694672 13.4812 0.123333 13.3917 0.196533C13.2908 0.278933 13.2043 0.394266 13.0314 0.6248L12.4373 1.41693C12.0914 1.87814 11.9184 2.1088 11.7166 2.27373C11.5376 2.41987 11.3425 2.5276 11.1385 2.59293C10.9083 2.66667 10.6637 2.66667 10.1745 2.66667H7.8255C7.3363 2.66667 7.0917 2.66667 6.86154 2.59293C6.65746 2.5276 6.46237 2.41987 6.28343 2.27373C6.08174 2.10892 5.9089 1.87846 5.56348 1.41792L5.56274 1.41693L4.96863 0.6248C4.79548 0.394 4.70908 0.278838 4.60828 0.196533C4.51881 0.123333 4.42127 0.0694672 4.31923 0.0368005C4.20414 0 4.08185 0 3.83726 0Z"
 );
+const HOME_COEFFICIENT_PALETTES = {
+  ruby: {
+    id: "ruby",
+    top: "#ff82b0",
+    middle: "#dc2f70",
+    bottom: "#76153f",
+    rim: "#ffd989",
+    shine: "rgba(255, 249, 218, 0.94)",
+    text: "#fff4d2",
+    glow: "rgba(255, 59, 139, 0.94)",
+  },
+  coral: {
+    id: "coral",
+    top: "#ff9b8f",
+    middle: "#e45073",
+    bottom: "#862252",
+    rim: "#ffd39a",
+    shine: "rgba(255, 248, 224, 0.9)",
+    text: "#fff4df",
+    glow: "rgba(255, 101, 139, 0.9)",
+  },
+  gold: {
+    id: "gold",
+    top: "#ffe98c",
+    middle: "#e5a83f",
+    bottom: "#82481d",
+    rim: "#fff1ad",
+    shine: "rgba(255, 255, 230, 0.96)",
+    text: "#fff8df",
+    glow: "rgba(255, 204, 83, 0.92)",
+  },
+  emerald: {
+    id: "emerald",
+    top: "#9af0bd",
+    middle: "#39b88c",
+    bottom: "#155f5a",
+    rim: "#d8ffe7",
+    shine: "rgba(242, 255, 237, 0.92)",
+    text: "#efffe9",
+    glow: "rgba(72, 226, 164, 0.86)",
+  },
+  teal: {
+    id: "teal",
+    top: "#9debe8",
+    middle: "#40b8bf",
+    bottom: "#185471",
+    rim: "#d8ffff",
+    shine: "rgba(239, 255, 255, 0.94)",
+    text: "#efffff",
+    glow: "rgba(72, 215, 225, 0.84)",
+  },
+};
+const homeCoefficientSpriteCache = new Map();
 
 function getCanvasLayoutSize(canvas, fallbackWidth = 356, fallbackHeight = 360) {
   const rect = canvas.getBoundingClientRect();
@@ -3751,13 +3804,85 @@ function drawHomeLauncher(ctx, width, isLaunching = false, timestamp = performan
   ctx.restore();
 }
 
-function drawCoefficientSlot(ctx, x, y, width, height, color) {
-  ctx.save();
-  ctx.translate(x, y);
-  ctx.scale(width / 18, height / 8);
-  ctx.fillStyle = color;
-  ctx.fill(coefficientSlotPath);
-  ctx.restore();
+function getHomeCoefficientPalette(multiplier, maximum) {
+  const ratio = maximum > 0 ? multiplier / maximum : 0;
+  if (ratio >= 0.32) return HOME_COEFFICIENT_PALETTES.ruby;
+  if (ratio >= 0.12) return HOME_COEFFICIENT_PALETTES.coral;
+  if (ratio >= 0.055) return HOME_COEFFICIENT_PALETTES.gold;
+  if (ratio >= 0.02) return HOME_COEFFICIENT_PALETTES.emerald;
+  return HOME_COEFFICIENT_PALETTES.teal;
+}
+
+function getHomeCoefficientSprite(width, height, palette, active) {
+  const renderScale = Math.min(3, Math.max(2, Math.ceil(window.devicePixelRatio || 1)));
+  const key = [width.toFixed(2), height.toFixed(2), palette.id, active ? "active" : "idle", renderScale].join(":");
+  if (homeCoefficientSpriteCache.has(key)) return homeCoefficientSpriteCache.get(key);
+  if (homeCoefficientSpriteCache.size >= 48) homeCoefficientSpriteCache.clear();
+
+  const padding = active ? 5 : 2;
+  const cssWidth = width + padding * 2;
+  const cssHeight = height + padding * 2;
+  const canvas = document.createElement("canvas");
+  canvas.width = Math.ceil(cssWidth * renderScale);
+  canvas.height = Math.ceil(cssHeight * renderScale);
+  const spriteCtx = canvas.getContext("2d");
+  spriteCtx.setTransform(renderScale, 0, 0, renderScale, 0, 0);
+  spriteCtx.translate(padding, padding);
+  spriteCtx.scale(width / 18, height / 8);
+
+  if (active) {
+    spriteCtx.shadowColor = palette.glow;
+    spriteCtx.shadowBlur = 8;
+  }
+  const face = spriteCtx.createLinearGradient(0, 0, 18, 8);
+  face.addColorStop(0, active ? "#fff2a8" : palette.top);
+  face.addColorStop(0.38, palette.middle);
+  face.addColorStop(1, palette.bottom);
+  spriteCtx.fillStyle = face;
+  spriteCtx.fill(coefficientSlotPath);
+  spriteCtx.shadowBlur = 0;
+
+  spriteCtx.strokeStyle = active ? "#fff3ad" : palette.rim;
+  spriteCtx.lineWidth = active ? 0.82 : 0.58;
+  spriteCtx.stroke(coefficientSlotPath);
+
+  spriteCtx.lineCap = "round";
+  spriteCtx.strokeStyle = palette.shine;
+  spriteCtx.lineWidth = 0.42;
+  spriteCtx.beginPath();
+  spriteCtx.moveTo(2.1, 1.15);
+  spriteCtx.bezierCurveTo(5.4, 0.62, 12.8, 0.62, 15.9, 1.12);
+  spriteCtx.stroke();
+
+  spriteCtx.strokeStyle = "rgba(31, 11, 35, 0.46)";
+  spriteCtx.lineWidth = 0.5;
+  spriteCtx.beginPath();
+  spriteCtx.moveTo(2.4, 6.75);
+  spriteCtx.bezierCurveTo(6, 7.28, 12.1, 7.28, 15.6, 6.72);
+  spriteCtx.stroke();
+
+  if (active) {
+    const flare = spriteCtx.createRadialGradient(9, 3.4, 0.5, 9, 3.4, 7.4);
+    flare.addColorStop(0, "rgba(255, 255, 231, 0.7)");
+    flare.addColorStop(1, "rgba(255, 255, 231, 0)");
+    spriteCtx.fillStyle = flare;
+    spriteCtx.fill(coefficientSlotPath);
+  }
+
+  const sprite = { canvas, width: cssWidth, height: cssHeight, padding };
+  homeCoefficientSpriteCache.set(key, sprite);
+  return sprite;
+}
+
+function drawCoefficientSlot(ctx, x, y, width, height, palette, active = false) {
+  const sprite = getHomeCoefficientSprite(width, height, palette, active);
+  ctx.drawImage(
+    sprite.canvas,
+    x - sprite.padding,
+    y - sprite.padding,
+    sprite.width,
+    sprite.height
+  );
 }
 
 function drawHomeBall(ctx, ball, trail = []) {
@@ -4817,23 +4942,21 @@ function drawHomeBoard(ball = null, hotSlot = -1, slotDrop = 0, activePeg = null
   ctx.restore();
 
   const labels = getMultipliers(rows, state.homeRisk);
+  const maximumMultiplier = Math.max(...labels, 1);
   labels.forEach((multiplier, index) => {
     const x = centerX(index) - slotWidth / 2;
     const impactOffset = index === hotSlot ? slotDrop : 0;
-    const hot = index <= 1 || index >= slotCount - 2;
-    const slotColor = index === hotSlot ? "#ff49b6" : hot ? "#b31655" : index % 3 === 0 ? "#f4ce62" : "#79d99a";
-    ctx.save();
-    if (index === hotSlot) {
-      ctx.shadowColor = "rgba(255, 73, 182, 0.9)";
-      ctx.shadowBlur = 12;
-    }
-    drawCoefficientSlot(ctx, x, slotY + impactOffset, slotWidth, slotHeight, slotColor);
-    ctx.restore();
-    ctx.fillStyle = "#fffbea";
-    ctx.font = "500 7px Inter, system-ui, sans-serif";
+    const active = index === hotSlot;
+    const palette = getHomeCoefficientPalette(multiplier, maximumMultiplier);
+    drawCoefficientSlot(ctx, x, slotY + impactOffset, slotWidth, slotHeight, palette, active);
+    ctx.fillStyle = palette.text;
+    ctx.font = "700 7px Inter, system-ui, sans-serif";
     ctx.textAlign = "center";
     ctx.textBaseline = "middle";
+    ctx.shadowColor = "rgba(24, 8, 30, 0.82)";
+    ctx.shadowBlur = 2;
     ctx.fillText(formatMultiplier(multiplier), centerX(index), slotY + 26 + impactOffset);
+    ctx.shadowBlur = 0;
   });
 
   drawHomeWinEffects(ctx, effectTimestamp);
