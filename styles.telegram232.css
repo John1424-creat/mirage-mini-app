@@ -1,0 +1,15 @@
+/* Telegram 232: keep the 393px design stage centered while it scales down. */
+
+.app-shell,
+body.local-telegram-frame .app-shell,
+body.is-telegram-webapp .app-shell,
+body[data-active-tab="solo"] .app-shell,
+body.local-telegram-frame[data-active-tab="solo"] .app-shell,
+body.is-telegram-webapp[data-active-tab="solo"] .app-shell {
+  left: 50% !important;
+  right: auto !important;
+  margin-left: 0 !important;
+  margin-right: 0 !important;
+  transform: translateX(-50%) scale(var(--app-scale)) !important;
+  transform-origin: top center !important;
+}
