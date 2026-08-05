@@ -2856,11 +2856,32 @@ function setBalance(next) {
   render();
 }
 
-function render() {
+function updateBalanceDisplays() {
   ["balance-value", "solo-balance", "carpet-balance", "slot-balance", "pvp-balance", "wallet-balance"].forEach((id) => {
     const el = document.getElementById(id);
     if (el) el.textContent = format(state.balance);
   });
+}
+
+function recordLedgerState(label, amount) {
+  state.ledger.unshift({ label, amount });
+  state.ledger = state.ledger.slice(0, 8);
+  state.net += amount;
+}
+
+function applyHomeTransaction(label, amount, completedGames = 0) {
+  state.balance = Math.max(0, Math.round(state.balance + amount));
+  recordLedgerState(label, amount);
+  state.games += completedGames;
+  updateBalanceDisplays();
+  const statGames = $("#stat-games");
+  if (statGames) statGames.textContent = state.games;
+  const statProfit = $("#stat-profit");
+  if (statProfit) statProfit.textContent = format(state.net);
+}
+
+function render() {
+  updateBalanceDisplays();
 
   const dailyStatus = $("#daily-status");
   if (dailyStatus) dailyStatus.textContent = state.dailyClaimed ? "Следующий бонус через 24ч" : "Бонус доступен";
@@ -3744,23 +3765,25 @@ function drawHomeBall(ctx, ball, trail = []) {
   ctx.save();
   trail.forEach((point, index) => {
     const age = trail.length - index;
+    const trailRadius = Math.max(1.2, radius - age * 0.38);
     const alpha = Math.max(0, 0.2 - age * 0.035);
     if (alpha <= 0) return;
-    ctx.beginPath();
     ctx.fillStyle = `rgba(255, 73, 182, ${alpha})`;
     ctx.shadowColor = "rgba(255, 73, 182, 0.42)";
     ctx.shadowBlur = 12;
-    ctx.arc(point.x, point.y, Math.max(1.2, radius - age * 0.38), 0, Math.PI * 2);
+    ctx.beginPath();
+    ctx.arc(point.x, point.y, trailRadius, 0, Math.PI * 2);
     ctx.fill();
+    ctx.shadowBlur = 0;
   });
 
-  ctx.shadowColor = "rgba(255, 73, 182, 0.9)";
-  ctx.shadowBlur = 10;
   if (homeBallImage.complete && homeBallImage.naturalWidth > 0) {
-    const diameter = radius * 2;
+    ctx.shadowColor = "rgba(255, 73, 182, 0.9)";
+    ctx.shadowBlur = 10;
     ctx.imageSmoothingEnabled = true;
     ctx.imageSmoothingQuality = "high";
-    ctx.drawImage(homeBallImage, ball.x - radius, ball.y - radius, diameter, diameter);
+    ctx.drawImage(homeBallImage, ball.x - radius, ball.y - radius, radius * 2, radius * 2);
+    ctx.shadowBlur = 0;
   } else {
     const body = ctx.createRadialGradient(ball.x - radius * 0.35, ball.y - radius * 0.45, 1, ball.x, ball.y, radius + 1);
     body.addColorStop(0, "#ffd0ee");
@@ -4015,16 +4038,96 @@ function simulateHomeMatterDrop(canvasWidth, canvasHeight, rows) {
   };
 }
 
-function createHomePhysicsAnimation(stake, timestamp, canvasWidth, canvasHeight, risk, rows) {
+const homeMatterWorkerState = {
+  worker: null,
+  nextId: 1,
+  pending: new Map(),
+  unavailable: false,
+};
+
+function getHomeMatterWorker() {
+  if (homeMatterWorkerState.unavailable || typeof Worker === "undefined") return null;
+  if (homeMatterWorkerState.worker) return homeMatterWorkerState.worker;
+  try {
+    const worker = new Worker("./plinko-physics-worker.js?v=telegram240d");
+    worker.onmessage = (event) => {
+      const { id, result, error } = event.data || {};
+      const pending = homeMatterWorkerState.pending.get(id);
+      if (!pending) return;
+      homeMatterWorkerState.pending.delete(id);
+      if (error) {
+        document.body.dataset.plinkoWorker = "fallback";
+        pending.resolve(null);
+      } else {
+        document.body.dataset.plinkoWorker = "ready";
+        pending.resolve(result || null);
+      }
+    };
+    worker.onerror = () => {
+      document.body.dataset.plinkoWorker = "fallback";
+      homeMatterWorkerState.unavailable = true;
+      homeMatterWorkerState.pending.forEach(({ resolve }) => resolve(null));
+      homeMatterWorkerState.pending.clear();
+      worker.terminate();
+      homeMatterWorkerState.worker = null;
+    };
+    homeMatterWorkerState.worker = worker;
+    return worker;
+  } catch (_error) {
+    homeMatterWorkerState.unavailable = true;
+    return null;
+  }
+}
+
+function requestHomeMatterDrop(canvasWidth, canvasHeight, rows) {
+  const worker = getHomeMatterWorker();
+  if (!worker) return Promise.resolve(null);
+  const id = homeMatterWorkerState.nextId;
+  homeMatterWorkerState.nextId += 1;
   const profile = getHomeCanvasProfile();
-  const matterDrop = simulateHomeMatterDrop(canvasWidth, canvasHeight, rows);
+  return new Promise((resolve) => {
+    homeMatterWorkerState.pending.set(id, { resolve });
+    try {
+      worker.postMessage({
+        id,
+        config: {
+          width: canvasWidth,
+          height: canvasHeight,
+          rows,
+          profile: {
+            horizontalInsetMin: profile.horizontalInsetMin,
+            horizontalInsetMax: profile.horizontalInsetMax,
+            horizontalInsetRatio: profile.horizontalInsetRatio,
+            pegRadius: profile.pegRadius,
+            activeDuration: profile.activeDuration,
+            ballRadius: profile.ballRadius,
+          },
+        },
+      });
+    } catch (_error) {
+      homeMatterWorkerState.pending.delete(id);
+      resolve(null);
+    }
+  });
+}
+
+function createHomePhysicsAnimation(stake, timestamp, canvasWidth, canvasHeight, risk, rows, matterDrop = null) {
+  const profile = getHomeCanvasProfile();
+  const timeline = matterDrop?.timeline instanceof ArrayBuffer ? new Float32Array(matterDrop.timeline) : null;
+  const pegHits = matterDrop?.hits instanceof ArrayBuffer ? new Float32Array(matterDrop.hits) : null;
   return {
     physics: !matterDrop,
-    matterReplay: Boolean(matterDrop),
+    matterReplay: Boolean(matterDrop && (timeline || matterDrop.frames)),
     rows,
     risk,
     targetSlot: matterDrop?.slot ?? null,
     frames: matterDrop?.frames || null,
+    timeline,
+    pegHits,
+    frameIndex: 0,
+    hitIndex: 0,
+    activePegUntil: new Map(),
+    activePegDuration: profile.activeDuration,
     duration: matterDrop?.duration || 0,
     start: timestamp || 0,
     width: canvasWidth,
@@ -4044,6 +4147,19 @@ function createHomePhysicsAnimation(stake, timestamp, canvasWidth, canvasHeight,
     stuckMs: 0,
     lastY: 42,
   };
+}
+
+async function requestHomePhysicsAnimation(stake, canvasWidth, canvasHeight, risk, rows) {
+  const matterDrop = await requestHomeMatterDrop(canvasWidth, canvasHeight, rows);
+  return createHomePhysicsAnimation(
+    stake,
+    performance.now(),
+    canvasWidth,
+    canvasHeight,
+    risk,
+    rows,
+    matterDrop
+  );
 }
 
 function resolveHomePhysicsAnimation(animation) {
@@ -4199,14 +4315,66 @@ function stepHomePhysicsAnimation(animation, timestamp) {
 }
 
 function getHomeBallFrame(animation, timestamp) {
+  if (animation.matterReplay && animation.timeline instanceof Float32Array) {
+    const elapsed = Math.max(0, timestamp - animation.start);
+    const replayElapsed = elapsed / HOME_MATTER_REPLAY_SLOWDOWN;
+    const timeline = animation.timeline;
+    const frameCount = Math.floor(timeline.length / 3);
+    let index = Math.max(0, Math.min(animation.frameIndex || 0, frameCount - 2));
+    if (timeline[index * 3] > replayElapsed) index = 0;
+    while (index < frameCount - 2 && timeline[(index + 1) * 3] < replayElapsed) {
+      index += 1;
+    }
+    animation.frameIndex = index;
+    const aOffset = index * 3;
+    const bOffset = Math.min(index + 1, frameCount - 1) * 3;
+    const aTime = timeline[aOffset];
+    const bTime = timeline[bOffset];
+    const span = Math.max(1, bTime - aTime);
+    const local = Math.max(0, Math.min(1, (replayElapsed - aTime) / span));
+    const smooth = local * local * (3 - 2 * local);
+    const ball = {
+      x: timeline[aOffset + 1] + (timeline[bOffset + 1] - timeline[aOffset + 1]) * smooth,
+      y: timeline[aOffset + 2] + (timeline[bOffset + 2] - timeline[aOffset + 2]) * smooth,
+      radius: animation.radius || HOME_BALL_RADIUS,
+    };
+    animation.trail.push({ x: ball.x, y: ball.y });
+    if (animation.trail.length > 7) animation.trail.shift();
+
+    const pegHits = animation.pegHits;
+    while (pegHits && animation.hitIndex < pegHits.length && pegHits[animation.hitIndex] <= replayElapsed) {
+      const hitTime = pegHits[animation.hitIndex];
+      const row = pegHits[animation.hitIndex + 1];
+      const col = pegHits[animation.hitIndex + 2];
+      animation.activePegUntil.set(`${row}:${col}`, {
+        row,
+        col,
+        until: hitTime + animation.activePegDuration,
+      });
+      animation.hitIndex += 3;
+    }
+    const activePeg = [];
+    animation.activePegUntil.forEach((peg, key) => {
+      if (peg.until < replayElapsed) animation.activePegUntil.delete(key);
+      else activePeg.push({ row: peg.row, col: peg.col });
+    });
+    return {
+      ball,
+      trail: animation.trail,
+      activePeg,
+      done: elapsed >= animation.duration * HOME_MATTER_REPLAY_SLOWDOWN,
+    };
+  }
   if (animation.matterReplay && Array.isArray(animation.frames)) {
     const elapsed = Math.max(0, timestamp - animation.start);
     const replayElapsed = elapsed / HOME_MATTER_REPLAY_SLOWDOWN;
     const frames = animation.frames;
-    let index = 0;
+    let index = Math.max(0, Math.min(animation.frameIndex || 0, frames.length - 2));
+    if (frames[index]?.t > replayElapsed) index = 0;
     while (index < frames.length - 2 && frames[index + 1].t < replayElapsed) {
       index += 1;
     }
+    animation.frameIndex = index;
     const a = frames[index] || frames[0];
     const b = frames[Math.min(index + 1, frames.length - 1)] || a;
     const span = Math.max(1, b.t - a.t);
@@ -4578,6 +4746,35 @@ function drawHomePeg(ctx, x, y, profile, active) {
   ctx.drawImage(sprite.canvas, x - sprite.size / 2, y - sprite.size / 2, sprite.size, sprite.size);
 }
 
+const homePegBoardCache = new Map();
+
+function getHomePegBoardLayer(width, height, rows, profile) {
+  const dpr = window.devicePixelRatio || 1;
+  const key = [width, height, rows, dpr, profile.pegRadius].join(":");
+  if (homePegBoardCache.has(key)) return homePegBoardCache.get(key);
+
+  if (homePegBoardCache.size >= 6) homePegBoardCache.clear();
+  const layer = document.createElement("canvas");
+  layer.width = Math.round(width * dpr);
+  layer.height = Math.round(height * dpr);
+  const layerCtx = layer.getContext("2d");
+  layerCtx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  layerCtx.globalAlpha = 0.95;
+
+  const { pegTop, pegStep, pegGap } = getHomeBoardGeometry(width, rows, height);
+  for (let row = 0; row < rows; row += 1) {
+    const count = row + 3;
+    const y = pegTop + row * pegStep;
+    for (let col = 0; col < count; col += 1) {
+      const x = width / 2 + (col - (count - 1) / 2) * pegGap;
+      drawHomePeg(layerCtx, x, y, profile, false);
+    }
+  }
+
+  homePegBoardCache.set(key, layer);
+  return layer;
+}
+
 function drawHomeBoard(ball = null, hotSlot = -1, slotDrop = 0, activePeg = null, ballTrail = [], effectTimestamp = performance.now()) {
   if (!homeCtx) return;
   const ctx = homeCtx;
@@ -4602,17 +4799,21 @@ function drawHomeBoard(ball = null, hotSlot = -1, slotDrop = 0, activePeg = null
   ctx.textBaseline = "alphabetic";
   ballEntries.forEach((entry) => drawHomeBall(ctx, entry.ball, entry.trail || []));
 
+  const pegLayer = getHomePegBoardLayer(width, height, rows, canvasProfile);
+  ctx.drawImage(pegLayer, 0, 0, pegLayer.width, pegLayer.height, 0, 0, width, height);
+
+  const activePegKeys = new Set();
+  activePegs.forEach((peg) => {
+    if (!peg) return;
+    activePegKeys.add(`${peg.row}:${peg.col}`);
+  });
   ctx.save();
   ctx.globalAlpha = 0.95;
-  for (let row = 0; row < rows; row += 1) {
-    const count = row + 3;
-    const y = pegTop + row * pegStep;
-    for (let col = 0; col < count; col += 1) {
-      const x = width / 2 + (col - (count - 1) / 2) * pegGap;
-      const isActivePeg = activePegs.some((peg) => peg && peg.row === row && peg.col === col);
-      drawHomePeg(ctx, x, y, canvasProfile, isActivePeg);
-    }
-  }
+  activePegKeys.forEach((key) => {
+    const [row, col] = key.split(":").map(Number);
+    const peg = getHomePegPosition(row, col, width, rows, height);
+    drawHomePeg(ctx, peg.x, peg.y, canvasProfile, true);
+  });
   ctx.restore();
 
   const labels = getMultipliers(rows, state.homeRisk);
@@ -4685,10 +4886,61 @@ let homeAutoRunning = false;
 let homeAutoCancelRequested = false;
 const homeManualAnimations = [];
 let homeManualRunning = false;
+let homeManualPendingAnimations = 0;
 let homeManualImpactSlot = -1;
 let homeManualImpactStarted = 0;
 let homeManualQueuedBalls = 0;
 let homeManualTotalPayout = 0;
+const homePerformance = {
+  mode: "idle",
+  requested: 0,
+  lastFrame: 0,
+  samples: [],
+  maxActiveBalls: 0,
+  maxParticles: 0,
+};
+const homePerformanceDebug = new URLSearchParams(window.location.search).get("debugPlinkoPerf") === "1";
+
+function getHomePerformanceSnapshot() {
+  const samples = [...homePerformance.samples].sort((a, b) => a - b);
+  const average = samples.length > 0 ? samples.reduce((sum, value) => sum + value, 0) / samples.length : 0;
+  const percentile = (value) => samples[Math.min(samples.length - 1, Math.floor(samples.length * value))] || 0;
+  return {
+    mode: homePerformance.mode,
+    requested: homePerformance.requested,
+    frames: samples.length,
+    averageMs: Number(average.toFixed(2)),
+    p95Ms: Number(percentile(0.95).toFixed(2)),
+    maxMs: Number((samples[samples.length - 1] || 0).toFixed(2)),
+    longFrames: samples.filter((value) => value > 34).length,
+    maxActiveBalls: homePerformance.maxActiveBalls,
+    maxParticles: homePerformance.maxParticles,
+  };
+}
+
+function resetHomePerformance(mode, requested) {
+  homePerformance.mode = mode;
+  homePerformance.requested = requested;
+  homePerformance.lastFrame = 0;
+  homePerformance.samples = [];
+  homePerformance.maxActiveBalls = 0;
+  homePerformance.maxParticles = 0;
+}
+
+function recordHomePerformanceFrame(timestamp, activeBalls) {
+  if (homePerformance.lastFrame > 0) {
+    homePerformance.samples.push(timestamp - homePerformance.lastFrame);
+    if (homePerformance.samples.length > 900) homePerformance.samples.shift();
+  }
+  homePerformance.lastFrame = timestamp;
+  homePerformance.maxActiveBalls = Math.max(homePerformance.maxActiveBalls, activeBalls);
+  homePerformance.maxParticles = Math.max(homePerformance.maxParticles, homeWinEffects.length);
+  if (homePerformanceDebug && homePerformance.samples.length % 30 === 0) {
+    document.body.dataset.plinkoPerf = JSON.stringify(getHomePerformanceSnapshot());
+  }
+}
+
+window.__miragePlinkoPerf = getHomePerformanceSnapshot;
 
 function setHomeWinbarContent(text, withRuby = false) {
   const winbar = $("#home-winbar");
@@ -4771,9 +5023,11 @@ function playHomeAutoPyramid(runs, totalStake) {
   let lastSpawn = 0;
   let impactSlot = -1;
   let impactStarted = 0;
+  let pendingSpawns = 0;
 
   homeAutoRunning = true;
   homeAutoCancelRequested = false;
+  resetHomePerformance("auto", runs);
   if (winbar) {
     if (homeWinbarTimer) clearTimeout(homeWinbarTimer);
     homeWinbarTimer = null;
@@ -4787,18 +5041,25 @@ function playHomeAutoPyramid(runs, totalStake) {
   }
 
   updateHomeAutoCounter(runs);
-  setBalance(state.balance - totalStake);
-  addLedger(`Пирамида авто: ${format(runs)} шариков`, -totalStake);
+  applyHomeTransaction(`Пирамида авто: ${format(runs)} шариков`, -totalStake);
   const activeWinbar = setHomeWinbarContent("+0", true);
   if (activeWinbar) activeWinbar.classList.add("show");
 
   function spawnBall(timestamp) {
-    animations.push(createHomePhysicsAnimation(stakePerBall, timestamp, canvasWidth, canvasHeight, state.homeRisk, state.homeRows));
     spawned += 1;
+    pendingSpawns += 1;
     lastSpawn = timestamp;
+    requestHomePhysicsAnimation(stakePerBall, canvasWidth, canvasHeight, state.homeRisk, state.homeRows)
+      .then((animation) => {
+        animation.start = performance.now();
+        animation.last = animation.start;
+        animations.push(animation);
+        pendingSpawns = Math.max(0, pendingSpawns - 1);
+      });
   }
 
   function frame(timestamp) {
+    recordHomePerformanceFrame(timestamp, animations.length + pendingSpawns);
     const ballEntries = [];
     const activePegs = [];
 
@@ -4828,7 +5089,7 @@ function playHomeAutoPyramid(runs, totalStake) {
     while (
       !homeAutoCancelRequested &&
       spawned < runs &&
-      animations.length < HOME_AUTO_MAX_ACTIVE_BALLS &&
+      animations.length + pendingSpawns < HOME_AUTO_MAX_ACTIVE_BALLS &&
       (lastSpawn === 0 || timestamp - lastSpawn >= spawnInterval)
     ) {
       spawnBall(timestamp);
@@ -4844,7 +5105,7 @@ function playHomeAutoPyramid(runs, totalStake) {
     drawHomeBoard(ballEntries, impactSlot, slotDrop, activePegs, [], timestamp);
 
     const targetRuns = homeAutoCancelRequested ? spawned : runs;
-    if (completed < targetRuns || animations.length > 0) {
+    if (completed < targetRuns || animations.length > 0 || pendingSpawns > 0) {
       requestAnimationFrame(frame);
       return;
     }
@@ -4852,9 +5113,9 @@ function playHomeAutoPyramid(runs, totalStake) {
     homeAutoRunning = false;
     homeAutoCancelRequested = false;
     const refund = Math.max(0, runs - spawned) * stakePerBall;
-    setBalance(state.balance + totalPayout + refund);
-    addLedger("Пирамида авто итог", totalPayout);
-    if (refund > 0) addLedger("Пирамида: возврат несыгранных", refund);
+    state.balance = Math.max(0, Math.round(state.balance + totalPayout + refund));
+    recordLedgerState("Пирамида авто итог", totalPayout);
+    if (refund > 0) recordLedgerState("Пирамида: возврат несыгранных", refund);
     state.games += completed;
     setHomeWinbarContent(refund > 0 ? `СТОП +${format(totalPayout)}` : `ИТОГ +${format(totalPayout)}`, true);
     const finalWinbar = $("#home-winbar");
@@ -4882,11 +5143,22 @@ function playHomeAutoPyramid(runs, totalStake) {
 
 function spawnHomeManualBall() {
   const { width: canvasWidth, height: canvasHeight } = getCanvasLayoutSize(homeCanvas, 377, 420);
-  homeManualAnimations.push(createHomePhysicsAnimation(state.homeStake, 0, canvasWidth, canvasHeight, state.homeRisk, state.homeRows));
+  const stake = state.homeStake;
+  const risk = state.homeRisk;
+  const rows = state.homeRows;
+  homeManualPendingAnimations += 1;
+  requestHomePhysicsAnimation(stake, canvasWidth, canvasHeight, risk, rows)
+    .then((animation) => {
+      homeManualPendingAnimations = Math.max(0, homeManualPendingAnimations - 1);
+      homeManualAnimations.push(animation);
+    });
 }
 
 function fillHomeManualSlots() {
-  while (homeManualQueuedBalls > 0 && homeManualAnimations.length < HOME_MANUAL_MAX_ACTIVE_BALLS) {
+  while (
+    homeManualQueuedBalls > 0 &&
+    homeManualAnimations.length + homeManualPendingAnimations < HOME_MANUAL_MAX_ACTIVE_BALLS
+  ) {
     homeManualQueuedBalls -= 1;
     spawnHomeManualBall();
   }
@@ -4897,6 +5169,7 @@ function runHomeManualLoop() {
   homeManualRunning = true;
 
   function frame(timestamp) {
+    recordHomePerformanceFrame(timestamp, homeManualAnimations.length + homeManualPendingAnimations);
     fillHomeManualSlots();
     const ballEntries = [];
     const activePegs = [];
@@ -4911,12 +5184,9 @@ function runHomeManualLoop() {
         homeManualImpactSlot = animation.slot;
         homeManualImpactStarted = timestamp;
         triggerHomeWinEffect(animation.slot, animation.multiplier, timestamp);
-        setBalance(state.balance + animation.payout);
-        addLedger(`Pyramid win ${animation.multiplier.toFixed(2)}x`, animation.payout);
-        state.games += 1;
+        applyHomeTransaction(`Pyramid win ${animation.multiplier.toFixed(2)}x`, animation.payout, 1);
         flashHomeWinbar(`+${format(animation.payout)}`, 820, true);
         if (animation.multiplier >= 2) pulseHomeWinbar(true);
-        render();
       } else {
         ballEntries.push({ ball: frameState.ball, trail: frameState.trail });
         if (Array.isArray(frameState.activePeg)) activePegs.push(...frameState.activePeg);
@@ -4933,7 +5203,12 @@ function runHomeManualLoop() {
 
     drawHomeBoard(ballEntries, homeManualImpactSlot, slotDrop, activePegs, [], timestamp);
 
-    if (homeManualAnimations.length > 0 || homeManualImpactSlot >= 0 || homeManualQueuedBalls > 0) {
+    if (
+      homeManualAnimations.length > 0 ||
+      homeManualPendingAnimations > 0 ||
+      homeManualImpactSlot >= 0 ||
+      homeManualQueuedBalls > 0
+    ) {
       requestAnimationFrame(frame);
       return;
     }
@@ -4970,8 +5245,14 @@ function playHomePyramid() {
     return;
   }
 
-  if (!homeManualRunning && homeManualAnimations.length === 0 && homeManualQueuedBalls === 0) {
+  if (
+    !homeManualRunning &&
+    homeManualAnimations.length === 0 &&
+    homeManualPendingAnimations === 0 &&
+    homeManualQueuedBalls === 0
+  ) {
     homeManualTotalPayout = 0;
+    resetHomePerformance("manual", 1);
   }
 
   if (homeWinbarTimer) {
@@ -4983,15 +5264,13 @@ function playHomePyramid() {
     winbar.classList.remove("show");
     winbar.textContent = "";
   }
-  setBalance(state.balance - totalStake);
-  addLedger("Пирамида: 1 шарик", -totalStake);
-  if (homeManualAnimations.length < HOME_MANUAL_MAX_ACTIVE_BALLS) {
+  applyHomeTransaction("Пирамида: 1 шарик", -totalStake);
+  if (homeManualAnimations.length + homeManualPendingAnimations < HOME_MANUAL_MAX_ACTIVE_BALLS) {
     spawnHomeManualBall();
   } else {
     homeManualQueuedBalls += 1;
   }
   runHomeManualLoop();
-  render();
 }
 
 function drawPlinko(ball = null, hotSlot = -1) {
