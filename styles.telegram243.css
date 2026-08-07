@@ -1,0 +1,91 @@
+/* Telegram 243: deterministic Carpet crash dissolve, preserving the existing hero. */
+#screen-solo .carpet-dissolve-canvas,
+body.local-telegram-frame #screen-solo .carpet-dissolve-canvas,
+body.is-telegram-webapp #screen-solo .carpet-dissolve-canvas {
+  position: absolute;
+  left: -48px;
+  top: -32px;
+  z-index: 6;
+  display: block;
+  width: 210px;
+  height: 218px;
+  opacity: 0;
+  border: 0 !important;
+  border-radius: 0 !important;
+  background: none !important;
+  box-shadow: none !important;
+  backdrop-filter: none !important;
+  pointer-events: none;
+}
+
+#screen-solo .carpet-stage.dissolving .carpet-hero-wrap,
+body.local-telegram-frame #screen-solo .carpet-stage.dissolving .carpet-hero-wrap,
+body.is-telegram-webapp #screen-solo .carpet-stage.dissolving .carpet-hero-wrap,
+#screen-solo .carpet-stage.crashed .carpet-hero-wrap,
+body.local-telegram-frame #screen-solo .carpet-stage.crashed .carpet-hero-wrap,
+body.is-telegram-webapp #screen-solo .carpet-stage.crashed .carpet-hero-wrap {
+  animation: none !important;
+}
+
+#screen-solo .carpet-stage.dissolving.dissolve-ready .carpet-hero,
+body.local-telegram-frame #screen-solo .carpet-stage.dissolving.dissolve-ready .carpet-hero,
+body.is-telegram-webapp #screen-solo .carpet-stage.dissolving.dissolve-ready .carpet-hero,
+#screen-solo .carpet-stage.dissolving.dissolve-ready .carpet-magic-sparks,
+body.local-telegram-frame #screen-solo .carpet-stage.dissolving.dissolve-ready .carpet-magic-sparks,
+body.is-telegram-webapp #screen-solo .carpet-stage.dissolving.dissolve-ready .carpet-magic-sparks {
+  opacity: 0 !important;
+  animation: none !important;
+}
+
+#screen-solo .carpet-stage.dissolving.dissolve-ready .carpet-dissolve-canvas,
+body.local-telegram-frame #screen-solo .carpet-stage.dissolving.dissolve-ready .carpet-dissolve-canvas,
+body.is-telegram-webapp #screen-solo .carpet-stage.dissolving.dissolve-ready .carpet-dissolve-canvas {
+  opacity: 1;
+}
+
+#screen-solo .carpet-stage.crashed .carpet-hero,
+body.local-telegram-frame #screen-solo .carpet-stage.crashed .carpet-hero,
+body.is-telegram-webapp #screen-solo .carpet-stage.crashed .carpet-hero,
+#screen-solo .carpet-stage.crashed .carpet-magic-sparks,
+body.local-telegram-frame #screen-solo .carpet-stage.crashed .carpet-magic-sparks,
+body.is-telegram-webapp #screen-solo .carpet-stage.crashed .carpet-magic-sparks,
+#screen-solo .carpet-stage.crashed .carpet-dissolve-canvas,
+body.local-telegram-frame #screen-solo .carpet-stage.crashed .carpet-dissolve-canvas,
+body.is-telegram-webapp #screen-solo .carpet-stage.crashed .carpet-dissolve-canvas {
+  opacity: 0 !important;
+  animation: none !important;
+}
+
+#screen-solo .carpet-stage.dissolving .carpet-motion-trail,
+body.local-telegram-frame #screen-solo .carpet-stage.dissolving .carpet-motion-trail,
+body.is-telegram-webapp #screen-solo .carpet-stage.dissolving .carpet-motion-trail {
+  stroke-dasharray: var(--carpet-crash-trail-length, 0) 1 !important;
+  stroke-dashoffset: var(--carpet-crash-trail-offset, 0) !important;
+  transition: none !important;
+}
+
+#screen-solo .carpet-stage.dissolving .carpet-motion-trail-glow,
+body.local-telegram-frame #screen-solo .carpet-stage.dissolving .carpet-motion-trail-glow,
+body.is-telegram-webapp #screen-solo .carpet-stage.dissolving .carpet-motion-trail-glow {
+  opacity: 0.3 !important;
+}
+
+#screen-solo .carpet-stage.dissolving .carpet-motion-trail-core,
+body.local-telegram-frame #screen-solo .carpet-stage.dissolving .carpet-motion-trail-core,
+body.is-telegram-webapp #screen-solo .carpet-stage.dissolving .carpet-motion-trail-core {
+  opacity: 0.64 !important;
+}
+
+#screen-solo .carpet-stage.crashed .carpet-motion-trail,
+body.local-telegram-frame #screen-solo .carpet-stage.crashed .carpet-motion-trail,
+body.is-telegram-webapp #screen-solo .carpet-stage.crashed .carpet-motion-trail {
+  opacity: 0 !important;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  #screen-solo .carpet-dissolve-canvas,
+  body.local-telegram-frame #screen-solo .carpet-dissolve-canvas,
+  body.is-telegram-webapp #screen-solo .carpet-dissolve-canvas {
+    display: none !important;
+  }
+}
