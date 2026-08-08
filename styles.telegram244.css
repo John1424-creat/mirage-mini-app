@@ -1,0 +1,140 @@
+/* Telegram 244: forward-only Carpet cashout based on the live SVG path. */
+#screen-solo .carpet-stage.cashing-out .carpet-hero-wrap,
+#screen-solo .carpet-stage.cashed .carpet-hero-wrap,
+body.local-telegram-frame #screen-solo .carpet-stage.cashing-out .carpet-hero-wrap,
+body.local-telegram-frame #screen-solo .carpet-stage.cashed .carpet-hero-wrap,
+body.is-telegram-webapp #screen-solo .carpet-stage.cashing-out .carpet-hero-wrap,
+body.is-telegram-webapp #screen-solo .carpet-stage.cashed .carpet-hero-wrap {
+  animation: none !important;
+}
+
+#screen-solo .carpet-stage.cashing-out .carpet-hero,
+#screen-solo .carpet-stage.cashed .carpet-hero,
+body.local-telegram-frame #screen-solo .carpet-stage.cashing-out .carpet-hero,
+body.local-telegram-frame #screen-solo .carpet-stage.cashed .carpet-hero,
+body.is-telegram-webapp #screen-solo .carpet-stage.cashing-out .carpet-hero,
+body.is-telegram-webapp #screen-solo .carpet-stage.cashed .carpet-hero {
+  animation: none !important;
+  opacity: var(--carpet-cashout-hero-opacity, 0) !important;
+  filter:
+    drop-shadow(0 8px 12px rgba(15, 8, 35, 0.24))
+    drop-shadow(0 0 9px rgba(255, 221, 128, 0.62)) !important;
+}
+
+#screen-solo .carpet-stage.cashing-out .carpet-magic-sparks,
+#screen-solo .carpet-stage.cashed .carpet-magic-sparks,
+body.local-telegram-frame #screen-solo .carpet-stage.cashing-out .carpet-magic-sparks,
+body.local-telegram-frame #screen-solo .carpet-stage.cashed .carpet-magic-sparks,
+body.is-telegram-webapp #screen-solo .carpet-stage.cashing-out .carpet-magic-sparks,
+body.is-telegram-webapp #screen-solo .carpet-stage.cashed .carpet-magic-sparks {
+  opacity: 0 !important;
+  animation: none !important;
+}
+
+#screen-solo .carpet-stage.cashing-out .carpet-motion-trail,
+#screen-solo .carpet-stage.cashed .carpet-motion-trail,
+body.local-telegram-frame #screen-solo .carpet-stage.cashing-out .carpet-motion-trail,
+body.local-telegram-frame #screen-solo .carpet-stage.cashed .carpet-motion-trail,
+body.is-telegram-webapp #screen-solo .carpet-stage.cashing-out .carpet-motion-trail,
+body.is-telegram-webapp #screen-solo .carpet-stage.cashed .carpet-motion-trail {
+  stroke: #ffd77d !important;
+  stroke-dasharray: var(--carpet-cashout-trail-length, 0) 1 !important;
+  stroke-dashoffset: var(--carpet-cashout-trail-offset, 0) !important;
+  transition: none !important;
+}
+
+#screen-solo .carpet-stage.cashing-out .carpet-motion-trail-glow,
+body.local-telegram-frame #screen-solo .carpet-stage.cashing-out .carpet-motion-trail-glow,
+body.is-telegram-webapp #screen-solo .carpet-stage.cashing-out .carpet-motion-trail-glow {
+  opacity: 0.38 !important;
+  filter: blur(5px) drop-shadow(0 0 6px rgba(255, 189, 67, 0.52)) !important;
+}
+
+#screen-solo .carpet-stage.cashing-out .carpet-motion-trail-core,
+body.local-telegram-frame #screen-solo .carpet-stage.cashing-out .carpet-motion-trail-core,
+body.is-telegram-webapp #screen-solo .carpet-stage.cashing-out .carpet-motion-trail-core {
+  opacity: 0.88 !important;
+  filter: drop-shadow(0 0 5px rgba(255, 211, 111, 0.82)) !important;
+}
+
+#screen-solo .carpet-stage.cashed .carpet-motion-trail,
+body.local-telegram-frame #screen-solo .carpet-stage.cashed .carpet-motion-trail,
+body.is-telegram-webapp #screen-solo .carpet-stage.cashed .carpet-motion-trail {
+  opacity: 0 !important;
+}
+
+#screen-solo .carpet-cashout-effect,
+body.local-telegram-frame #screen-solo .carpet-cashout-effect,
+body.is-telegram-webapp #screen-solo .carpet-cashout-effect {
+  position: absolute;
+  left: 18%;
+  top: 73%;
+  z-index: 8;
+  width: 96px;
+  height: 96px;
+  transform: translate(-50%, -50%);
+  opacity: 0;
+  pointer-events: none;
+  mix-blend-mode: screen;
+}
+
+#screen-solo .carpet-stage.cashing-out .carpet-cashout-effect,
+body.local-telegram-frame #screen-solo .carpet-stage.cashing-out .carpet-cashout-effect,
+body.is-telegram-webapp #screen-solo .carpet-stage.cashing-out .carpet-cashout-effect {
+  opacity: var(--carpet-cashout-flare-opacity, 0);
+}
+
+#screen-solo .carpet-cashout-glow,
+#screen-solo .carpet-cashout-ring,
+#screen-solo .carpet-cashout-sparks,
+body.local-telegram-frame #screen-solo .carpet-cashout-glow,
+body.local-telegram-frame #screen-solo .carpet-cashout-ring,
+body.local-telegram-frame #screen-solo .carpet-cashout-sparks,
+body.is-telegram-webapp #screen-solo .carpet-cashout-glow,
+body.is-telegram-webapp #screen-solo .carpet-cashout-ring,
+body.is-telegram-webapp #screen-solo .carpet-cashout-sparks {
+  position: absolute;
+  inset: 0;
+  display: block;
+  border-radius: 50%;
+}
+
+#screen-solo .carpet-cashout-glow,
+body.local-telegram-frame #screen-solo .carpet-cashout-glow,
+body.is-telegram-webapp #screen-solo .carpet-cashout-glow {
+  transform: scale(calc(0.58 + var(--carpet-cashout-progress, 0) * 0.62));
+  background: radial-gradient(circle, rgba(255, 252, 220, 0.92) 0 5%, rgba(255, 211, 111, 0.66) 12%, rgba(255, 173, 49, 0.22) 36%, transparent 67%);
+  filter: blur(1px);
+}
+
+#screen-solo .carpet-cashout-ring,
+body.local-telegram-frame #screen-solo .carpet-cashout-ring,
+body.is-telegram-webapp #screen-solo .carpet-cashout-ring {
+  inset: 24px;
+  border: 1px solid rgba(255, 230, 160, 0.86);
+  transform: scale(calc(0.55 + var(--carpet-cashout-confirm, 0) * 1.3));
+  opacity: calc(1 - var(--carpet-cashout-confirm, 0));
+  box-shadow: 0 0 10px rgba(255, 197, 78, 0.5);
+}
+
+#screen-solo .carpet-cashout-sparks,
+body.local-telegram-frame #screen-solo .carpet-cashout-sparks,
+body.is-telegram-webapp #screen-solo .carpet-cashout-sparks {
+  transform: rotate(calc(var(--carpet-cashout-progress, 0) * 120deg)) scale(calc(0.7 + var(--carpet-cashout-progress, 0) * 0.45));
+  background:
+    radial-gradient(circle at 50% 4%, #fff3b8 0 1px, transparent 2px),
+    radial-gradient(circle at 82% 18%, #ffd370 0 1.5px, transparent 2.5px),
+    radial-gradient(circle at 96% 54%, #fff0a7 0 1px, transparent 2px),
+    radial-gradient(circle at 72% 88%, #ffbc4a 0 1.5px, transparent 2.5px),
+    radial-gradient(circle at 25% 92%, #ffe09a 0 1px, transparent 2px),
+    radial-gradient(circle at 4% 58%, #fff3c5 0 1.5px, transparent 2.5px),
+    radial-gradient(circle at 17% 20%, #ffc65d 0 1px, transparent 2px);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  #screen-solo .carpet-cashout-sparks,
+  body.local-telegram-frame #screen-solo .carpet-cashout-sparks,
+  body.is-telegram-webapp #screen-solo .carpet-cashout-sparks {
+    display: none;
+  }
+}
