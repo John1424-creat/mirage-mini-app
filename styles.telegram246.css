@@ -1,0 +1,981 @@
+/* Telegram 244: forward-only Carpet cashout based on the live SVG path. */
+#screen-solo .carpet-stage.cashing-out .carpet-hero-wrap,
+#screen-solo .carpet-stage.cashed .carpet-hero-wrap,
+body.local-telegram-frame #screen-solo .carpet-stage.cashing-out .carpet-hero-wrap,
+body.local-telegram-frame #screen-solo .carpet-stage.cashed .carpet-hero-wrap,
+body.is-telegram-webapp #screen-solo .carpet-stage.cashing-out .carpet-hero-wrap,
+body.is-telegram-webapp #screen-solo .carpet-stage.cashed .carpet-hero-wrap {
+  animation: none !important;
+}
+
+#screen-solo .carpet-stage.cashing-out .carpet-hero,
+#screen-solo .carpet-stage.cashed .carpet-hero,
+body.local-telegram-frame #screen-solo .carpet-stage.cashing-out .carpet-hero,
+body.local-telegram-frame #screen-solo .carpet-stage.cashed .carpet-hero,
+body.is-telegram-webapp #screen-solo .carpet-stage.cashing-out .carpet-hero,
+body.is-telegram-webapp #screen-solo .carpet-stage.cashed .carpet-hero {
+  animation: none !important;
+  opacity: var(--carpet-cashout-hero-opacity, 0) !important;
+  filter:
+    drop-shadow(0 8px 12px rgba(15, 8, 35, 0.24))
+    drop-shadow(0 0 9px rgba(255, 221, 128, 0.62)) !important;
+}
+
+#screen-solo .carpet-stage.cashing-out .carpet-magic-sparks,
+#screen-solo .carpet-stage.cashed .carpet-magic-sparks,
+body.local-telegram-frame #screen-solo .carpet-stage.cashing-out .carpet-magic-sparks,
+body.local-telegram-frame #screen-solo .carpet-stage.cashed .carpet-magic-sparks,
+body.is-telegram-webapp #screen-solo .carpet-stage.cashing-out .carpet-magic-sparks,
+body.is-telegram-webapp #screen-solo .carpet-stage.cashed .carpet-magic-sparks {
+  opacity: 0 !important;
+  animation: none !important;
+}
+
+#screen-solo .carpet-stage.cashing-out .carpet-motion-trail,
+#screen-solo .carpet-stage.cashed .carpet-motion-trail,
+body.local-telegram-frame #screen-solo .carpet-stage.cashing-out .carpet-motion-trail,
+body.local-telegram-frame #screen-solo .carpet-stage.cashed .carpet-motion-trail,
+body.is-telegram-webapp #screen-solo .carpet-stage.cashing-out .carpet-motion-trail,
+body.is-telegram-webapp #screen-solo .carpet-stage.cashed .carpet-motion-trail {
+  stroke: #ffd77d !important;
+  stroke-dasharray: var(--carpet-cashout-trail-length, 0) 1 !important;
+  stroke-dashoffset: var(--carpet-cashout-trail-offset, 0) !important;
+  transition: none !important;
+}
+
+#screen-solo .carpet-stage.cashing-out .carpet-motion-trail-glow,
+body.local-telegram-frame #screen-solo .carpet-stage.cashing-out .carpet-motion-trail-glow,
+body.is-telegram-webapp #screen-solo .carpet-stage.cashing-out .carpet-motion-trail-glow {
+  opacity: 0.38 !important;
+  filter: blur(5px) drop-shadow(0 0 6px rgba(255, 189, 67, 0.52)) !important;
+}
+
+#screen-solo .carpet-stage.cashing-out .carpet-motion-trail-core,
+body.local-telegram-frame #screen-solo .carpet-stage.cashing-out .carpet-motion-trail-core,
+body.is-telegram-webapp #screen-solo .carpet-stage.cashing-out .carpet-motion-trail-core {
+  opacity: 0.88 !important;
+  filter: drop-shadow(0 0 5px rgba(255, 211, 111, 0.82)) !important;
+}
+
+#screen-solo .carpet-stage.cashed .carpet-motion-trail,
+body.local-telegram-frame #screen-solo .carpet-stage.cashed .carpet-motion-trail,
+body.is-telegram-webapp #screen-solo .carpet-stage.cashed .carpet-motion-trail {
+  opacity: 0 !important;
+}
+
+#screen-solo .carpet-cashout-effect,
+body.local-telegram-frame #screen-solo .carpet-cashout-effect,
+body.is-telegram-webapp #screen-solo .carpet-cashout-effect {
+  position: absolute;
+  left: 18%;
+  top: 73%;
+  z-index: 8;
+  width: 96px;
+  height: 96px;
+  transform: translate(-50%, -50%);
+  opacity: 0;
+  pointer-events: none;
+  mix-blend-mode: screen;
+}
+
+#screen-solo .carpet-stage.cashing-out .carpet-cashout-effect,
+body.local-telegram-frame #screen-solo .carpet-stage.cashing-out .carpet-cashout-effect,
+body.is-telegram-webapp #screen-solo .carpet-stage.cashing-out .carpet-cashout-effect {
+  opacity: var(--carpet-cashout-flare-opacity, 0);
+}
+
+#screen-solo .carpet-cashout-glow,
+#screen-solo .carpet-cashout-ring,
+#screen-solo .carpet-cashout-sparks,
+body.local-telegram-frame #screen-solo .carpet-cashout-glow,
+body.local-telegram-frame #screen-solo .carpet-cashout-ring,
+body.local-telegram-frame #screen-solo .carpet-cashout-sparks,
+body.is-telegram-webapp #screen-solo .carpet-cashout-glow,
+body.is-telegram-webapp #screen-solo .carpet-cashout-ring,
+body.is-telegram-webapp #screen-solo .carpet-cashout-sparks {
+  position: absolute;
+  inset: 0;
+  display: block;
+  border-radius: 50%;
+}
+
+#screen-solo .carpet-cashout-glow,
+body.local-telegram-frame #screen-solo .carpet-cashout-glow,
+body.is-telegram-webapp #screen-solo .carpet-cashout-glow {
+  transform: scale(calc(0.58 + var(--carpet-cashout-progress, 0) * 0.62));
+  background: radial-gradient(circle, rgba(255, 252, 220, 0.92) 0 5%, rgba(255, 211, 111, 0.66) 12%, rgba(255, 173, 49, 0.22) 36%, transparent 67%);
+  filter: blur(1px);
+}
+
+#screen-solo .carpet-cashout-ring,
+body.local-telegram-frame #screen-solo .carpet-cashout-ring,
+body.is-telegram-webapp #screen-solo .carpet-cashout-ring {
+  inset: 24px;
+  border: 1px solid rgba(255, 230, 160, 0.86);
+  transform: scale(calc(0.55 + var(--carpet-cashout-confirm, 0) * 1.3));
+  opacity: calc(1 - var(--carpet-cashout-confirm, 0));
+  box-shadow: 0 0 10px rgba(255, 197, 78, 0.5);
+}
+
+#screen-solo .carpet-cashout-sparks,
+body.local-telegram-frame #screen-solo .carpet-cashout-sparks,
+body.is-telegram-webapp #screen-solo .carpet-cashout-sparks {
+  transform: rotate(calc(var(--carpet-cashout-progress, 0) * 120deg)) scale(calc(0.7 + var(--carpet-cashout-progress, 0) * 0.45));
+  background:
+    radial-gradient(circle at 50% 4%, #fff3b8 0 1px, transparent 2px),
+    radial-gradient(circle at 82% 18%, #ffd370 0 1.5px, transparent 2.5px),
+    radial-gradient(circle at 96% 54%, #fff0a7 0 1px, transparent 2px),
+    radial-gradient(circle at 72% 88%, #ffbc4a 0 1.5px, transparent 2.5px),
+    radial-gradient(circle at 25% 92%, #ffe09a 0 1px, transparent 2px),
+    radial-gradient(circle at 4% 58%, #fff3c5 0 1.5px, transparent 2.5px),
+    radial-gradient(circle at 17% 20%, #ffc65d 0 1px, transparent 2px);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  #screen-solo .carpet-cashout-sparks,
+  body.local-telegram-frame #screen-solo .carpet-cashout-sparks,
+  body.is-telegram-webapp #screen-solo .carpet-cashout-sparks {
+    display: none;
+  }
+}
+
+/* Telegram 245: unified player cabinet foundation. */
+.bottom-nav {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+.bottom-nav button > span:last-child {
+  max-width: 78px;
+}
+
+body[data-active-tab="profile"] {
+  background: #090711;
+}
+
+body[data-active-tab="profile"] .app-shell {
+  background:
+    linear-gradient(180deg, rgba(28, 8, 37, 0.08), rgba(46, 13, 45, 0.18) 52%, rgba(20, 5, 25, 0.58)),
+    url("./assets/account-treasury-bg.webp?v=storybook246") center / cover no-repeat,
+    #351433 !important;
+}
+
+body[data-active-tab="profile"] .app-shell::before {
+  background:
+    radial-gradient(circle at 50% 8%, rgba(255, 213, 126, 0.14), transparent 27%),
+    linear-gradient(180deg, rgba(29, 5, 36, 0.02), rgba(38, 8, 42, 0.16) 58%, rgba(15, 3, 20, 0.5)) !important;
+  opacity: 1 !important;
+}
+
+.account-screen {
+  width: min(100%, 430px) !important;
+  padding: 0 !important;
+  color: #fff6dd;
+  overflow: hidden !important;
+}
+
+.account-screen.active,
+body.local-telegram-frame .account-screen.active,
+body.is-telegram-webapp .account-screen.active {
+  position: absolute !important;
+  inset: 0 !important;
+  margin: 0 auto !important;
+}
+
+.account-scroll {
+  height: 100%;
+  padding: max(16px, env(safe-area-inset-top)) 18px 112px;
+  overflow-x: hidden;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  scrollbar-width: none;
+}
+
+.account-scroll::-webkit-scrollbar {
+  display: none;
+}
+
+.account-header,
+.account-identity,
+.account-balance-panel,
+.account-section-heading,
+.account-status-row {
+  display: flex;
+  align-items: center;
+}
+
+.account-header {
+  min-height: 48px;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.account-title span {
+  display: block;
+  margin-bottom: 2px;
+  color: rgba(255, 228, 158, 0.64);
+  font-family: Inter, ui-sans-serif, system-ui, sans-serif;
+  font-size: 9px;
+  font-weight: 800;
+}
+
+.account-title h1 {
+  margin: 0;
+  color: #fff0bd;
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: 22px;
+  font-weight: 800;
+  line-height: 1;
+  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.58), 0 0 14px rgba(255, 191, 80, 0.22);
+}
+
+.account-header-balance {
+  min-width: 96px;
+  height: 38px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  padding: 0 12px;
+  border: 1px solid rgba(255, 217, 132, 0.5);
+  border-radius: 7px;
+  background: linear-gradient(180deg, #ffe29a, #d9af62);
+  color: #2a1720;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.66), 0 5px 16px rgba(0, 0, 0, 0.28);
+}
+
+.account-header-balance strong {
+  font-family: Inter, ui-sans-serif, system-ui, sans-serif;
+  font-size: 12px;
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+}
+
+.account-header-balance .balance-ruby,
+.account-balance-panel .balance-ruby,
+.account-wallet-hero .balance-ruby {
+  display: block;
+  width: 11px;
+  height: 11px;
+  flex: 0 0 11px;
+  background: url("./assets/balance-ruby.svg") center / contain no-repeat;
+  filter: drop-shadow(0 1px 2px rgba(78, 4, 59, 0.48));
+}
+
+.account-identity {
+  min-height: 70px;
+  gap: 12px;
+  margin: 12px 0 14px;
+  padding: 10px 12px;
+  border: 1px solid rgba(255, 220, 145, 0.42);
+  border-radius: 7px;
+  background: linear-gradient(90deg, rgba(128, 38, 94, 0.72), rgba(43, 17, 49, 0.86) 58%, rgba(58, 38, 33, 0.76));
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08), 0 7px 18px rgba(26, 4, 27, 0.18);
+}
+
+.account-avatar {
+  width: 44px;
+  height: 44px;
+  flex: 0 0 44px;
+  display: grid;
+  place-items: center;
+  border: 1px solid rgba(255, 225, 151, 0.76);
+  border-radius: 50%;
+  background: linear-gradient(145deg, #c49d4f, #6d5632);
+  color: #fff9e7;
+  font-family: Inter, ui-sans-serif, system-ui, sans-serif;
+  font-size: 17px;
+  font-weight: 800;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.35), 0 0 18px rgba(255, 183, 73, 0.2);
+}
+
+.account-avatar img {
+  width: 100%;
+  height: 100%;
+  display: block;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.account-avatar span {
+  display: grid;
+  width: 100%;
+  height: 100%;
+  place-items: center;
+}
+
+.account-identity-copy {
+  min-width: 0;
+  flex: 1;
+}
+
+.account-identity-copy strong,
+.account-identity-copy span {
+  display: block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.account-identity-copy strong {
+  color: #fff8e5;
+  font-family: Inter, ui-sans-serif, system-ui, sans-serif;
+  font-size: 14px;
+  font-weight: 800;
+}
+
+.account-identity-copy span {
+  margin-top: 4px;
+  color: rgba(255, 235, 197, 0.62);
+  font-family: Inter, ui-sans-serif, system-ui, sans-serif;
+  font-size: 10px;
+}
+
+.account-status,
+.account-program-state {
+  flex: 0 0 auto;
+  border: 1px solid rgba(255, 206, 118, 0.34);
+  border-radius: 999px;
+  color: #f6d68d;
+  font-family: Inter, ui-sans-serif, system-ui, sans-serif;
+  font-size: 8px;
+  font-weight: 800;
+}
+
+.account-status {
+  padding: 5px 8px;
+  background: rgba(89, 45, 54, 0.58);
+}
+
+.account-tabs,
+.account-history-tabs {
+  display: grid;
+  gap: 4px;
+  padding: 3px;
+  border: 1px solid rgba(255, 213, 130, 0.2);
+  border-radius: 7px;
+  background: rgba(18, 10, 25, 0.72);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.04);
+}
+
+.account-tabs {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  margin-bottom: 14px;
+}
+
+.account-tabs button,
+.account-history-tabs button {
+  min-width: 0;
+  height: 34px;
+  border: 1px solid rgba(255, 216, 135, 0.72);
+  border-radius: 5px;
+  background:
+    radial-gradient(circle at 50% 0%, rgba(255, 168, 218, 0.22), transparent 58%),
+    linear-gradient(90deg, rgba(233, 70, 165, 0.9), rgba(127, 54, 113, 0.82));
+  color: #fff1d1;
+  font-family: Inter, ui-sans-serif, system-ui, sans-serif;
+  font-size: 9px;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.account-tabs button.active,
+.account-history-tabs button.active {
+  background: linear-gradient(90deg, #ffd27f, #efbf66 47%, #997e4c);
+  color: #2d1820;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.28), 0 2px 8px rgba(0, 0, 0, 0.24);
+}
+
+.account-tabs button:focus,
+.account-history-tabs button:focus,
+.bottom-nav button:focus {
+  outline: none;
+}
+
+.account-tabs button:focus-visible,
+.account-history-tabs button:focus-visible,
+.bottom-nav button:focus-visible {
+  box-shadow: inset 0 0 0 1px rgba(255, 224, 151, 0.56);
+}
+
+.account-view {
+  display: none;
+}
+
+.account-view.active {
+  display: block;
+  animation: account-view-in 180ms ease-out both;
+}
+
+@keyframes account-view-in {
+  from { opacity: 0; transform: translateY(4px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.account-balance-panel,
+.account-wallet-hero {
+  position: relative;
+  overflow: hidden;
+  border: 1px solid rgba(255, 213, 130, 0.42);
+  border-radius: 8px;
+  background:
+    linear-gradient(110deg, rgba(112, 37, 84, 0.94), rgba(42, 20, 48, 0.93) 56%, rgba(63, 47, 30, 0.9));
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.1), 0 12px 28px rgba(0, 0, 0, 0.24);
+}
+
+.account-balance-panel::after,
+.account-wallet-hero::after {
+  content: "";
+  position: absolute;
+  right: -35px;
+  top: -48px;
+  width: 155px;
+  height: 155px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(255, 216, 128, 0.2), transparent 67%);
+  pointer-events: none;
+}
+
+.account-balance-panel {
+  min-height: 94px;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 16px;
+}
+
+.account-balance-panel > div > span,
+.account-wallet-hero > span,
+.account-wallet-hero > small {
+  display: block;
+  color: rgba(255, 235, 193, 0.62);
+  font-family: Inter, ui-sans-serif, system-ui, sans-serif;
+  font-size: 9px;
+  font-weight: 700;
+}
+
+.account-balance-rate {
+  margin-top: 7px;
+  color: rgba(255, 237, 198, 0.72) !important;
+  font-size: 8px !important;
+  line-height: 1.2;
+}
+
+.account-balance-panel > div > strong,
+.account-wallet-hero > strong {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 7px;
+}
+
+.account-balance-panel b,
+.account-wallet-hero b {
+  color: #fff0b1;
+  font-family: Inter, ui-sans-serif, system-ui, sans-serif;
+  font-size: 27px;
+  font-weight: 800;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+  text-shadow: 0 0 14px rgba(255, 198, 85, 0.22);
+}
+
+.account-primary-action,
+.account-wallet-actions button,
+.account-sheet-action {
+  border: 1px solid rgba(255, 225, 151, 0.62);
+  border-radius: 7px;
+  font-family: Inter, ui-sans-serif, system-ui, sans-serif;
+  font-weight: 800;
+  cursor: pointer;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.38), 0 4px 0 rgba(70, 45, 31, 0.38);
+}
+
+.account-primary-action {
+  min-width: 112px;
+  min-height: 39px;
+  padding: 0 14px;
+  background: linear-gradient(180deg, #ffe09a, #cfa85b);
+  color: #2a1820;
+  font-size: 10px;
+}
+
+.account-primary-action:active,
+.account-wallet-actions button:active {
+  transform: translateY(2px);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.28), 0 2px 0 rgba(70, 45, 31, 0.4);
+}
+
+.account-metrics {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.account-metrics > div {
+  min-height: 64px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 13px;
+  border: 1px solid rgba(255, 216, 139, 0.18);
+  border-radius: 7px;
+  background: rgba(24, 12, 29, 0.74);
+}
+
+.account-metrics span,
+.account-section-heading span {
+  color: rgba(255, 230, 184, 0.52);
+  font-family: Inter, ui-sans-serif, system-ui, sans-serif;
+  font-size: 8px;
+  font-weight: 800;
+}
+
+.account-metrics strong {
+  color: #ffe3a0;
+  font-family: Inter, ui-sans-serif, system-ui, sans-serif;
+  font-size: 19px;
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+}
+
+.account-section {
+  margin-top: 16px;
+}
+
+.account-section-heading {
+  min-height: 28px;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 7px;
+}
+
+.account-section-heading h2 {
+  margin: 0;
+  color: #fff0bd;
+  font-family: "Playfair Display", Georgia, "Times New Roman", serif;
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.account-program-list {
+  border-top: 1px solid rgba(255, 216, 139, 0.18);
+  border-bottom: 1px solid rgba(255, 216, 139, 0.13);
+  background: rgba(15, 8, 22, 0.64);
+}
+
+.account-program-row {
+  min-height: 61px;
+  display: grid;
+  grid-template-columns: 38px minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 6px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.07);
+}
+
+.account-program-row:last-child {
+  border-bottom: 0;
+}
+
+.account-program-icon {
+  width: 34px;
+  height: 34px;
+  display: grid;
+  place-items: center;
+  border: 1px solid rgba(255, 214, 135, 0.3);
+  border-radius: 50%;
+  background: linear-gradient(145deg, rgba(180, 49, 131, 0.78), rgba(61, 31, 65, 0.78));
+  color: #ffe4a5;
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: 14px;
+  font-weight: 800;
+}
+
+.account-program-row strong,
+.account-program-row small,
+.account-status-row strong,
+.account-status-row small {
+  display: block;
+  font-family: Inter, ui-sans-serif, system-ui, sans-serif;
+}
+
+.account-program-row strong,
+.account-status-row strong {
+  color: #fff6df;
+  font-size: 11px;
+  font-weight: 800;
+}
+
+.account-program-row small,
+.account-status-row small {
+  margin-top: 4px;
+  color: rgba(255, 232, 190, 0.5);
+  font-size: 9px;
+  line-height: 1.2;
+}
+
+.account-program-state {
+  padding: 4px 7px;
+  opacity: 0.72;
+}
+
+.account-wallet-hero {
+  min-height: 128px;
+  padding: 20px;
+}
+
+.account-wallet-hero b {
+  font-size: 34px;
+}
+
+.account-wallet-hero > small {
+  margin-top: 10px;
+}
+
+.account-rate-row {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  margin-top: 11px;
+  color: rgba(255, 239, 204, 0.74);
+  font-family: Inter, ui-sans-serif, system-ui, sans-serif;
+  font-size: 9px;
+  font-weight: 700;
+}
+
+.account-rate-row button {
+  width: 20px;
+  height: 20px;
+  display: grid;
+  flex: 0 0 20px;
+  place-items: center;
+  padding: 0;
+  border: 1px solid rgba(255, 218, 139, 0.72);
+  border-radius: 50%;
+  background: linear-gradient(180deg, #d8469f, #842c70);
+  color: #fff3d7;
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.account-wallet-actions {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.account-wallet-actions button {
+  min-height: 66px;
+  display: grid;
+  grid-template-columns: 30px minmax(0, 1fr);
+  align-items: center;
+  gap: 10px;
+  padding: 8px 12px;
+  text-align: left;
+  background:
+    radial-gradient(circle at 50% 0%, rgba(255, 166, 216, 0.22), transparent 62%),
+    linear-gradient(90deg, rgba(233, 70, 165, 0.96), rgba(127, 54, 113, 0.94));
+  color: #fff6dc;
+}
+
+.account-wallet-actions button.account-primary-action {
+  background: linear-gradient(90deg, #ffd27f, #efbf66 47%, #997e4c);
+  color: #291921;
+}
+
+.account-wallet-actions .account-action-symbol {
+  position: relative;
+  width: 27px;
+  height: 27px;
+  display: block;
+  border: 1px solid currentColor;
+  border-radius: 50%;
+  font-size: 0;
+}
+
+.account-wallet-actions .account-action-symbol::before,
+.account-wallet-actions [data-account-transaction="deposit"] .account-action-symbol::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 10px;
+  height: 1.5px;
+  border-radius: 2px;
+  background: currentColor;
+  transform: translate(-50%, -50%);
+}
+
+.account-wallet-actions [data-account-transaction="deposit"] .account-action-symbol::after {
+  transform: translate(-50%, -50%) rotate(90deg);
+}
+
+.account-wallet-actions button > span:last-child {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.account-wallet-actions strong,
+.account-wallet-actions small {
+  display: block;
+}
+
+.account-wallet-actions strong {
+  font-size: 9px;
+}
+
+.account-wallet-actions small {
+  margin-top: 4px;
+  font-size: 8px;
+  font-weight: 600;
+  opacity: 0.65;
+}
+
+.account-wallet-status {
+  margin-top: 18px;
+}
+
+.account-status-row {
+  min-height: 64px;
+  gap: 11px;
+  padding: 9px 4px;
+  border-top: 1px solid rgba(255, 216, 139, 0.16);
+  border-bottom: 1px solid rgba(255, 216, 139, 0.12);
+  background: rgba(15, 8, 22, 0.58);
+}
+
+.account-status-dot {
+  width: 10px;
+  height: 10px;
+  margin-left: 8px;
+  border: 2px solid rgba(255, 210, 124, 0.62);
+  border-radius: 50%;
+  box-shadow: 0 0 9px rgba(255, 185, 64, 0.34);
+}
+
+.account-history-tabs {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  margin-bottom: 10px;
+}
+
+.account-history-list {
+  border-top: 1px solid rgba(255, 218, 144, 0.2);
+  background: rgba(14, 8, 20, 0.64);
+}
+
+.account-history-row {
+  min-height: 58px;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 12px;
+  padding: 9px 8px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.07);
+}
+
+.account-history-row:last-child {
+  border-bottom: 0;
+}
+
+.account-history-row span,
+.account-history-row small,
+.account-history-row strong {
+  display: block;
+  font-family: Inter, ui-sans-serif, system-ui, sans-serif;
+}
+
+.account-history-row span {
+  overflow: hidden;
+  color: #fff5dc;
+  font-size: 10px;
+  font-weight: 700;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.account-history-row small {
+  margin-top: 4px;
+  color: rgba(255, 232, 190, 0.46);
+  font-size: 8px;
+}
+
+.account-history-row strong {
+  color: #e9cf8b;
+  font-size: 11px;
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+}
+
+.account-history-row strong.plus {
+  color: #79deb0;
+}
+
+.account-history-row strong.minus {
+  color: #ff90b3;
+}
+
+.account-history-empty {
+  min-height: 92px;
+  display: grid;
+  place-items: center;
+  color: rgba(255, 232, 190, 0.46);
+  font-family: Inter, ui-sans-serif, system-ui, sans-serif;
+  font-size: 10px;
+}
+
+.account-sheet-backdrop {
+  position: absolute;
+  inset: 0;
+  z-index: 118;
+  display: block;
+  border: 0;
+  background: rgba(4, 2, 8, 0.64);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 180ms ease;
+}
+
+.account-sheet {
+  position: absolute;
+  z-index: 119;
+  left: 12px;
+  right: 12px;
+  bottom: 12px;
+  min-height: 258px;
+  padding: 30px 20px 20px;
+  border: 1px solid rgba(255, 214, 133, 0.56);
+  border-radius: 8px;
+  background:
+    linear-gradient(160deg, rgba(111, 34, 84, 0.98), rgba(24, 13, 32, 0.99) 62%, rgba(50, 36, 26, 0.99));
+  box-shadow: 0 -18px 50px rgba(0, 0, 0, 0.48), inset 0 1px 0 rgba(255,255,255,0.12);
+  text-align: center;
+  transform: translateY(calc(100% + 24px));
+  transition: transform 220ms ease-out;
+}
+
+.account-screen.sheet-open .account-sheet-backdrop {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.account-screen.sheet-open .account-sheet {
+  transform: translateY(0);
+}
+
+.account-screen.sheet-open ~ .bottom-nav {
+  opacity: 0 !important;
+  pointer-events: none !important;
+}
+
+.account-sheet-handle {
+  position: absolute;
+  left: 50%;
+  top: 10px;
+  width: 38px;
+  height: 3px;
+  border-radius: 2px;
+  background: rgba(255, 234, 191, 0.34);
+  transform: translateX(-50%);
+}
+
+.account-sheet-close {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  width: 30px;
+  height: 30px;
+  display: grid;
+  place-items: center;
+  border: 1px solid rgba(255, 219, 145, 0.42);
+  border-radius: 50%;
+  background: rgba(144, 44, 107, 0.68);
+  color: #fff3cf;
+  font-family: Inter, ui-sans-serif, system-ui, sans-serif;
+  font-size: 17px;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.account-sheet-icon {
+  width: 52px;
+  height: 52px;
+  display: grid;
+  place-items: center;
+  margin: 4px auto 14px;
+  border: 1px solid rgba(255, 221, 145, 0.62);
+  border-radius: 50%;
+  background: linear-gradient(145deg, #f0ca78, #9f7040);
+  color: #351d26;
+  font-family: Inter, ui-sans-serif, system-ui, sans-serif;
+  font-size: 27px;
+  font-weight: 500;
+  box-shadow: 0 0 20px rgba(255, 188, 65, 0.22);
+}
+
+.account-sheet h2 {
+  margin: 0;
+  color: #fff0bd;
+  font-family: "Playfair Display", Georgia, "Times New Roman", serif;
+  font-size: 17px;
+}
+
+.account-sheet p {
+  max-width: 290px;
+  margin: 10px auto 16px;
+  color: rgba(255, 237, 204, 0.66);
+  font-family: Inter, ui-sans-serif, system-ui, sans-serif;
+  font-size: 10px;
+  line-height: 1.4;
+}
+
+.account-sheet-action {
+  width: 100%;
+  min-height: 42px;
+  background: linear-gradient(180deg, rgba(255, 224, 154, 0.54), rgba(174, 132, 70, 0.54));
+  color: rgba(46, 25, 31, 0.72);
+  font-size: 9px;
+  cursor: default;
+}
+
+.account-sheet-action:not(:disabled) {
+  background: linear-gradient(90deg, #ffd27f, #efbf66 47%, #997e4c);
+  color: #2d1820;
+  cursor: pointer;
+}
+
+@media (max-width: 360px) {
+  .account-scroll {
+    padding-right: 13px;
+    padding-left: 13px;
+  }
+
+  .account-identity {
+    padding-right: 9px;
+    padding-left: 9px;
+  }
+
+  .account-status {
+    display: none;
+  }
+
+  .account-primary-action {
+    min-width: 100px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .account-view.active {
+    animation: none;
+  }
+
+  .account-sheet,
+  .account-sheet-backdrop {
+    transition: none;
+  }
+}
