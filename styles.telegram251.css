@@ -1,0 +1,1344 @@
+/* Telegram 244: forward-only Carpet cashout based on the live SVG path. */
+#screen-solo .carpet-stage.cashing-out .carpet-hero-wrap,
+#screen-solo .carpet-stage.cashed .carpet-hero-wrap,
+body.local-telegram-frame #screen-solo .carpet-stage.cashing-out .carpet-hero-wrap,
+body.local-telegram-frame #screen-solo .carpet-stage.cashed .carpet-hero-wrap,
+body.is-telegram-webapp #screen-solo .carpet-stage.cashing-out .carpet-hero-wrap,
+body.is-telegram-webapp #screen-solo .carpet-stage.cashed .carpet-hero-wrap {
+  animation: none !important;
+}
+
+#screen-solo .carpet-stage.cashing-out .carpet-hero,
+#screen-solo .carpet-stage.cashed .carpet-hero,
+body.local-telegram-frame #screen-solo .carpet-stage.cashing-out .carpet-hero,
+body.local-telegram-frame #screen-solo .carpet-stage.cashed .carpet-hero,
+body.is-telegram-webapp #screen-solo .carpet-stage.cashing-out .carpet-hero,
+body.is-telegram-webapp #screen-solo .carpet-stage.cashed .carpet-hero {
+  animation: none !important;
+  opacity: var(--carpet-cashout-hero-opacity, 0) !important;
+  filter:
+    drop-shadow(0 8px 12px rgba(15, 8, 35, 0.24))
+    drop-shadow(0 0 9px rgba(255, 221, 128, 0.62)) !important;
+}
+
+#screen-solo .carpet-stage.cashing-out .carpet-magic-sparks,
+#screen-solo .carpet-stage.cashed .carpet-magic-sparks,
+body.local-telegram-frame #screen-solo .carpet-stage.cashing-out .carpet-magic-sparks,
+body.local-telegram-frame #screen-solo .carpet-stage.cashed .carpet-magic-sparks,
+body.is-telegram-webapp #screen-solo .carpet-stage.cashing-out .carpet-magic-sparks,
+body.is-telegram-webapp #screen-solo .carpet-stage.cashed .carpet-magic-sparks {
+  opacity: 0 !important;
+  animation: none !important;
+}
+
+#screen-solo .carpet-stage.cashing-out .carpet-motion-trail,
+#screen-solo .carpet-stage.cashed .carpet-motion-trail,
+body.local-telegram-frame #screen-solo .carpet-stage.cashing-out .carpet-motion-trail,
+body.local-telegram-frame #screen-solo .carpet-stage.cashed .carpet-motion-trail,
+body.is-telegram-webapp #screen-solo .carpet-stage.cashing-out .carpet-motion-trail,
+body.is-telegram-webapp #screen-solo .carpet-stage.cashed .carpet-motion-trail {
+  stroke: #ffd77d !important;
+  stroke-dasharray: var(--carpet-cashout-trail-length, 0) 1 !important;
+  stroke-dashoffset: var(--carpet-cashout-trail-offset, 0) !important;
+  transition: none !important;
+}
+
+#screen-solo .carpet-stage.cashing-out .carpet-motion-trail-glow,
+body.local-telegram-frame #screen-solo .carpet-stage.cashing-out .carpet-motion-trail-glow,
+body.is-telegram-webapp #screen-solo .carpet-stage.cashing-out .carpet-motion-trail-glow {
+  opacity: 0.38 !important;
+  filter: blur(5px) drop-shadow(0 0 6px rgba(255, 189, 67, 0.52)) !important;
+}
+
+#screen-solo .carpet-stage.cashing-out .carpet-motion-trail-core,
+body.local-telegram-frame #screen-solo .carpet-stage.cashing-out .carpet-motion-trail-core,
+body.is-telegram-webapp #screen-solo .carpet-stage.cashing-out .carpet-motion-trail-core {
+  opacity: 0.88 !important;
+  filter: drop-shadow(0 0 5px rgba(255, 211, 111, 0.82)) !important;
+}
+
+#screen-solo .carpet-stage.cashed .carpet-motion-trail,
+body.local-telegram-frame #screen-solo .carpet-stage.cashed .carpet-motion-trail,
+body.is-telegram-webapp #screen-solo .carpet-stage.cashed .carpet-motion-trail {
+  opacity: 0 !important;
+}
+
+#screen-solo .carpet-cashout-effect,
+body.local-telegram-frame #screen-solo .carpet-cashout-effect,
+body.is-telegram-webapp #screen-solo .carpet-cashout-effect {
+  position: absolute;
+  left: 18%;
+  top: 73%;
+  z-index: 8;
+  width: 96px;
+  height: 96px;
+  transform: translate(-50%, -50%);
+  opacity: 0;
+  pointer-events: none;
+  mix-blend-mode: screen;
+}
+
+#screen-solo .carpet-stage.cashing-out .carpet-cashout-effect,
+body.local-telegram-frame #screen-solo .carpet-stage.cashing-out .carpet-cashout-effect,
+body.is-telegram-webapp #screen-solo .carpet-stage.cashing-out .carpet-cashout-effect {
+  opacity: var(--carpet-cashout-flare-opacity, 0);
+}
+
+#screen-solo .carpet-cashout-glow,
+#screen-solo .carpet-cashout-ring,
+#screen-solo .carpet-cashout-sparks,
+body.local-telegram-frame #screen-solo .carpet-cashout-glow,
+body.local-telegram-frame #screen-solo .carpet-cashout-ring,
+body.local-telegram-frame #screen-solo .carpet-cashout-sparks,
+body.is-telegram-webapp #screen-solo .carpet-cashout-glow,
+body.is-telegram-webapp #screen-solo .carpet-cashout-ring,
+body.is-telegram-webapp #screen-solo .carpet-cashout-sparks {
+  position: absolute;
+  inset: 0;
+  display: block;
+  border-radius: 50%;
+}
+
+#screen-solo .carpet-cashout-glow,
+body.local-telegram-frame #screen-solo .carpet-cashout-glow,
+body.is-telegram-webapp #screen-solo .carpet-cashout-glow {
+  transform: scale(calc(0.58 + var(--carpet-cashout-progress, 0) * 0.62));
+  background: radial-gradient(circle, rgba(255, 252, 220, 0.92) 0 5%, rgba(255, 211, 111, 0.66) 12%, rgba(255, 173, 49, 0.22) 36%, transparent 67%);
+  filter: blur(1px);
+}
+
+#screen-solo .carpet-cashout-ring,
+body.local-telegram-frame #screen-solo .carpet-cashout-ring,
+body.is-telegram-webapp #screen-solo .carpet-cashout-ring {
+  inset: 24px;
+  border: 1px solid rgba(255, 230, 160, 0.86);
+  transform: scale(calc(0.55 + var(--carpet-cashout-confirm, 0) * 1.3));
+  opacity: calc(1 - var(--carpet-cashout-confirm, 0));
+  box-shadow: 0 0 10px rgba(255, 197, 78, 0.5);
+}
+
+#screen-solo .carpet-cashout-sparks,
+body.local-telegram-frame #screen-solo .carpet-cashout-sparks,
+body.is-telegram-webapp #screen-solo .carpet-cashout-sparks {
+  transform: rotate(calc(var(--carpet-cashout-progress, 0) * 120deg)) scale(calc(0.7 + var(--carpet-cashout-progress, 0) * 0.45));
+  background:
+    radial-gradient(circle at 50% 4%, #fff3b8 0 1px, transparent 2px),
+    radial-gradient(circle at 82% 18%, #ffd370 0 1.5px, transparent 2.5px),
+    radial-gradient(circle at 96% 54%, #fff0a7 0 1px, transparent 2px),
+    radial-gradient(circle at 72% 88%, #ffbc4a 0 1.5px, transparent 2.5px),
+    radial-gradient(circle at 25% 92%, #ffe09a 0 1px, transparent 2px),
+    radial-gradient(circle at 4% 58%, #fff3c5 0 1.5px, transparent 2.5px),
+    radial-gradient(circle at 17% 20%, #ffc65d 0 1px, transparent 2px);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  #screen-solo .carpet-cashout-sparks,
+  body.local-telegram-frame #screen-solo .carpet-cashout-sparks,
+  body.is-telegram-webapp #screen-solo .carpet-cashout-sparks {
+    display: none;
+  }
+}
+
+/* Telegram 245: unified player cabinet foundation. */
+.bottom-nav {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+.bottom-nav button > span:last-child {
+  max-width: 78px;
+}
+
+body[data-active-tab="profile"],
+body.local-telegram-frame[data-active-tab="profile"],
+body.is-telegram-webapp[data-active-tab="profile"] {
+  background: #351433 !important;
+}
+
+body[data-active-tab="profile"]::before,
+body.local-telegram-frame[data-active-tab="profile"]::before,
+body.is-telegram-webapp[data-active-tab="profile"]::before {
+  background:
+    linear-gradient(180deg, rgba(28, 8, 37, 0.04), rgba(46, 13, 45, 0.11) 52%, rgba(20, 5, 25, 0.38)),
+    url("./assets/account-treasury-bg-v3.webp?v=treasury248") center / cover no-repeat,
+    #351433 !important;
+  opacity: 1 !important;
+}
+
+body[data-active-tab="profile"] .app-shell,
+body.local-telegram-frame[data-active-tab="profile"] .app-shell,
+body.is-telegram-webapp[data-active-tab="profile"] .app-shell {
+  background: transparent !important;
+  box-shadow: none !important;
+}
+
+body[data-active-tab="profile"] .app-shell::before,
+body.local-telegram-frame[data-active-tab="profile"] .app-shell::before,
+body.is-telegram-webapp[data-active-tab="profile"] .app-shell::before {
+  background: transparent !important;
+  opacity: 0 !important;
+}
+
+.account-screen {
+  width: min(100%, 430px) !important;
+  padding: 0 !important;
+  color: #fff6dd;
+  overflow: hidden !important;
+}
+
+.account-screen.active,
+body.local-telegram-frame .account-screen.active,
+body.is-telegram-webapp .account-screen.active {
+  position: absolute !important;
+  inset: 0 !important;
+  margin: 0 auto !important;
+}
+
+.account-scroll {
+  height: 100%;
+  padding: max(16px, env(safe-area-inset-top)) 18px 112px;
+  overflow-x: hidden;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  scrollbar-width: none;
+}
+
+.account-scroll::-webkit-scrollbar {
+  display: none;
+}
+
+.account-header,
+.account-identity,
+.account-balance-panel,
+.account-section-heading,
+.account-status-row {
+  display: flex;
+  align-items: center;
+}
+
+.account-header {
+  min-height: 48px;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.account-title span {
+  display: block;
+  margin-bottom: 2px;
+  color: rgba(255, 228, 158, 0.64);
+  font-family: Inter, ui-sans-serif, system-ui, sans-serif;
+  font-size: 9px;
+  font-weight: 800;
+}
+
+.account-title h1 {
+  margin: 0;
+  color: #fff0bd;
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: 22px;
+  font-weight: 800;
+  line-height: 1;
+  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.58), 0 0 14px rgba(255, 191, 80, 0.22);
+}
+
+.account-header-balance {
+  min-width: 96px;
+  height: 38px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  padding: 0 12px;
+  border: 1px solid rgba(255, 217, 132, 0.5);
+  border-radius: 7px;
+  background: linear-gradient(180deg, #ffe29a, #d9af62);
+  color: #2a1720;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.66), 0 5px 16px rgba(0, 0, 0, 0.28);
+}
+
+.account-header-balance strong {
+  font-family: Inter, ui-sans-serif, system-ui, sans-serif;
+  font-size: 12px;
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+}
+
+.account-header-balance .balance-ruby,
+.account-balance-panel .balance-ruby,
+.account-wallet-hero .balance-ruby {
+  display: block;
+  width: 11px;
+  height: 11px;
+  flex: 0 0 11px;
+  background: url("./assets/balance-ruby.svg") center / contain no-repeat;
+  filter: drop-shadow(0 1px 2px rgba(78, 4, 59, 0.48));
+}
+
+.account-identity {
+  min-height: 70px;
+  gap: 12px;
+  margin: 12px 0 14px;
+  padding: 10px 12px;
+  border: 1px solid rgba(255, 220, 145, 0.42);
+  border-radius: 7px;
+  background: linear-gradient(90deg, rgba(128, 38, 94, 0.72), rgba(43, 17, 49, 0.86) 58%, rgba(58, 38, 33, 0.76));
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08), 0 7px 18px rgba(26, 4, 27, 0.18);
+}
+
+.account-avatar {
+  width: 44px;
+  height: 44px;
+  flex: 0 0 44px;
+  display: grid;
+  place-items: center;
+  border: 1px solid rgba(255, 225, 151, 0.76);
+  border-radius: 50%;
+  background: linear-gradient(145deg, #c49d4f, #6d5632);
+  color: #fff9e7;
+  font-family: Inter, ui-sans-serif, system-ui, sans-serif;
+  font-size: 17px;
+  font-weight: 800;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.35), 0 0 18px rgba(255, 183, 73, 0.2);
+}
+
+.account-avatar img {
+  width: 100%;
+  height: 100%;
+  display: block;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.account-avatar span {
+  display: grid;
+  width: 100%;
+  height: 100%;
+  place-items: center;
+}
+
+.account-identity-copy {
+  min-width: 0;
+  flex: 1;
+}
+
+.account-identity-copy strong,
+.account-identity-copy span {
+  display: block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.account-identity-copy strong {
+  color: #fff8e5;
+  font-family: Inter, ui-sans-serif, system-ui, sans-serif;
+  font-size: 14px;
+  font-weight: 800;
+}
+
+.account-identity-copy span {
+  margin-top: 4px;
+  color: rgba(255, 235, 197, 0.62);
+  font-family: Inter, ui-sans-serif, system-ui, sans-serif;
+  font-size: 10px;
+}
+
+.account-status,
+.account-program-state {
+  flex: 0 0 auto;
+  border: 1px solid rgba(255, 206, 118, 0.34);
+  border-radius: 999px;
+  color: #f6d68d;
+  font-family: Inter, ui-sans-serif, system-ui, sans-serif;
+  font-size: 8px;
+  font-weight: 800;
+}
+
+.account-status {
+  padding: 5px 8px;
+  background: rgba(89, 45, 54, 0.58);
+}
+
+.account-tabs,
+.account-history-tabs {
+  display: grid;
+  gap: 4px;
+  padding: 3px;
+  border: 1px solid rgba(255, 213, 130, 0.2);
+  border-radius: 7px;
+  background: rgba(18, 10, 25, 0.72);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.04);
+}
+
+.account-tabs {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  margin-bottom: 14px;
+}
+
+.account-tabs button,
+.account-history-tabs button {
+  min-width: 0;
+  height: 34px;
+  border: 1px solid rgba(255, 216, 135, 0.72);
+  border-radius: 5px;
+  background:
+    radial-gradient(circle at 50% 0%, rgba(255, 168, 218, 0.22), transparent 58%),
+    linear-gradient(90deg, rgba(233, 70, 165, 0.9), rgba(127, 54, 113, 0.82));
+  color: #fff1d1;
+  font-family: Inter, ui-sans-serif, system-ui, sans-serif;
+  font-size: 9px;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.account-tabs button.active,
+.account-history-tabs button.active {
+  background: linear-gradient(90deg, #ffd27f, #efbf66 47%, #997e4c);
+  color: #2d1820;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.28), 0 2px 8px rgba(0, 0, 0, 0.24);
+}
+
+.account-tabs button:focus,
+.account-history-tabs button:focus,
+.bottom-nav button:focus {
+  outline: none;
+}
+
+.account-tabs button:focus-visible,
+.account-history-tabs button:focus-visible,
+.bottom-nav button:focus-visible {
+  box-shadow: inset 0 0 0 1px rgba(255, 224, 151, 0.56);
+}
+
+.account-view {
+  display: none;
+}
+
+.account-view.active {
+  display: block;
+  animation: account-view-in 180ms ease-out both;
+}
+
+@keyframes account-view-in {
+  from { opacity: 0; transform: translateY(4px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.account-balance-panel,
+.account-wallet-hero {
+  position: relative;
+  overflow: hidden;
+  border: 1px solid rgba(255, 213, 130, 0.42);
+  border-radius: 8px;
+  background:
+    linear-gradient(110deg, rgba(112, 37, 84, 0.94), rgba(42, 20, 48, 0.93) 56%, rgba(63, 47, 30, 0.9));
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.1), 0 12px 28px rgba(0, 0, 0, 0.24);
+}
+
+.account-balance-panel::after,
+.account-wallet-hero::after {
+  content: "";
+  position: absolute;
+  right: -35px;
+  top: -48px;
+  width: 155px;
+  height: 155px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(255, 216, 128, 0.2), transparent 67%);
+  pointer-events: none;
+}
+
+.account-balance-panel {
+  min-height: 94px;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 16px;
+}
+
+.account-balance-panel > div > span,
+.account-wallet-hero > span,
+.account-wallet-hero > small {
+  display: block;
+  color: rgba(255, 235, 193, 0.62);
+  font-family: Inter, ui-sans-serif, system-ui, sans-serif;
+  font-size: 9px;
+  font-weight: 700;
+}
+
+.account-balance-rate {
+  margin-top: 7px;
+  color: rgba(255, 237, 198, 0.72) !important;
+  font-size: 8px !important;
+  line-height: 1.2;
+}
+
+.account-balance-panel > div > strong,
+.account-wallet-hero > strong {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 7px;
+}
+
+.account-balance-panel b,
+.account-wallet-hero b {
+  color: #fff0b1;
+  font-family: Inter, ui-sans-serif, system-ui, sans-serif;
+  font-size: 27px;
+  font-weight: 800;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+  text-shadow: 0 0 14px rgba(255, 198, 85, 0.22);
+}
+
+.account-primary-action,
+.account-wallet-actions button,
+.account-sheet-action {
+  border: 1px solid rgba(255, 225, 151, 0.62);
+  border-radius: 7px;
+  font-family: Inter, ui-sans-serif, system-ui, sans-serif;
+  font-weight: 800;
+  cursor: pointer;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.38), 0 4px 0 rgba(70, 45, 31, 0.38);
+}
+
+.account-primary-action {
+  min-width: 112px;
+  min-height: 39px;
+  padding: 0 14px;
+  background: linear-gradient(180deg, #ffe09a, #cfa85b);
+  color: #2a1820;
+  font-size: 10px;
+}
+
+.account-primary-action:active,
+.account-wallet-actions button:active {
+  transform: translateY(2px);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.28), 0 2px 0 rgba(70, 45, 31, 0.4);
+}
+
+.account-metrics {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.account-metrics > div {
+  min-height: 64px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 13px;
+  border: 1px solid rgba(255, 216, 139, 0.18);
+  border-radius: 7px;
+  background: rgba(24, 12, 29, 0.74);
+}
+
+.account-metrics span,
+.account-section-heading span {
+  color: rgba(255, 230, 184, 0.52);
+  font-family: Inter, ui-sans-serif, system-ui, sans-serif;
+  font-size: 8px;
+  font-weight: 800;
+}
+
+.account-metrics strong {
+  color: #ffe3a0;
+  font-family: Inter, ui-sans-serif, system-ui, sans-serif;
+  font-size: 19px;
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+}
+
+.account-section {
+  margin-top: 16px;
+}
+
+.account-section-heading {
+  min-height: 28px;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 7px;
+}
+
+.account-section-heading h2 {
+  margin: 0;
+  color: #fff0bd;
+  font-family: "Playfair Display", Georgia, "Times New Roman", serif;
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.account-program-list {
+  border-top: 1px solid rgba(255, 216, 139, 0.18);
+  border-bottom: 1px solid rgba(255, 216, 139, 0.13);
+  background: rgba(15, 8, 22, 0.64);
+}
+
+.account-program-row {
+  min-height: 61px;
+  display: grid;
+  grid-template-columns: 38px minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 6px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.07);
+}
+
+.account-program-row:last-child {
+  border-bottom: 0;
+}
+
+.account-program-icon {
+  width: 34px;
+  height: 34px;
+  display: grid;
+  place-items: center;
+  border: 1px solid rgba(255, 214, 135, 0.3);
+  border-radius: 50%;
+  background: linear-gradient(145deg, rgba(180, 49, 131, 0.78), rgba(61, 31, 65, 0.78));
+  color: #ffe4a5;
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: 14px;
+  font-weight: 800;
+}
+
+.account-program-row strong,
+.account-program-row small,
+.account-status-row strong,
+.account-status-row small {
+  display: block;
+  font-family: Inter, ui-sans-serif, system-ui, sans-serif;
+}
+
+.account-program-row strong,
+.account-status-row strong {
+  color: #fff6df;
+  font-size: 11px;
+  font-weight: 800;
+}
+
+.account-program-row small,
+.account-status-row small {
+  margin-top: 4px;
+  color: rgba(255, 232, 190, 0.5);
+  font-size: 9px;
+  line-height: 1.2;
+}
+
+.account-program-state {
+  padding: 4px 7px;
+  opacity: 0.72;
+}
+
+.account-wallet-hero {
+  min-height: 128px;
+  padding: 20px;
+}
+
+.account-wallet-hero b {
+  font-size: 34px;
+}
+
+.account-wallet-hero > small {
+  margin-top: 10px;
+}
+
+.account-rate-row {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  margin-top: 11px;
+  color: rgba(255, 239, 204, 0.74);
+  font-family: Inter, ui-sans-serif, system-ui, sans-serif;
+  font-size: 9px;
+  font-weight: 700;
+}
+
+.account-rate-row button {
+  width: 20px;
+  height: 20px;
+  display: grid;
+  flex: 0 0 20px;
+  place-items: center;
+  padding: 0;
+  border: 1px solid rgba(255, 218, 139, 0.72);
+  border-radius: 50%;
+  background: linear-gradient(180deg, #d8469f, #842c70);
+  color: #fff3d7;
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.account-wallet-actions {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.account-wallet-actions button {
+  min-height: 66px;
+  display: grid;
+  grid-template-columns: 30px minmax(0, 1fr);
+  align-items: center;
+  gap: 10px;
+  padding: 8px 12px;
+  text-align: left;
+  background:
+    radial-gradient(circle at 50% 0%, rgba(255, 166, 216, 0.22), transparent 62%),
+    linear-gradient(90deg, rgba(233, 70, 165, 0.96), rgba(127, 54, 113, 0.94));
+  color: #fff6dc;
+}
+
+.account-wallet-actions button.account-primary-action {
+  background: linear-gradient(90deg, #ffd27f, #efbf66 47%, #997e4c);
+  color: #291921;
+}
+
+.account-wallet-actions .account-action-symbol {
+  position: relative;
+  width: 27px;
+  height: 27px;
+  display: block;
+  border: 1px solid currentColor;
+  border-radius: 50%;
+  font-size: 0;
+}
+
+.account-wallet-actions .account-action-symbol::before,
+.account-wallet-actions [data-account-transaction="deposit"] .account-action-symbol::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 10px;
+  height: 1.5px;
+  border-radius: 2px;
+  background: currentColor;
+  transform: translate(-50%, -50%);
+}
+
+.account-wallet-actions [data-account-transaction="deposit"] .account-action-symbol::after {
+  transform: translate(-50%, -50%) rotate(90deg);
+}
+
+.account-wallet-actions button > span:last-child {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.account-wallet-actions strong,
+.account-wallet-actions small {
+  display: block;
+}
+
+.account-wallet-actions strong {
+  font-size: 9px;
+}
+
+.account-wallet-actions small {
+  margin-top: 4px;
+  font-size: 8px;
+  font-weight: 600;
+  opacity: 0.65;
+}
+
+.account-wallet-status {
+  margin-top: 18px;
+}
+
+.account-status-row {
+  min-height: 64px;
+  gap: 11px;
+  padding: 9px 4px;
+  border-top: 1px solid rgba(255, 216, 139, 0.16);
+  border-bottom: 1px solid rgba(255, 216, 139, 0.12);
+  background: rgba(15, 8, 22, 0.58);
+}
+
+.account-status-dot {
+  width: 10px;
+  height: 10px;
+  margin-left: 8px;
+  border: 2px solid rgba(255, 210, 124, 0.62);
+  border-radius: 50%;
+  box-shadow: 0 0 9px rgba(255, 185, 64, 0.34);
+}
+
+.account-history-tabs {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  margin-bottom: 10px;
+}
+
+.account-history-list {
+  border-top: 1px solid rgba(255, 218, 144, 0.2);
+  background: rgba(14, 8, 20, 0.64);
+}
+
+.account-history-row {
+  min-height: 58px;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 12px;
+  padding: 9px 8px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.07);
+}
+
+.account-history-row:last-child {
+  border-bottom: 0;
+}
+
+.account-history-row span,
+.account-history-row small,
+.account-history-row strong {
+  display: block;
+  font-family: Inter, ui-sans-serif, system-ui, sans-serif;
+}
+
+.account-history-row span {
+  overflow: hidden;
+  color: #fff5dc;
+  font-size: 10px;
+  font-weight: 700;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.account-history-row small {
+  margin-top: 4px;
+  color: rgba(255, 232, 190, 0.46);
+  font-size: 8px;
+}
+
+.account-history-row strong {
+  color: #e9cf8b;
+  font-size: 11px;
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+}
+
+.account-history-row strong.plus {
+  color: #79deb0;
+}
+
+.account-history-row strong.minus {
+  color: #ff90b3;
+}
+
+.account-history-empty {
+  min-height: 92px;
+  display: grid;
+  place-items: center;
+  color: rgba(255, 232, 190, 0.46);
+  font-family: Inter, ui-sans-serif, system-ui, sans-serif;
+  font-size: 10px;
+}
+
+.account-sheet-backdrop {
+  position: absolute;
+  inset: 0;
+  z-index: 118;
+  display: block;
+  border: 0;
+  background: rgba(4, 2, 8, 0.64);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 180ms ease;
+}
+
+.account-sheet {
+  position: absolute;
+  z-index: 119;
+  left: 12px;
+  right: 12px;
+  bottom: 12px;
+  min-height: 258px;
+  padding: 30px 20px 20px;
+  border: 1px solid rgba(255, 214, 133, 0.56);
+  border-radius: 8px;
+  background:
+    linear-gradient(160deg, rgba(111, 34, 84, 0.98), rgba(24, 13, 32, 0.99) 62%, rgba(50, 36, 26, 0.99));
+  box-shadow: 0 -18px 50px rgba(0, 0, 0, 0.48), inset 0 1px 0 rgba(255,255,255,0.12);
+  text-align: center;
+  transform: translateY(calc(100% + 24px));
+  transition: transform 220ms ease-out;
+}
+
+.account-screen.sheet-open .account-sheet-backdrop {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.account-screen.sheet-open .account-sheet {
+  transform: translateY(0);
+}
+
+.account-screen.sheet-open ~ .bottom-nav {
+  opacity: 0 !important;
+  pointer-events: none !important;
+}
+
+.account-sheet-handle {
+  position: absolute;
+  left: 50%;
+  top: 10px;
+  width: 38px;
+  height: 3px;
+  border-radius: 2px;
+  background: rgba(255, 234, 191, 0.34);
+  transform: translateX(-50%);
+}
+
+.account-sheet-close {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  width: 30px;
+  height: 30px;
+  display: grid;
+  place-items: center;
+  border: 1px solid rgba(255, 219, 145, 0.42);
+  border-radius: 50%;
+  background: rgba(144, 44, 107, 0.68);
+  color: #fff3cf;
+  font-family: Inter, ui-sans-serif, system-ui, sans-serif;
+  font-size: 17px;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.account-sheet-icon {
+  width: 52px;
+  height: 52px;
+  display: grid;
+  place-items: center;
+  margin: 4px auto 14px;
+  border: 1px solid rgba(255, 221, 145, 0.62);
+  border-radius: 50%;
+  background: linear-gradient(145deg, #f0ca78, #9f7040);
+  color: #351d26;
+  font-family: Inter, ui-sans-serif, system-ui, sans-serif;
+  font-size: 27px;
+  font-weight: 500;
+  box-shadow: 0 0 20px rgba(255, 188, 65, 0.22);
+}
+
+.account-sheet h2 {
+  margin: 0;
+  color: #fff0bd;
+  font-family: "Playfair Display", Georgia, "Times New Roman", serif;
+  font-size: 17px;
+}
+
+.account-sheet p {
+  max-width: 290px;
+  margin: 10px auto 16px;
+  color: rgba(255, 237, 204, 0.66);
+  font-family: Inter, ui-sans-serif, system-ui, sans-serif;
+  font-size: 10px;
+  line-height: 1.4;
+}
+
+.account-sheet-action {
+  width: 100%;
+  min-height: 42px;
+  background: linear-gradient(180deg, rgba(255, 224, 154, 0.54), rgba(174, 132, 70, 0.54));
+  color: rgba(46, 25, 31, 0.72);
+  font-size: 9px;
+  cursor: default;
+}
+
+.account-sheet-action:not(:disabled) {
+  background: linear-gradient(90deg, #ffd27f, #efbf66 47%, #997e4c);
+  color: #2d1820;
+  cursor: pointer;
+}
+
+/* Telegram 249: one balance contract and contrast-aware gold selection. */
+#screen-home .gem-balance,
+#screen-solo .gem-balance,
+#screen-pvp.pharaoh-screen .balance-chip,
+body.local-telegram-frame #screen-home .gem-balance,
+body.local-telegram-frame #screen-solo .gem-balance,
+body.local-telegram-frame #screen-pvp.pharaoh-screen .balance-chip,
+body.is-telegram-webapp #screen-home .gem-balance,
+body.is-telegram-webapp #screen-solo .gem-balance,
+body.is-telegram-webapp #screen-pvp.pharaoh-screen .balance-chip {
+  width: 108px !important;
+  min-width: 108px !important;
+  max-width: 108px !important;
+  height: 32px !important;
+  display: grid !important;
+  grid-template-columns: minmax(54px, 1fr) 15px 17px !important;
+  column-gap: 1px !important;
+  align-items: center !important;
+  justify-items: center !important;
+  box-sizing: border-box !important;
+  padding: 0 5px 0 14px !important;
+  overflow: hidden !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  background: url("./assets/balance-frame.svg") center / 100% 100% no-repeat !important;
+  box-shadow: none !important;
+}
+
+#screen-pvp.pharaoh-screen .slot-topbar,
+body.local-telegram-frame #screen-pvp.pharaoh-screen .slot-topbar,
+body.is-telegram-webapp #screen-pvp.pharaoh-screen .slot-topbar {
+  transform: translateY(54px) !important;
+}
+
+#screen-pvp.pharaoh-screen .slot-topbar .balance-chip,
+body.local-telegram-frame #screen-pvp.pharaoh-screen .slot-topbar .balance-chip,
+body.is-telegram-webapp #screen-pvp.pharaoh-screen .slot-topbar .balance-chip {
+  width: 108px !important;
+  min-width: 108px !important;
+  max-width: 108px !important;
+  flex: 0 0 108px !important;
+}
+
+#screen-home #balance-value,
+#screen-solo #carpet-balance,
+#screen-pvp #slot-balance,
+body.local-telegram-frame #screen-home #balance-value,
+body.local-telegram-frame #screen-solo #carpet-balance,
+body.local-telegram-frame #screen-pvp #slot-balance,
+body.is-telegram-webapp #screen-home #balance-value,
+body.is-telegram-webapp #screen-solo #carpet-balance,
+body.is-telegram-webapp #screen-pvp #slot-balance,
+.account-header-balance strong {
+  min-width: 0 !important;
+  overflow: hidden !important;
+  color: #1b1022 !important;
+  font-family: Inter, ui-sans-serif, system-ui, sans-serif !important;
+  font-size: 11px !important;
+  font-weight: 700 !important;
+  line-height: 11px !important;
+  letter-spacing: 0 !important;
+  font-variant-numeric: tabular-nums !important;
+  text-align: center !important;
+  white-space: nowrap !important;
+}
+
+#screen-home .gem-balance .balance-ruby,
+#screen-solo .gem-balance .balance-ruby,
+#screen-pvp.pharaoh-screen .balance-chip .balance-ruby,
+body.local-telegram-frame #screen-home .gem-balance .balance-ruby,
+body.local-telegram-frame #screen-solo .gem-balance .balance-ruby,
+body.local-telegram-frame #screen-pvp.pharaoh-screen .balance-chip .balance-ruby,
+body.is-telegram-webapp #screen-home .gem-balance .balance-ruby,
+body.is-telegram-webapp #screen-solo .gem-balance .balance-ruby,
+body.is-telegram-webapp #screen-pvp.pharaoh-screen .balance-chip .balance-ruby,
+.account-header-balance .balance-ruby,
+.account-balance-panel .balance-ruby,
+.account-wallet-hero .balance-ruby {
+  width: 15px !important;
+  height: 15px !important;
+  flex: 0 0 15px !important;
+  justify-self: center !important;
+}
+
+#screen-home .gem-balance .balance-add,
+#screen-solo .gem-balance .balance-add,
+#screen-pvp.pharaoh-screen .balance-chip > span:last-child,
+body.local-telegram-frame #screen-home .gem-balance .balance-add,
+body.local-telegram-frame #screen-solo .gem-balance .balance-add,
+body.local-telegram-frame #screen-pvp.pharaoh-screen .balance-chip > span:last-child,
+body.is-telegram-webapp #screen-home .gem-balance .balance-add,
+body.is-telegram-webapp #screen-solo .gem-balance .balance-add,
+body.is-telegram-webapp #screen-pvp.pharaoh-screen .balance-chip > span:last-child {
+  width: 17px !important;
+  height: 17px !important;
+  display: grid !important;
+  place-items: center !important;
+  padding: 0 !important;
+  color: #23112f !important;
+  font-family: Inter, ui-sans-serif, system-ui, sans-serif !important;
+  font-size: 13px !important;
+  font-weight: 700 !important;
+  line-height: 13px !important;
+}
+
+.account-header {
+  margin: 42px -10px 0;
+}
+
+.account-header-balance {
+  width: 108px;
+  min-width: 108px;
+  max-width: 108px;
+  height: 32px;
+  display: grid;
+  grid-template-columns: minmax(62px, 1fr) 15px;
+  column-gap: 2px;
+  align-items: center;
+  justify-items: center;
+  box-sizing: border-box;
+  padding: 0 14px;
+  margin-right: -8px;
+  overflow: hidden;
+  border: 0;
+  border-radius: 0;
+  background: url("./assets/balance-frame.svg") center / 100% 100% no-repeat;
+  box-shadow: none;
+}
+
+.account-tabs button.active,
+.account-history-tabs button.active,
+.account-primary-action,
+.account-wallet-actions button.account-primary-action,
+.account-sheet-action:not(:disabled) {
+  border-color: #f07a24;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.34),
+    0 0 0 1px rgba(182, 69, 17, 0.7),
+    0 3px 9px rgba(255, 111, 22, 0.28);
+}
+
+/* Telegram 250: wallet entry points and room-grade account feedback. */
+.balance-wallet-link {
+  appearance: none;
+  cursor: pointer;
+  touch-action: manipulation;
+  transition: filter 120ms ease, transform 120ms ease;
+}
+
+.balance-wallet-link:active {
+  filter: brightness(0.94) saturate(1.08);
+  transform: translateY(1px) scale(0.975);
+}
+
+#screen-home .balance-wallet-link > .balance-add,
+#screen-solo .balance-wallet-link > .balance-add,
+#screen-pvp.pharaoh-screen .balance-wallet-link > span:last-child {
+  border: 1px solid rgba(82, 35, 58, 0.78) !important;
+  border-radius: 50% !important;
+  background: linear-gradient(180deg, rgba(255, 237, 179, 0.96), rgba(224, 169, 78, 0.96)) !important;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.68),
+    0 1px 2px rgba(79, 34, 48, 0.36) !important;
+}
+
+.account-tabs button,
+.account-history-tabs button {
+  position: relative;
+  overflow: hidden;
+  transform-origin: center;
+  transition: transform 120ms ease, filter 120ms ease, box-shadow 120ms ease;
+  touch-action: manipulation;
+}
+
+.account-tabs button::after,
+.account-history-tabs button::after {
+  content: "";
+  position: absolute;
+  inset: 1px;
+  border-radius: 4px;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+  opacity: 0;
+  transform: translateX(-55%);
+  pointer-events: none;
+}
+
+.account-tabs button.choice-press,
+.account-history-tabs button.choice-press {
+  animation: modeChoicePress 280ms ease-out;
+}
+
+.account-tabs button.choice-press::after,
+.account-history-tabs button.choice-press::after {
+  animation: choiceSheen 280ms ease-out;
+}
+
+.account-wallet-actions .account-action-symbol {
+  display: grid;
+  place-items: center;
+  border-width: 1px;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.62),
+    0 2px 3px rgba(57, 24, 42, 0.3);
+}
+
+.account-wallet-actions [data-account-transaction="deposit"] .account-action-symbol {
+  border-color: rgba(119, 51, 29, 0.88);
+  background: linear-gradient(180deg, #ffe3a0, #d9a84f);
+  color: #2a1820;
+}
+
+.account-wallet-actions [data-account-transaction="withdraw"] .account-action-symbol {
+  border-color: rgba(255, 216, 135, 0.88);
+  background: linear-gradient(180deg, #ce4397, #812866);
+  color: #fff3d7;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .account-tabs button.choice-press,
+  .account-history-tabs button.choice-press {
+    animation: none;
+  }
+}
+
+@media (max-width: 360px) {
+  .account-scroll {
+    padding-right: 13px;
+    padding-left: 13px;
+  }
+
+  .account-identity {
+    padding-right: 9px;
+    padding-left: 9px;
+  }
+
+  .account-status {
+    display: none;
+  }
+
+  .account-primary-action {
+    min-width: 100px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .account-view.active {
+    animation: none;
+  }
+
+  .account-sheet,
+  .account-sheet-backdrop {
+    transition: none;
+  }
+}
+
+/* Telegram 251: visible one-shot multiplier collection for Pharaoh. */
+#screen-pvp .slot-multiplier-meter {
+  --slot-meter-top: 88px;
+  --slot-meter-right: 15px;
+  position: absolute;
+  top: var(--slot-meter-top);
+  right: var(--slot-meter-right);
+  z-index: 18;
+  display: grid;
+  grid-template-columns: 57px 31px 1fr;
+  grid-template-rows: 1fr;
+  align-items: center;
+  width: 158px;
+  min-height: 29px;
+  padding: 4px 7px;
+  overflow: visible;
+  border: 1px solid rgba(255, 218, 133, 0.76);
+  border-radius: 7px;
+  background: linear-gradient(150deg, rgba(74, 28, 74, 0.95), rgba(26, 17, 44, 0.96));
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.16), 0 4px 12px rgba(20, 8, 27, 0.34), 0 0 0 1px rgba(126, 56, 117, 0.26);
+  color: #fff4ce;
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(-5px) scale(0.96);
+  transform-origin: top right;
+  transition: opacity 180ms ease, transform 180ms ease, visibility 180ms linear;
+  pointer-events: none;
+}
+
+#screen-pvp .slot-multiplier-meter.show {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0) scale(1);
+}
+
+#screen-pvp .slot-multiplier-meter-label {
+  grid-column: 1;
+  grid-row: 1;
+  max-width: 57px;
+  font: 800 6.5px/1.08 Inter, ui-sans-serif, system-ui, sans-serif;
+  letter-spacing: 0;
+  color: rgba(255, 239, 199, 0.82);
+}
+
+#screen-pvp .slot-multiplier-meter strong {
+  grid-column: 2;
+  grid-row: 1;
+  min-width: 31px;
+  text-align: center;
+  font: 900 18px/1 Georgia, "Times New Roman", serif;
+  letter-spacing: 0;
+  color: #ffe38e;
+  text-shadow: 0 1px 0 #4e1c45, 0 0 8px rgba(255, 201, 93, 0.52);
+}
+
+#screen-pvp .slot-multiplier-meter em {
+  position: absolute;
+  top: -11px;
+  right: 4px;
+  min-width: 30px;
+  padding: 3px 5px;
+  border: 1px solid rgba(255, 231, 161, 0.8);
+  border-radius: 9px;
+  background: linear-gradient(145deg, #ef4ba9, #8c2f83);
+  color: #fff8d6;
+  font: 900 9px/1 Inter, ui-sans-serif, system-ui, sans-serif;
+  font-style: normal;
+  text-align: center;
+  opacity: 0;
+}
+
+#screen-pvp .slot-multiplier-meter-formula {
+  grid-column: 3;
+  grid-row: 1;
+  min-width: 62px;
+  min-height: 9px;
+  margin: 0;
+  text-align: right;
+  white-space: nowrap;
+  font: 800 8px/1.1 Inter, ui-sans-serif, system-ui, sans-serif;
+  letter-spacing: 0;
+  color: #fff0b7;
+}
+
+#screen-pvp .slot-multiplier-meter.collecting {
+  animation: slot-multiplier-meter-pulse 620ms cubic-bezier(0.2, 0.82, 0.25, 1);
+}
+
+#screen-pvp .slot-multiplier-meter.collecting em {
+  animation: slot-multiplier-delta 900ms cubic-bezier(0.2, 0.78, 0.22, 1) both;
+}
+
+#screen-pvp .slot-multiplier-meter.collecting strong {
+  animation: slot-multiplier-value 620ms cubic-bezier(0.2, 0.82, 0.25, 1);
+}
+
+#screen-pvp .slot-multiplier-meter.cascade-mode {
+  background: linear-gradient(150deg, rgba(118, 32, 88, 0.96), rgba(37, 19, 53, 0.96));
+}
+
+@keyframes slot-multiplier-meter-pulse {
+  0%, 100% { box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.16), 0 4px 12px rgba(20, 8, 27, 0.34); }
+  42% { box-shadow: inset 0 0 14px rgba(255, 217, 114, 0.25), 0 0 18px rgba(234, 76, 177, 0.66), 0 0 28px rgba(255, 211, 105, 0.38); }
+}
+
+@keyframes slot-multiplier-value {
+  0% { transform: scale(0.84); }
+  48% { transform: scale(1.25); color: #fffce0; }
+  100% { transform: scale(1); }
+}
+
+@keyframes slot-multiplier-delta {
+  0% { opacity: 0; transform: translateY(6px) scale(0.82); }
+  22%, 68% { opacity: 1; transform: translateY(0) scale(1); }
+  100% { opacity: 0; transform: translateY(-9px) scale(0.92); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  #screen-pvp .slot-multiplier-meter,
+  #screen-pvp .slot-multiplier-meter.collecting,
+  #screen-pvp .slot-multiplier-meter.collecting em,
+  #screen-pvp .slot-multiplier-meter.collecting strong {
+    animation: none !important;
+    transition: none !important;
+  }
+}
