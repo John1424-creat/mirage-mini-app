@@ -1,0 +1,568 @@
+﻿<!doctype html>
+<html lang="ru">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+    <title>Mirage Mini App Prototype</title>
+    <link rel="preload" as="image" href="./assets/loader-bg.webp" />
+    <link rel="preload" as="image" href="./assets/loader-logo.png" />
+    <link rel="preload" as="image" href="./assets/mirage-wallpaper-v3.webp" />
+    <link rel="preload" as="image" href="./assets/carpet-room-bg-night.webp" />
+    <link rel="preload" as="image" href="./assets/account-treasury-bg-v3.webp?v=treasury248" />
+    <meta http-equiv="Cache-Control" content="no-store, no-cache, must-revalidate, max-age=0" />
+    <meta http-equiv="Pragma" content="no-cache" />
+    <link rel="stylesheet" href="./styles.telegram225.css?v=telegram228" />
+    <link rel="stylesheet" href="./styles.telegram225-polish.css?v=telegram228" />
+    <link rel="stylesheet" href="./styles.telegram227.css?v=telegram228" />
+    <link rel="stylesheet" href="./styles.telegram228.css?v=telegram229" />
+    <link rel="stylesheet" href="./styles.telegram229.css?v=telegram231" />
+    <link rel="stylesheet" href="./styles.telegram230.css?v=telegram231" />
+    <link rel="stylesheet" href="./styles.telegram231.css?v=telegram231a" />
+    <link rel="stylesheet" href="./styles.telegram232.css?v=telegram233" />
+    <link rel="stylesheet" href="./styles.telegram238.css?v=telegram238" />
+    <link rel="stylesheet" href="./styles.telegram242.css?v=telegram242c" />
+    <link rel="stylesheet" href="./styles.telegram243.css?v=telegram243" />
+    <link rel="stylesheet" href="./styles.telegram255.css?v=telegram255" />
+  </head>
+  <body class="app-loading">
+    <div class="app-loader" id="app-loader" aria-live="polite" aria-label="Загрузка Mirage">
+      <div class="app-loader__inner">
+        <img class="app-loader__logo" src="./assets/loader-logo.png" alt="MIRAGE" />
+        <div class="app-loader__flare" aria-hidden="true"></div>
+        <div class="app-loader__bar" aria-hidden="true"><span></span></div>
+      </div>
+    </div>
+    <div class="viewport-carpet-cloud-layer" aria-hidden="true">
+      <span class="carpet-cloud cloud-a"></span>
+      <span class="carpet-cloud cloud-b"></span>
+      <span class="carpet-cloud cloud-c"></span>
+    </div>
+    <main class="app-shell">
+      <div class="app-bg app-bg-home" aria-hidden="true"></div>
+      <div class="app-bg app-bg-solo" aria-hidden="true"></div>
+      <section class="screen active" id="screen-home">
+        <header class="figma-topbar">
+          <div class="mini-logo">
+            <strong>MIRAGE</strong>
+            <span>bot</span>
+          </div>
+        </header>
+
+        <section class="player-row">
+          <div class="player">
+            <button class="player-avatar" id="player-profile-link" type="button" aria-label="Открыть кабинет">F</button>
+            <strong>Friedrich Kapitonovich</strong>
+          </div>
+          <button class="gem-balance balance-wallet-link" data-open-account-deposit type="button" aria-label="Открыть пополнение">
+            <span id="balance-value">12 500</span>
+            <span class="balance-ruby" aria-hidden="true"></span>
+            <span class="balance-add" aria-hidden="true">+</span>
+          </button>
+        </section>
+
+        <section class="limit-cluster">
+          <span>ЛИНИИ</span>
+          <button class="room-rules-open" id="home-rules-open" data-room-rules-open="home" type="button" aria-label="Как играть в Пирамиду"></button>
+          <div>
+            <button id="home-lines-minus">−</button>
+            <strong id="home-lines-value">13</strong>
+            <button id="home-lines-plus">+</button>
+          </div>
+        </section>
+
+        <section class="figma-board" aria-label="Mirage Plinko board">
+          <canvas id="home-plinko-canvas" width="356" height="360"></canvas>
+          <div class="auto-run-counter" id="home-auto-counter">ОСТАЛОСЬ 0</div>
+          <div class="figma-winbar" id="home-winbar">Выигрыш 180 ♦</div>
+        </section>
+
+        <section class="figma-controls">
+          <div class="risk-block">
+            <span class="control-title">УРОВЕНЬ РИСКА</span>
+            <div class="risk-stack" aria-label="Уровень риска">
+              <button class="risk-choice high">Высокий</button>
+              <button class="risk-choice selected">Средний</button>
+              <button class="risk-choice low">Низкий</button>
+            </div>
+          </div>
+          <button class="lamp-play" id="home-play">
+            <img src="./assets/control-lamp-icon.png" alt="" aria-hidden="true">
+            <strong>ИГРАТЬ</strong>
+          </button>
+          <div class="mode-block">
+            <span class="control-title">РЕЖИМ СТАВКИ</span>
+            <button class="mode-choice manual selected" data-home-mode="manual">Ручной</button>
+            <button class="mode-choice auto" data-home-mode="auto">Автоматический</button>
+          </div>
+        </section>
+
+        <section class="auto-scale" id="home-auto-scale" aria-label="Количество шаров">
+          <div class="auto-scale-stepper">
+            <button class="auto-scale-step" id="home-auto-minus" type="button" aria-label="Уменьшить количество шариков">−</button>
+            <output class="auto-scale-value" id="home-auto-value">10 шариков</output>
+            <button class="auto-scale-step" id="home-auto-plus" type="button" aria-label="Увеличить количество шариков">+</button>
+          </div>
+          <div class="auto-scale-quick" aria-label="Быстрый выбор шариков">
+            <button class="auto-scale-chip" data-auto-balls="1" type="button">1</button>
+            <button class="auto-scale-chip" data-auto-balls="2" type="button">2</button>
+            <button class="auto-scale-chip" data-auto-balls="3" type="button">3</button>
+            <button class="auto-scale-chip" data-auto-balls="5" type="button">5</button>
+            <button class="auto-scale-chip" data-auto-balls="10" type="button">10</button>
+            <button class="auto-scale-chip" data-auto-balls="25" type="button">25</button>
+            <button class="auto-scale-chip" data-auto-balls="50" type="button">50</button>
+            <button class="auto-scale-chip" data-auto-balls="100" type="button">100</button>
+          </div>
+        </section>
+
+        <section class="stake-strip">
+          <button class="stake-step" id="home-stake-minus">−</button>
+          <div class="stake-value">
+            <strong><span id="home-runs">1</span> ШАРИК</strong>
+            <span><span id="home-stake">10</span><i class="stake-ruby" aria-hidden="true"></i></span>
+          </div>
+          <button class="stake-step" id="home-stake-plus">+</button>
+          <div class="stake-shortcuts">
+            <button id="home-stake-double">2X</button>
+            <button id="home-stake-max">MAX</button>
+          </div>
+        </section>
+
+      </section>
+
+      <section class="screen carpet-screen" id="screen-solo">
+        <header class="figma-topbar carpet-topbar">
+          <div class="mini-logo">
+            <strong>MIRAGE</strong>
+            <span>bot</span>
+          </div>
+        </header>
+
+        <section class="player-row carpet-player-row">
+          <div class="player">
+            <button class="player-avatar" id="carpet-profile-link" type="button" aria-label="Открыть кабинет">F</button>
+            <strong>Friedrich Kapitonovich</strong>
+          </div>
+          <button class="gem-balance balance-wallet-link" data-open-account-deposit type="button" aria-label="Открыть пополнение">
+            <span id="carpet-balance">12 500</span>
+            <span class="balance-ruby" aria-hidden="true"></span>
+            <span class="balance-add" aria-hidden="true">+</span>
+          </button>
+        </section>
+
+        <div class="carpet-cloud-layer" aria-hidden="true">
+          <span class="carpet-cloud cloud-a"></span>
+          <span class="carpet-cloud cloud-b"></span>
+          <span class="carpet-cloud cloud-c"></span>
+        </div>
+        <canvas class="carpet-trail-canvas" id="carpet-trail-canvas" aria-hidden="true"></canvas>
+
+        <section class="carpet-stage" id="carpet-stage" aria-label="Комната Ковер">
+          <svg class="carpet-motion-guide" viewBox="0 0 377 418" aria-hidden="true">
+            <defs>
+              <linearGradient id="carpet-motion-gradient" x1="49.1" y1="398.9" x2="230.1" y2="164.7" gradientUnits="userSpaceOnUse">
+                <stop offset="0" stop-color="#6f8dff" stop-opacity="0" />
+                <stop offset="0.18" stop-color="#8b6cff" stop-opacity="0.35" />
+                <stop offset="0.58" stop-color="#dc62ff" stop-opacity="0.72" />
+                <stop offset="0.86" stop-color="#ffd27d" stop-opacity="0.9" />
+                <stop offset="1" stop-color="#fff1b1" stop-opacity="1" />
+              </linearGradient>
+            </defs>
+            <path class="carpet-motion-trail carpet-motion-trail-glow" pathLength="1" d="M 49.1 398.9 C 58 294, 136 194, 230.1 164.7" />
+            <path class="carpet-motion-trail carpet-motion-trail-core" pathLength="1" d="M 49.1 398.9 C 58 294, 136 194, 230.1 164.7" />
+            <path id="carpet-motion-geometry" pathLength="1" d="M 49.1 398.9 C 58 294, 136 194, 230.1 164.7" />
+          </svg>
+          <div class="carpet-multiplier" id="carpet-multiplier">1.00</div>
+          <div class="auto-run-counter carpet-run-counter" id="carpet-auto-counter">ОСТАЛОСЬ 0</div>
+          <div class="carpet-status" id="carpet-status">ГОТОВ К ПОЛЕТУ</div>
+          <div class="carpet-flight-fx" id="carpet-flight-fx" aria-hidden="true">
+            <span class="carpet-flight-aura"></span>
+            <span class="carpet-flight-trail"></span>
+            <span class="carpet-flight-goldline"></span>
+            <span class="carpet-flight-fx-wisp"></span>
+            <span class="carpet-flight-fx-sparks"></span>
+            <span class="carpet-flight-particles particles-a"></span>
+            <span class="carpet-flight-particles particles-b"></span>
+          </div>
+          <div class="carpet-hero-wrap" id="carpet-hero-wrap" aria-hidden="true">
+            <div class="carpet-magic-sparks" id="carpet-magic-sparks" aria-hidden="true"></div>
+            <img class="carpet-hero" src="./assets/carpet-hero-clean.svg" alt="" />
+            <div class="carpet-cashout-effect" aria-hidden="true">
+              <span class="carpet-cashout-glow"></span>
+              <span class="carpet-cashout-ring"></span>
+              <span class="carpet-cashout-sparks"></span>
+            </div>
+            <canvas class="carpet-dissolve-canvas" id="carpet-dissolve-canvas" aria-hidden="true"></canvas>
+          </div>
+        </section>
+
+        <div class="carpet-history" id="carpet-history">
+          <div class="carpet-history-heading">
+            <span class="carpet-history-title">ПОЛЕТЫ</span>
+            <button class="room-rules-open" id="carpet-rules-open" data-room-rules-open="carpet" type="button" aria-label="Как играть в Ковер"></button>
+          </div>
+          <div id="carpet-history-chips"></div>
+        </div>
+
+        <section class="carpet-controls" aria-label="Управление ковром">
+          <div class="mode-block carpet-return-block">
+            <span class="control-title">ВОЗВРАТ СТАВКИ</span>
+            <button class="mode-choice manual selected" data-carpet-mode="manual" type="button">Ручной</button>
+            <button class="mode-choice auto" data-carpet-mode="auto" type="button">Автоматический</button>
+            <div class="carpet-autocash" id="carpet-autocash">
+              <span class="control-title">АВТОВОЗВРАТ</span>
+              <div class="carpet-cashout-strip">
+                <button class="stake-step" id="carpet-cashout-minus" type="button">−</button>
+                <div class="carpet-cashout-value"><span id="carpet-cashout-value">1.20X</span></div>
+                <button class="stake-step" id="carpet-cashout-plus" type="button">+</button>
+              </div>
+            </div>
+          </div>
+          <button class="carpet-action" id="carpet-action-button" type="button" aria-label="Старт или забрать">
+            <span class="carpet-action-face">
+              <img class="carpet-action-icon" src="./assets/control-lamp-icon.png" alt="" aria-hidden="true">
+              <strong id="carpet-action-label">СТАРТ</strong>
+              <small id="carpet-live-payout"></small>
+            </span>
+          </button>
+          <div class="mode-block carpet-bet-block">
+            <span class="control-title">АВТОПОЛЕТЫ</span>
+            <button class="mode-choice manual selected" data-carpet-bet-mode="manual" type="button">Выкл</button>
+            <button class="mode-choice auto" data-carpet-bet-mode="auto" type="button">Вкл</button>
+            <div class="carpet-autostarts" id="carpet-autostarts">
+              <span class="control-title">ПОЛЕТОВ</span>
+              <div class="carpet-cashout-strip">
+                <button class="stake-step" id="carpet-runs-minus" type="button">−</button>
+                <div class="carpet-cashout-value"><span id="carpet-runs-value">10</span></div>
+                <button class="stake-step" id="carpet-runs-plus" type="button">+</button>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section class="stake-strip carpet-stake-strip">
+          <button class="stake-step" id="carpet-stake-minus">−</button>
+          <div class="stake-value">
+            <strong>1 ПОЛЕТ</strong>
+            <span><span id="carpet-stake">10</span><i class="stake-ruby" aria-hidden="true"></i></span>
+          </div>
+          <button class="stake-step" id="carpet-stake-plus">+</button>
+          <div class="stake-shortcuts">
+            <button id="carpet-stake-double">2X</button>
+            <button id="carpet-stake-max">MAX</button>
+          </div>
+        </section>
+
+      </section>
+      <section class="screen pharaoh-screen" id="screen-pvp">
+        <header class="slot-topbar">
+          <button class="player-link" id="pharaoh-profile-link" type="button" aria-label="Открыть профиль">
+            <span class="avatar">F</span>
+            <strong>Friedrich Kapitonovich</strong>
+          </button>
+          <button class="balance-chip balance-wallet-link" data-open-account-deposit type="button" aria-label="Открыть пополнение"><span id="slot-balance">12 500</span><i class="balance-ruby" aria-hidden="true"></i><span>+</span></button>
+        </header>
+
+        <section class="pharaoh-stage" aria-label="Фараон слот">
+          <div class="pharaoh-title">ФАРАОН</div>
+            <div class="slot-status" id="slot-status">Готово к спину</div>
+            <div class="slot-winbar" id="slot-winbar">+0</div>
+            <div class="slot-grid" id="slot-grid" aria-live="polite"></div>
+            <div class="slot-multiplier-system" id="slot-multiplier-system" aria-hidden="true">
+              <svg class="slot-multiplier-frame" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">
+                <rect class="slot-multiplier-frame-glow" x="1" y="1" width="98" height="98" rx="2.4" pathLength="100"></rect>
+                <rect class="slot-multiplier-frame-runner" x="1" y="1" width="98" height="98" rx="2.4" pathLength="100"></rect>
+              </svg>
+              <div class="slot-multiplier-meter" id="slot-multiplier-meter" aria-hidden="true" aria-live="polite">
+                <span class="slot-multiplier-meter-label">МНОЖИТЕЛЬ</span>
+                <strong id="slot-multiplier-meter-value">x1</strong>
+                <em id="slot-multiplier-meter-delta">+x2</em>
+              </div>
+              <span class="slot-multiplier-meter-formula" id="slot-multiplier-meter-formula"></span>
+            </div>
+            <div class="slot-history" id="slot-history" aria-label="История спинов"></div>
+            <div class="slot-genie-reaction" id="slot-genie-reaction" data-reaction="idle" aria-live="polite">
+              <span class="slot-genie-glow" aria-hidden="true"></span>
+              <span class="slot-genie-lamp" aria-hidden="true">
+                <img src="./assets/pharaoh-icons/genie-reaction-full.webp" alt="" aria-hidden="true" />
+              </span>
+              <span class="slot-genie-copy" id="slot-genie-text">ДЖИН ГОТОВ</span>
+            </div>
+            <button class="slot-rules-backdrop" id="slot-rules-backdrop" type="button" aria-label="Закрыть правила"></button>
+            <div class="slot-rules-panel" id="slot-rules-panel" aria-hidden="true" role="dialog" aria-modal="true" aria-labelledby="slot-rules-title">
+              <button class="slot-rules-close" id="slot-rules-close" type="button">×</button>
+              <div class="slot-rules-heading">
+                <h3 id="slot-rules-title">Фараон</h3>
+                <p>Каскадные слоты 6×5 с free spins, множителями и покупкой бонусной серии.</p>
+              </div>
+              <div class="slot-rules-summary" aria-label="Ключевые параметры">
+                <span><b>6×5</b><em>поле</em></span>
+                <span><b>95%</b><em>RTP</em></span>
+                <span><b>10 000x</b><em>max win</em></span>
+                <span><b>15 FS</b><em>покупка</em></span>
+              </div>
+              <div class="slot-rules-copy" aria-label="Механика">
+                <p><b>Anyway pays.</b> Выигрыш считается от 8 одинаковых символов в любом месте поля.</p>
+                <p><b>Каскады.</b> Выигрышные символы исчезают, сверху падают новые, все каскады суммируются в один спин.</p>
+                <p><b>Фриспины.</b> 4 / 5 / 6+ Scatter открывают 10 / 12 / 15 спинов; новые Scatter могут продлить серию.</p>
+                <p><b>Множитель.</b> Шары x2 / x3 / x5 / x10 срабатывают один раз при выигрышном каскаде и исчезают. Во фриспинах их значения добавляются к общему множителю: он начинается с x1, растёт до x10 и сохраняется до конца серии.</p>
+              </div>
+              <div class="slot-paytable-title">Таблица выплат</div>
+              <div class="slot-paytable" id="slot-paytable"></div>
+            </div>
+            <button class="slot-bonus-backdrop" id="slot-bonus-backdrop" type="button" aria-label="Закрыть покупку бонуса"></button>
+            <div class="slot-bonus-panel" id="slot-bonus-panel" aria-hidden="true" role="dialog" aria-modal="true" aria-labelledby="slot-bonus-title">
+              <button class="slot-bonus-close" id="slot-bonus-close" type="button">×</button>
+              <div class="slot-bonus-heading">
+                <h3 id="slot-bonus-title">Бонусная серия</h3>
+                <p>Купи вход в серию free spins без обычного спина.</p>
+              </div>
+              <div class="slot-bonus-stats">
+                <span><b id="slot-bonus-cost">100</b><em>стоимость</em></span>
+                <span><b>15</b><em>free spins</em></span>
+                <span><b>x10</b><em>цена ставки</em></span>
+              </div>
+              <p class="slot-bonus-note" id="slot-bonus-note">15 free spins по цене 10 обычных спинов. При ставке 10 цена серии 100.</p>
+              <div class="slot-bonus-actions">
+                <button id="slot-bonus-cancel" type="button">Отмена</button>
+                <button id="slot-bonus-confirm" type="button">Запустить</button>
+              </div>
+            </div>
+          </section>
+
+        <section class="pharaoh-controls" aria-label="Управление слотом">
+          <div class="pharaoh-side left">
+            <h3>СТАВКА</h3>
+            <div class="slot-choice-row">
+              <button class="slot-step" id="slot-stake-minus" type="button">−</button>
+              <div class="slot-stake-panel">
+                <strong>1 СПИН</strong>
+                <span><span id="slot-stake">10</span><i class="stake-ruby" aria-hidden="true"></i></span>
+              </div>
+              <button class="slot-step" id="slot-stake-plus" type="button">+</button>
+            </div>
+            <div class="slot-shortcuts">
+              <button id="slot-stake-double" type="button">2X</button>
+              <button id="slot-stake-max" type="button">MAX</button>
+            </div>
+            <div class="slot-stage-footer">
+              <div class="slot-free-spins" id="slot-free-spins">FREE SPINS 0</div>
+              <button class="slot-rules-button" id="slot-rules-open" type="button">i</button>
+            </div>
+          </div>
+
+          <button class="slot-spin-button" id="slot-spin" type="button">
+            <span class="slot-spin-icon">
+              <img src="./assets/control-lamp-icon.png" alt="" aria-hidden="true" />
+            </span>
+            <strong>СПИН</strong>
+          </button>
+
+          <div class="pharaoh-side right">
+            <h3>РЕЖИМ</h3>
+              <div class="slot-mode-row">
+                <button class="slot-mode selected" data-slot-mode="manual" type="button">Ручной</button>
+                <button class="slot-mode" data-slot-mode="auto" type="button">Авто</button>
+              </div>
+              <div class="slot-auto-row">
+                <button class="slot-step" id="slot-auto-minus" type="button">−</button>
+                <div class="slot-auto-panel"><span id="slot-auto-runs">10</span></div>
+                <button class="slot-step" id="slot-auto-plus" type="button">+</button>
+              </div>
+              <div class="slot-bonus-row">
+                <button id="slot-bonus-buy" type="button">КУПИТЬ 15 FS</button>
+              </div>
+            </div>
+        </section>
+      </section>
+
+      <section class="screen account-screen" id="screen-profile">
+        <div class="account-scroll">
+          <header class="account-header">
+            <div class="account-title">
+              <span>MIRAGE</span>
+              <h1>КАБИНЕТ</h1>
+            </div>
+            <div class="account-header-balance" aria-label="Баланс">
+              <strong id="account-header-balance">12 500</strong>
+              <i class="balance-ruby" aria-hidden="true"></i>
+            </div>
+          </header>
+
+          <section class="account-identity" aria-label="Профиль игрока">
+            <div class="account-avatar" id="account-avatar">
+              <img id="account-avatar-image" alt="" hidden />
+              <span id="account-avatar-fallback" aria-hidden="true">F</span>
+            </div>
+            <div class="account-identity-copy">
+              <strong id="account-name">Friedrich Kapitonovich</strong>
+              <span id="account-handle">Telegram-профиль</span>
+            </div>
+            <span class="account-status">ИГРОК</span>
+          </section>
+
+          <nav class="account-tabs" aria-label="Разделы кабинета">
+            <button class="active" data-account-view="overview" type="button">ОБЗОР</button>
+            <button data-account-view="wallet" type="button">КОШЕЛЕК</button>
+            <button data-account-view="history" type="button">ИСТОРИЯ</button>
+          </nav>
+
+          <section class="account-view active" data-account-panel="overview">
+            <div class="account-balance-panel">
+              <div>
+                <span>БАЛАНС</span>
+                <strong><b id="account-balance">12 500</b><i class="balance-ruby" aria-hidden="true"></i></strong>
+                <small class="account-balance-rate">1 USDT = 100 рубинов</small>
+              </div>
+              <button class="account-primary-action" data-account-open-wallet type="button">ПОПОЛНИТЬ</button>
+            </div>
+
+            <div class="account-metrics" aria-label="Статистика игрока">
+              <div><span>ИГР</span><strong id="stat-games">0</strong></div>
+              <div><span>РЕЗУЛЬТАТ</span><strong id="stat-profit">0</strong></div>
+            </div>
+
+            <section class="account-section">
+              <div class="account-section-heading">
+                <h2>ПРОГРАММЫ</h2>
+                <span>СЛЕДУЮЩИЙ ЭТАП</span>
+              </div>
+              <div class="account-program-list">
+                <div class="account-program-row">
+                  <span class="account-program-icon account-program-ref" aria-hidden="true">%</span>
+                  <div><strong>Реферальная программа</strong><small>Условия рассчитываются</small></div>
+                  <span class="account-program-state">СКОРО</span>
+                </div>
+                <div class="account-program-row">
+                  <span class="account-program-icon account-program-streak" aria-hidden="true">7</span>
+                  <div><strong>Серия наград</strong><small>Награды рассчитываются</small></div>
+                  <span class="account-program-state">СКОРО</span>
+                </div>
+              </div>
+            </section>
+          </section>
+
+          <section class="account-view" data-account-panel="wallet" aria-hidden="true">
+            <div class="account-wallet-hero">
+              <span>ДОСТУПНО</span>
+              <strong><b id="account-wallet-balance">12 500</b><i class="balance-ruby" aria-hidden="true"></i></strong>
+              <small>Игровой баланс</small>
+              <div class="account-rate-row">
+                <span>1 USDT = 100 рубинов</span>
+                <button id="account-rate-info" type="button" aria-label="Как рассчитывается курс">i</button>
+              </div>
+            </div>
+
+            <div class="account-wallet-actions">
+              <button class="account-primary-action" data-account-transaction="deposit" type="button">
+                <span class="account-action-symbol" aria-hidden="true">+</span>
+                <span><strong>ПОПОЛНИТЬ</strong><small>Внести средства</small></span>
+              </button>
+              <button data-account-transaction="withdraw" type="button">
+                <span class="account-action-symbol" aria-hidden="true">−</span>
+                <span><strong>ВЫВЕСТИ</strong><small>Запросить выплату</small></span>
+              </button>
+            </div>
+
+            <section class="account-section account-wallet-status">
+              <div class="account-section-heading"><h2>КОШЕЛЕК</h2><span>НЕ ПОДКЛЮЧЕН</span></div>
+              <div class="account-status-row">
+                <span class="account-status-dot" aria-hidden="true"></span>
+                <div><strong>Защищенное подключение</strong><small>Будет доступно после запуска сервера</small></div>
+              </div>
+            </section>
+          </section>
+
+          <section class="account-view" data-account-panel="history" aria-hidden="true">
+            <div class="account-history-tabs" role="tablist" aria-label="Тип истории">
+              <button class="active" data-account-history="games" type="button">ИГРЫ</button>
+              <button data-account-history="transactions" type="button">ОПЕРАЦИИ</button>
+            </div>
+            <div class="account-history-list" id="account-game-history"></div>
+            <div class="account-history-list" id="account-transaction-history" hidden></div>
+          </section>
+        </div>
+
+        <button class="account-sheet-backdrop" id="account-sheet-backdrop" type="button" aria-label="Закрыть"></button>
+        <section class="account-sheet" id="account-sheet" role="dialog" aria-modal="true" aria-hidden="true" aria-labelledby="account-sheet-title">
+          <div class="account-sheet-handle" aria-hidden="true"></div>
+          <button class="account-sheet-close" id="account-sheet-close" type="button" aria-label="Закрыть">×</button>
+          <span class="account-sheet-icon" id="account-sheet-icon" aria-hidden="true">+</span>
+          <h2 id="account-sheet-title">ПОПОЛНЕНИЕ</h2>
+          <p id="account-sheet-copy">Подключение платежей будет доступно после запуска защищенного сервера.</p>
+          <button class="account-sheet-action" id="account-sheet-action" type="button" disabled>НА ЭТАПЕ СЕРВЕРА</button>
+        </section>
+      </section>
+
+      <button class="room-rules-backdrop" id="home-rules-backdrop" data-room-rules-backdrop="home" type="button" aria-label="Закрыть правила Пирамиды"></button>
+      <div class="room-rules-panel" id="home-rules-panel" data-room-rules-panel="home" aria-hidden="true" role="dialog" aria-modal="true" aria-labelledby="home-rules-title">
+        <button class="room-rules-close" data-room-rules-close="home" type="button" aria-label="Закрыть правила">×</button>
+        <div class="room-rules-heading">
+          <h3 id="home-rules-title">Пирамида</h3>
+          <p>Проведи шар через поле препятствий и получи выплату по коэффициенту финальной ячейки.</p>
+        </div>
+        <div class="room-rules-summary" aria-label="Ключевые параметры Пирамиды">
+          <span><b>8–16</b><em>линий</em></span>
+          <span><b>3</b><em>риска</em></span>
+          <span><b>95%</b><em>RTP</em></span>
+          <span><b>1–1000</b><em>авто</em></span>
+        </div>
+        <div class="room-rules-copy">
+          <p><b>Линии.</b> Чем больше линий, тем длиннее путь шара и тем больше возможных финальных ячеек.</p>
+          <p><b>Риск.</b> Низкий режим чаще даёт спокойные коэффициенты. Высокий переносит основную ценность к краям поля и повышает разброс результатов.</p>
+          <p><b>Ручной режим.</b> Одно нажатие запускает один шар по выбранной ставке.</p>
+          <p><b>Автоматический режим.</b> Выбери количество шаров, после чего серия запустится последовательно и может быть остановлена.</p>
+        </div>
+        <div class="room-rules-formula">Выплата = ставка × коэффициент ячейки</div>
+        <p class="room-rules-note">RTP 95% является долгосрочным расчётным показателем и не гарантирует результат отдельного запуска или короткой серии.</p>
+      </div>
+
+      <button class="room-rules-backdrop" id="carpet-rules-backdrop" data-room-rules-backdrop="carpet" type="button" aria-label="Закрыть правила Ковра"></button>
+      <div class="room-rules-panel" id="carpet-rules-panel" data-room-rules-panel="carpet" aria-hidden="true" role="dialog" aria-modal="true" aria-labelledby="carpet-rules-title">
+        <button class="room-rules-close" data-room-rules-close="carpet" type="button" aria-label="Закрыть правила">×</button>
+        <div class="room-rules-heading">
+          <h3 id="carpet-rules-title">Ковер</h3>
+          <p>Множитель растёт во время полёта. Забери выигрыш до того, как ковёр настигнет буря.</p>
+        </div>
+        <div class="room-rules-summary" aria-label="Ключевые параметры Ковра">
+          <span><b>Crash</b><em>формат</em></span>
+          <span><b>95%</b><em>RTP</em></span>
+          <span><b>1.00x+</b><em>рост</em></span>
+          <span><b>1–1000</b><em>авто</em></span>
+        </div>
+        <div class="room-rules-copy">
+          <p><b>Старт.</b> После взлёта множитель начинает расти с 1.00x.</p>
+          <p><b>Забрать.</b> Нажми до появления бури, чтобы зафиксировать текущий множитель. Если буря наступила раньше, ставка проиграна.</p>
+          <p><b>Автовозврат.</b> Задай коэффициент, и выигрыш будет зафиксирован автоматически, если буря не наступит раньше.</p>
+          <p><b>Автополёты.</b> Выбери количество последовательных запусков. Серию можно остановить кнопкой управления.</p>
+          <p><b>Ознакомительные полёты.</b> Первые три запуска защищены от бури раньше 1.10x.</p>
+        </div>
+        <div class="room-rules-formula">Выплата = ставка × зафиксированный множитель</div>
+        <p class="room-rules-note">RTP 95% рассчитывается на большой дистанции. История над управлением показывает последние зафиксированные и проигранные полёты.</p>
+      </div>
+
+      <nav class="bottom-nav" aria-label="Навигация">
+        <button class="active" data-tab="home">
+          <span class="nav-icon nav-pyramid" aria-hidden="true"></span>
+          <span>ПИРАМИДА</span>
+        </button>
+        <button data-tab="solo">
+          <span class="nav-icon nav-pirate" aria-hidden="true"></span>
+          <span>КОВЁР</span>
+        </button>
+        <button data-tab="pvp">
+          <span class="nav-icon nav-karma" aria-hidden="true"></span>
+          <span>ФАРАОН</span>
+        </button>
+        <button data-tab="profile">
+          <span class="nav-icon nav-profile" aria-hidden="true"></span>
+          <span>КАБИНЕТ</span>
+        </button>
+      </nav>
+
+    </main>
+
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <script src="./assets/matter.min.js?v=telegram133"></script>
+    <script src="./app.telegram255.js?v=telegram255"></script>
+  </body>
+</html>
