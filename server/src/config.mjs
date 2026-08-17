@@ -25,6 +25,6 @@ export function loadConfig() {
     sessionTtlSeconds: readInteger("SESSION_TTL_SECONDS", 86400, { min: 300, max: 2592000 }),
     corsOrigin: process.env.CORS_ORIGIN?.trim() || "https://john1424-creat.github.io",
     nodeEnv: process.env.NODE_ENV?.trim() || "development",
-    mathVersion: process.env.MATH_VERSION?.trim() || "telegram260",
+    mathVersion: process.env.MATH_VERSION?.trim() || "pyramid-v1",
   };
 }

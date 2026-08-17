@@ -49,6 +49,7 @@ CREATE TABLE IF NOT EXISTS game_rounds (
   payout bigint NOT NULL DEFAULT 0 CHECK (payout >= 0),
   math_version text NOT NULL,
   idempotency_key text NOT NULL,
+  request jsonb NOT NULL DEFAULT '{}'::jsonb,
   result jsonb,
   failure_code text,
   created_at timestamptz NOT NULL DEFAULT now(),

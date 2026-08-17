@@ -9,7 +9,8 @@
   "scripts": {
     "start": "node src/server.mjs",
     "dev": "node --watch src/server.mjs",
-    "test": "node --test"
+    "test": "node --test",
+    "simulate:pyramid": "node scripts/simulate-pyramid.mjs"
   },
   "dependencies": {
     "pg": "8.23.0"

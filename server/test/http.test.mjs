@@ -12,7 +12,7 @@ async function withServer(callback) {
     status: 503,
     code: "ROUND_ENGINE_NOT_READY",
   });
-  const roundService = { async play() { throw unavailable; } };
+  const roundService = { readyRooms: ["pyramid"], async play() { throw unavailable; } };
   const config = {
     corsOrigin: "https://john1424-creat.github.io",
     telegramBotToken: "unused",
@@ -32,7 +32,7 @@ test("health endpoint is available without authentication", async () => {
   await withServer(async (baseUrl) => {
     const response = await fetch(`${baseUrl}/health`);
     assert.equal(response.status, 200);
-    assert.deepEqual(await response.json(), { status: "ok", roundEngine: "not-connected" });
+    assert.deepEqual(await response.json(), { status: "ok", readyRooms: ["pyramid"] });
   });
 });
 

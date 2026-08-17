@@ -3,6 +3,7 @@ import { loadConfig } from "./config.mjs";
 import { createHttpServer } from "./http.mjs";
 import { PostgresRepository } from "./postgres-repository.mjs";
 import { createRoundService } from "./round-service.mjs";
+import { createPyramidEngine } from "./pyramid-engine.mjs";
 
 const config = loadConfig();
 const pool = new pg.Pool({
@@ -11,12 +12,7 @@ const pool = new pg.Pool({
   max: 10,
 });
 const repository = new PostgresRepository(pool);
-const roundEngine = {
-  isReady: false,
-  async play() {
-    throw new Error("Round engine is not connected");
-  },
-};
+const roundEngine = createPyramidEngine();
 const roundService = createRoundService({ repository, engine: roundEngine, mathVersion: config.mathVersion });
 const server = createHttpServer({ config, repository, roundService });
 

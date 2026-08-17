@@ -5,11 +5,12 @@ This directory contains the first server-authoritative layer for Mirage:
 - Telegram Mini App `initData` validation;
 - opaque server sessions;
 - PostgreSQL players, wallets and immutable ledger;
-- idempotent round reservation and settlement contract;
+- idempotent atomic round settlement contract;
 - referral, streak and demo persistence foundations;
-- tests for authentication, max-win validation and duplicate round protection.
+- a server-authoritative Pyramid round engine using cryptographic RNG;
+- tests for authentication, max-win validation, duplicate round protection and Pyramid RTP invariants.
 
-The game engine is intentionally disabled. `POST /v1/games/rounds` returns `ROUND_ENGINE_NOT_READY` before any funds are reserved. The next backend pass must port and test each room's RNG/math before enabling this endpoint.
+The Pyramid engine is enabled. Carpet and Pharaoh still return `ROOM_ENGINE_NOT_READY` before any funds are changed. The browser prototype remains client-driven until the API integration pass is completed.
 
 ## Local setup
 
@@ -19,10 +20,12 @@ Requirements: Node.js 22+ and PostgreSQL 15+.
 cd server
 pnpm install
 psql $env:DATABASE_URL -f sql/001_initial.sql
+psql $env:DATABASE_URL -f sql/002_round_request.sql
 $env:DATABASE_URL = "postgresql://mirage:mirage@127.0.0.1:5432/mirage"
 $env:TELEGRAM_BOT_TOKEN = "<bot token>"
 $env:CORS_ORIGIN = "https://john1424-creat.github.io"
 pnpm test
+pnpm simulate:pyramid
 pnpm start
 ```
 
@@ -39,13 +42,29 @@ POST /v1/games/rounds
 GET  /v1/games/rounds/:roundId
 ```
 
+Pyramid round request:
+
+```json
+{
+  "room": "pyramid",
+  "walletType": "demo",
+  "stake": 10,
+  "configuration": {
+    "rows": 13,
+    "risk": "medium"
+  }
+}
+```
+
+The server chooses the target slot, calculates the payout and returns a visual path ending in that slot. The client must animate the supplied outcome and must not recalculate it. The round, wallet update and ledger entries are committed in one PostgreSQL transaction. Repeating the same `Idempotency-Key` returns the original round; reusing it with different parameters returns `IDEMPOTENCY_CONFLICT`.
+
 Authenticated requests use `Authorization: Bearer <opaque session token>`. Money-changing POST requests require `Idempotency-Key`.
 
 ## Production gates
 
 1. Choose a backend host and managed PostgreSQL region.
 2. Add migrations and integration tests against an isolated PostgreSQL database.
-3. Port Pyramid RNG/math and run statistical regression tests.
+3. Run Pyramid PostgreSQL integration tests and connect the Telegram client to its round API.
 4. Port Carpet RNG/math and deterministic round recovery.
 5. Port Pharaoh cascades, free spins and bonus sessions.
 6. Add deposit/withdraw provider webhooks and reconciliation.

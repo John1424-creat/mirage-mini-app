@@ -44,7 +44,7 @@ export function createHttpServer({ config, repository, roundService }) {
     try {
       const url = new URL(request.url, "http://localhost");
       if (request.method === "GET" && url.pathname === "/health") {
-        return sendJson(response, 200, { status: "ok", roundEngine: "not-connected" }, origin);
+        return sendJson(response, 200, { status: "ok", readyRooms: roundService.readyRooms }, origin);
       }
 
       if (request.method === "POST" && url.pathname === "/v1/auth/telegram") {
@@ -85,6 +85,7 @@ export function createHttpServer({ config, repository, roundService }) {
           room: body.room,
           walletType: body.walletType || "real",
           stake: body.stake,
+          configuration: body.configuration,
           idempotencyKey,
         });
         return sendJson(response, 200, round, origin);

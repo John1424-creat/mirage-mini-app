@@ -1,5 +1,6 @@
 import { HttpError } from "./errors.mjs";
 import { calculateSettlement } from "./money.mjs";
+import { canonicalJson } from "./canonical-json.mjs";
 
 const WALLET_COLUMNS = {
   real: { balance: "real_balance", reserved: "reserved_real_balance" },
@@ -22,6 +23,7 @@ function publicRound(row) {
     stake: numeric(row.stake),
     payout: numeric(row.payout),
     mathVersion: row.math_version,
+    configuration: row.request || {},
     result: row.result,
     createdAt: row.created_at,
     settledAt: row.settled_at,
@@ -149,6 +151,94 @@ export class PostgresRepository {
       metadata: row.metadata,
       createdAt: row.created_at,
     }));
+  }
+
+  async findRoundByIdempotency(playerId, idempotencyKey) {
+    const result = await this.pool.query(
+      "SELECT * FROM game_rounds WHERE player_id = $1 AND idempotency_key = $2",
+      [playerId, idempotencyKey]
+    );
+    return result.rows[0] ? publicRound(result.rows[0]) : null;
+  }
+
+  async commitRound({
+    playerId,
+    room,
+    walletType,
+    stake,
+    mathVersion,
+    idempotencyKey,
+    configuration,
+    payout,
+    result,
+  }) {
+    const columns = WALLET_COLUMNS[walletType];
+    if (!columns) throw new HttpError(400, "WALLET_TYPE_INVALID", "Unsupported wallet type");
+
+    return this.transaction(async (client) => {
+      await client.query("SELECT pg_advisory_xact_lock(hashtextextended($1, 0))", [`${playerId}:${idempotencyKey}`]);
+      const existingResult = await client.query(
+        "SELECT * FROM game_rounds WHERE player_id = $1 AND idempotency_key = $2",
+        [playerId, idempotencyKey]
+      );
+      const existing = existingResult.rows[0];
+      if (existing) {
+        const same = existing.room === room
+          && existing.wallet_type === walletType
+          && numeric(existing.stake) === stake
+          && canonicalJson(existing.request) === canonicalJson(configuration);
+        if (!same) {
+          throw new HttpError(409, "IDEMPOTENCY_CONFLICT", "Idempotency key was already used with different round parameters");
+        }
+        return publicRound(existing);
+      }
+
+      const walletResult = await client.query("SELECT * FROM wallets WHERE player_id = $1 FOR UPDATE", [playerId]);
+      const wallet = walletResult.rows[0];
+      if (!wallet) throw new HttpError(404, "WALLET_NOT_FOUND", "Wallet not found");
+      const balance = numeric(wallet[columns.balance]);
+      const reserved = numeric(wallet[columns.reserved]);
+      if (balance - reserved < stake) throw new HttpError(409, "INSUFFICIENT_BALANCE", "Insufficient available balance");
+
+      const balanceAfterStake = balance - stake;
+      const balanceAfterSettlement = balanceAfterStake + payout;
+      await client.query(
+        `UPDATE wallets SET ${columns.balance} = $2, updated_at = now() WHERE player_id = $1`,
+        [playerId, balanceAfterSettlement]
+      );
+
+      const roundResult = await client.query({
+        text: `
+          INSERT INTO game_rounds (
+            player_id, room, wallet_type, status, stake, payout, math_version,
+            idempotency_key, request, result, settled_at
+          ) VALUES ($1, $2, $3, 'settled', $4, $5, $6, $7, $8, $9, now())
+          RETURNING *
+        `,
+        values: [playerId, room, walletType, stake, payout, mathVersion, idempotencyKey, configuration || {}, result || {}],
+      });
+      const round = roundResult.rows[0];
+
+      await client.query({
+        text: `
+          INSERT INTO ledger_entries (
+            player_id, round_id, wallet_type, direction, reason, amount, balance_after, idempotency_key
+          ) VALUES ($1, $2, $3, 'debit', 'game_stake', $4, $5, $6)
+        `,
+        values: [playerId, round.id, walletType, stake, balanceAfterStake, `${idempotencyKey}:stake`],
+      });
+      if (payout > 0) {
+        await client.query({
+          text: `
+            INSERT INTO ledger_entries (
+              player_id, round_id, wallet_type, direction, reason, amount, balance_after, idempotency_key
+            ) VALUES ($1, $2, $3, 'credit', 'game_payout', $4, $5, $6)
+          `,
+          values: [playerId, round.id, walletType, payout, balanceAfterSettlement, `${idempotencyKey}:payout`],
+        });
+      }
+      return publicRound(round);
+    });
   }
 
   async claimRound({ playerId, room, walletType, stake, mathVersion, idempotencyKey }) {
