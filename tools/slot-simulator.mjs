@@ -1,7 +1,7 @@
 const config = {
   targetRtp: 0.95,
-  payoutScale: 8.54,
-  freeSpinPayoutScale: 2.47,
+  payoutScale: 9.11,
+  freeSpinPayoutScale: 2.75,
   columns: 6,
   rows: 5,
   minWinCount: 8,
@@ -197,6 +197,9 @@ function spin(stake, context = "base", freeMultiplierBank = 0) {
     const payoutScale = context === "free" ? config.freeSpinPayoutScale : config.payoutScale;
     const result = evaluate(grid, payoutScale);
     const keys = new Set(result.wins.flatMap((win) => win.keys));
+    if (result.wins.length > 0) {
+      result.multiplierValues.forEach((item) => keys.add(item.key));
+    }
     const baseMultiplier = result.wins.reduce((sum, win) => sum + win.multiplier, 0);
     if (
       context === "free"
