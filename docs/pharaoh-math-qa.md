@@ -1,114 +1,80 @@
 # Pharaoh math QA
 
-Baseline for the Telegram 226 mechanics pass.
+Актуальная контрольная конфигурация: `telegram260`.
 
-## Production parameters
+## Рабочие параметры
 
-- Target RTP: `95%`
-- Grid: `6 x 5`, anywhere pays from 8 matching symbols
-- Base payout scale: `8.5`
-- Free-spin payout scale: `1.25`
-- Scatter weight: `2.4`
-- Scatter award: 4 = 10 FS, 5 = 12 FS, 6+ = 15 FS
-- Bonus buy: 15 FS for `10 x stake`
-- Bonus-buy price limit: `20%` of the `$5,000` room pool
-- Persistent free-spin multiplier bank: capped at `x10`
-- Bonus-session safety limit: 100 spins including retriggers
-- Maximum win: `10,000 x stake`
+- Целевой RTP: `95%`.
+- Сетка: `6 x 5`, выплата начинается с 8 одинаковых символов.
+- Base payout scale: `9.11`.
+- Free-spin payout scale: `2.75`.
+- Вес scatter: `2.4`.
+- Scatter: 4 символа = 10 FS, 5 = 12 FS, 6+ = 15 FS.
+- Bonus buy: 15 FS за `10 x ставка`.
+- Курс: `1 USDT = 100 рубинов`.
+- Пул комнаты: `5 000 USDT = 500 000 рубинов`.
+- Лимит цены bonus buy: `20%` пула = `100 000 рубинов`.
+- Накопительный множитель free spins: `x2`, `x3`, `x5`, `x10`; банк ограничен `x10`.
+- Защитный предел бонусной сессии: 100 спинов с учётом retrigger.
+- Max win: `10 000 x ставка`.
 
-## Reproducible simulation
+## Проверка естественных free spins
 
-Seed: `226`
+Несколько независимых seeded-прогонов дали следующий рабочий диапазон:
 
-```powershell
-node tools/slot-simulator.mjs 1000000 base 226
-node tools/slot-simulator.mjs 100000 bonus-buy 226
+- base-game вклад: около `89-90%`;
+- вклад естественных free spins: около `5-5.5%`;
+- суммарный RTP на больших выборках: около целевых `95%`;
+- частота запуска free spins: около `0.96-1.0%`, примерно один бонус на 100-104 платных спина;
+- средняя естественная бонусная серия: около `11.5` спина с retrigger.
+
+Высокая волатильность означает, что короткие выборки могут заметно отклоняться от 95%. Это ожидаемо и не является признаком гарантированного результата отдельной сессии.
+
+## Проверка bonus buy
+
+После калибровки `freeSpinPayoutScale` с `2.72` до `2.75` совокупная выборка из 80 000 купленных бонусных сессий дала:
+
+- RTP bonus buy: около `95.3%`;
+- средняя длина серии: около `16.6` спина с retrigger;
+- медианный выигрыш: около `5.2 x ставка`;
+- 95-й перцентиль: около `33.6 x ставка`;
+- 99-й перцентиль: около `56 x ставка`;
+- доля нулевых серий: около `1.3%`;
+- достижение банка `x10`: около `10.2%` серий.
+
+Цена серии равна `10 x ставка`, поэтому RTP считается относительно стоимости покупки, а не относительно одного бесплатного спина.
+
+## Пользовательский контракт
+
+При ставке `10` интерфейс обязан показывать:
+
+- кнопка: `КУПИТЬ 15 FS`;
+- стоимость: `100 рубинов`;
+- пояснение: 15 free spins по цене 10 обычных, 5 спинов дополнительно;
+- списание стоимости один раз перед началом серии;
+- счётчик `15 -> 14 -> ... -> 0`, по одному значению на фактически сыгранный spin;
+- единственное итоговое начисление после завершения серии.
+
+## Встроенный воспроизводимый аудит
+
+Диагностика запускается только по специальному query-параметру и не меняет обычную игру:
+
+```text
+telegram260.html?debugEconomyAudit=1&auditBaseRounds=100000&auditBonusBuys=50000&auditStake=10&auditSeed=264
 ```
 
-### One million paid base rounds
+JSON-результат записывается в `document.body.dataset.pharaohEconomyAudit`. Аудит использует те же таблицы выплат и функции расчёта, что и интерфейс, с детерминированным seeded RNG.
 
-- Total RTP: `95.09465%`
-- Base-game contribution: `89.79881%`
-- Natural free-spin contribution: `5.29584%`
-- Hit rate: `25.71%`
-- Free-spin trigger rate: `0.9555%` (about 1 in 105 paid spins)
-- Average spins per natural bonus: `11.46` including retriggers
-- Maximum observed win: `104.7 x stake`
-- 99th percentile: `12.8 x stake`
+## Исправленная единица лимита
 
-### One hundred thousand bonus buys
+Раньше прототип сравнивал цену в рубинах с долей пула в USDT. Это давало ошибочный лимит `1 000 рубинов`. Формула исправлена:
 
-- Bonus-buy RTP: `95.04882%`
-- Average spins: `16.62` including retriggers
-- Retriggers: `15,625`
-- Maximum observed win: `80.1 x stake`
+```text
+bonusBuyLimitRubies = roomPoolUsd * rubiesPerUsdt * maxPoolShare
+                     = 5 000 * 100 * 0.20
+                     = 100 000 рубинов
+```
 
-## Telegram 227 transparent multiplier pass
+## Production gate
 
-The visible multiplier mechanic now matches the calculation contract:
-
-- multiplier symbols display one of `x2`, `x3`, `x5` or `x10`;
-- a multiplier is added only when the same cascade contains a paying cluster;
-- the free-spin bank starts at `x1`, persists between free spins and is capped
-  at `x10`;
-- the current bank is shown in the existing status line, so the grid and genie
-  panel keep their approved dimensions;
-- base payout scale: `8.54`;
-- free-spin payout scale: `2.47`.
-
-The final calibration used several independent seeded runs because the bonus
-round has high variance. Across approximately 2.5 million paid rounds the
-normalized total RTP was about `95.05%`. Across at least 150,000 bonus-buy
-sessions the normalized bonus-buy RTP was about `95.1%`. These browser results
-are regression targets, not a substitute for certified server-side math.
-
-## UI lifecycle check
-
-At stake 10, a bonus buy charged 100 once, then played the sequence as
-`15 -> 14 -> ... -> 0`. The buy control remained disabled while the session
-was active, the persistent multiplier bank survived between free spins, the
-session result was credited once, and controls returned to the ready state.
-
-## Production backend gate
-
-The current browser implementation is a prototype. Real-money release is
-blocked until the following logic becomes server-authoritative:
-
-- authenticated round creation and an idempotent wallet debit;
-- cryptographically secure or independently certified RNG;
-- versioned math configuration and immutable mapping from RNG input to outcome;
-- server-side cascade, scatter, multiplier, retrigger and max-win calculation;
-- signed round response consumed by the client only as an animation script;
-- atomic settlement, round ledger, audit identifiers and reconciliation;
-- interrupted-round recovery, including an unfinished free-spin session;
-- statistical RNG and game-math certification for the target jurisdiction.
-
-The client must never be authoritative for the outcome, balance, payout or
-remaining bonus spins.
-
-## Competitive gap audit
-
-### Required before closing Pharaoh
-
-- Show the numeric value on every multiplier symbol instead of a generic `X`.
-- Add a persistent total-multiplier meter during free spins.
-- Resolve the current presentation mismatch: the multiplier table contains
-  `x25` and `x50`, while the accumulated bank is capped at `x10`.
-- Explain retriggers and the persistent multiplier in the rules panel.
-- Add scatter anticipation before the fourth triggering symbol.
-
-### Product polish
-
-- Layered sound design and Telegram haptics for drop, cascade, multiplier,
-  scatter, retrigger and win tiers, with independent mute controls.
-- A speed mode and a safe tap-to-skip option for long win ceremonies without
-  changing the result or settlement timing.
-- A readable round-history entry with stake, cascades, multiplier, payout and
-  round identifier.
-- Reduced-motion and low-power modes that preserve information hierarchy.
-
-### Backend phase
-
-- Persist balance, current room, auto-play state and unfinished bonus sessions.
-- Add round IDs, transaction IDs, server timestamps and replayable outcomes.
-- Enforce stake, bonus-buy and exposure limits on the server.
+Эти результаты являются QA прототипа, а не сертификацией. Для запуска сервер должен авторитетно выполнять RNG, каскады, scatter, множители, retrigger, max-win cap, списание и начисление. Клиент получает подписанный результат раунда только как сценарий анимации. Нужны независимая математическая проверка, аудит RNG, idempotency, атомарный ledger и восстановление прерванной bonus session.
