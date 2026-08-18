@@ -1,0 +1,9 @@
+<svg width="116" height="32" viewBox="0 0 116 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="116" height="32" rx="6" fill="url(#balanceGold)"/>
+  <defs>
+    <linearGradient id="balanceGold" x1="0" y1="16" x2="116" y2="16" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#FFD37E"/>
+      <stop offset="1" stop-color="#997F4C"/>
+    </linearGradient>
+  </defs>
+</svg>
